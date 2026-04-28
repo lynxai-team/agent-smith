@@ -14,7 +14,7 @@ import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
 async function executeTask(
     name: string, payload: Record<string, any>, options: Record<string, any> & AgentInferenceOptions
 ): Promise<InferenceResult> {
-    //console.log("EXEC TASK", payload, options);
+    //console.log("EXEC TASK OPTS", options);
     //console.log("TN", name);
     //console.log("AGENT", agent);
     if (!isTaskSettingsInitialized.value) {
@@ -143,24 +143,32 @@ async function executeTask(
         printToken(t);
         ++emittedTokens;
     };
-    const onStartThinking = !(options?.debug || options?.verbose) ? () => {
-        spinner.start();
-        if (emittedTokens == 0) { perfTimer.start() };
-    } : undefined;
-    const onEndThinking = !(options?.debug || options?.verbose) ? () => {
-        spinner.stopAndPersist()
-    } : undefined;
-    const onThinkingToken = (t: string) => {
-        if (options?.debug || options?.verbose) {
-            printToken(t, true)
-        } else {
-            let msg = formatTokenCount(emittedThinkingTokens);
-            msg = msg + " " + color.dim(perfTimer.time())
-            spinner.text = msg;
-        }
-        emittedThinkingTokens++
-    };
-    const onToolCallInProgress = (tc: Array<ToolCallSpec>) => console.log(color.dim(`Preparing tool call ${tc[tc.length - 1].name} ...`));
+    const onStartThinking = options?.onStartThinking ?
+        options.onStartThinking :
+        !(options?.debug || options?.verbose) ? () => {
+            spinner.start();
+            if (emittedTokens == 0) { perfTimer.start() };
+        } : undefined;
+    const onEndThinking = options?.onEndThinking ?
+        options.onEndThinking :
+        !(options?.debug || options?.verbose) ? () => {
+            spinner.stopAndPersist()
+        } : undefined;
+    const onThinkingToken = options?.onThinkingToken ?
+        options.onThinkingToken :
+        (t: string) => {
+            if (options?.debug || options?.verbose) {
+                printToken(t, true)
+            } else {
+                let msg = formatTokenCount(emittedThinkingTokens);
+                msg = msg + " " + color.dim(perfTimer.time())
+                spinner.text = msg;
+            }
+            emittedThinkingTokens++
+        };
+    const onToolCallInProgress = options?.onToolCallInProgress ?
+        options.onToolCallInProgress :
+        (tc: Array<ToolCallSpec>) => console.log(color.dim(`Preparing tool call ${tc[tc.length - 1].name} ...`));
     const _onToolCall = (tc: Record<string, any>) => {
         //console.log("TC START");
         console.log("⚒️ ", color.bold(name), "=>", `${color.yellowBright(tc.name)}`, tc.arguments);
