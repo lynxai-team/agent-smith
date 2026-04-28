@@ -1,5 +1,5 @@
 import type { WsClientMsg, FeatureType, ToolCallSpec, WsRawServerMsg, ServerParams } from "@agent-smith/types";
-import { HistoryTurn } from "@locallm/types";
+import type { HistoryTurn } from "@agent-smith/types";
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
 const useWsServer = (params: ServerParams) => {
@@ -10,6 +10,10 @@ const useWsServer = (params: ServerParams) => {
     }
     let ws = new ReconnectingWebSocket(url);
     let onToken = params.onToken;
+    let onThinkingToken = params.onThinkingToken;
+    let onStartThinking = params.onStartThinking;
+    let onEndThinking = params.onEndThinking;
+    let onToolCallInProgress = params.onToolCallInProgress;
     let onToolCall = params.onToolCall;
     let onToolCallEnd = params.onToolCallEnd;
     let onToolsTurnStart = params.onToolsTurnStart;
@@ -49,7 +53,14 @@ const useWsServer = (params: ServerParams) => {
                 }
                 break;
             case "token":
-                onToken(msg);
+                if (onToken) {
+                    onToken(msg);
+                }
+                break
+            case "thinkingtoken":
+                if (onThinkingToken) {
+                    onThinkingToken(msg);
+                }
                 break
             case "turnend":
                 if (onTurnEnd) {
@@ -64,6 +75,21 @@ const useWsServer = (params: ServerParams) => {
             case "think":
                 if (onThink) {
                     onThink(msg)
+                }
+                break
+            case "thinkingstart":
+                if (onStartThinking) {
+                    onStartThinking()
+                }
+                break
+            case "thinkingend":
+                if (onEndThinking) {
+                    onEndThinking()
+                }
+                break
+            case "toolcallinprogress":
+                if (onToolCallInProgress) {
+                    onToolCallInProgress(JSON.parse(msg))
                 }
                 break
             case "toolsturnstart":
@@ -83,10 +109,12 @@ const useWsServer = (params: ServerParams) => {
                 break
             case "toolcallend":
                 if (onToolCallEnd) {
+                    //console.log("WS TCE", msg);
                     const m = msg.split("<|xtool_call_id|>");
-                    const id = m[0];
+                    const tc = JSON.parse(m[0]);
                     const content = m[1];
-                    onToolCallEnd(id, content)
+                    //console.log("WS TCP", tc);
+                    onToolCallEnd(tc, content)
                 }
                 break
             case "toolcallconfirm":
@@ -106,8 +134,8 @@ const useWsServer = (params: ServerParams) => {
                 //console.log("FINAL RES", msg);
                 const history = JSON.parse(msg) as HistoryTurn;
                 //console.log("HIST", history);
-                if (params?.onInferenceResult) {
-                    params.onInferenceResult(history)
+                if (params?.onTurnEnd) {
+                    params.onTurnEnd(history)
                 }
                 break
             default:
