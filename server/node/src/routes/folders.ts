@@ -1,12 +1,12 @@
 import type Router from '@koa/router';
 import type { Context, Next } from 'koa';
-import { updateConfCmd, updateConfigFile, init } from '@agent-smith/cli';
+import { state, conf as c } from '@agent-smith/core';
 import { getConfig } from '../utils.js';
 
 function addFolderRoute(r: Router) {
     r.post('/folders/add', async (ctx: Context, next: Next) => {
         const payload = ctx.request.body as Array<string>;
-        await init();
+        await state.init();
         const { found, conf, path } = getConfig();
         if (!found) {
             throw new Error("no config file found")
@@ -19,9 +19,9 @@ function addFolderRoute(r: Router) {
         };
         console.log("Updating config file at", path);
         console.dir(conf, { depth: 3 });
-        updateConfigFile(conf, path);
+        c.updateConfigFile(conf, path);
         console.log("Updating db features from config file");
-        await updateConfCmd([path])
+        await c.updateConfCmd([path])
         ctx.status = 202;
     })
 }

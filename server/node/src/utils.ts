@@ -1,4 +1,4 @@
-import { db, readConf } from "@agent-smith/cli";
+import { db, conf } from "@agent-smith/core";
 import type { ConfigFile } from "@agent-smith/types";
 
 function getConfig(): { found: boolean, conf: ConfigFile, path: string } {
@@ -14,7 +14,7 @@ function getConfig(): { found: boolean, conf: ConfigFile, path: string } {
     if (confFilePath == "") {
         return { found: false, conf: {}, path: "" }
     }
-    const c = readConf(confFilePath);
+    const c = conf.readConf(confFilePath);
     return { found: c.found, conf: c.data, path: confFilePath }
 }
 

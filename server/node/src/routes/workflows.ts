@@ -1,4 +1,4 @@
-import { db, fs } from '@agent-smith/cli';
+import { db, fs } from '@agent-smith/core';
 import type Router from '@koa/router';
 import type { Next, Context } from 'koa';
 

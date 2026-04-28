@@ -1,8 +1,7 @@
 import type Router from '@koa/router';
 import type { Next, Context } from 'koa';
-import { db } from '@agent-smith/cli';
-import { ToolDefSpec } from "@locallm/types";
-import type { ToolType } from '@agent-smith/cli/dist/interfaces.js';
+import { db } from '@agent-smith/core';
+import type { ToolDefSpec, ToolType } from "@agent-smith/types";
 
 function getToolsRoute(r: Router) {
     r.post('/tools', async (ctx: Context, next: Next) => {

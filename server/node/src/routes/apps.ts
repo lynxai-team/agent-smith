@@ -1,4 +1,4 @@
-import { getConfigPath } from "@agent-smith/cli";
+import { conf } from "@agent-smith/core";
 import type Router from "@koa/router";
 import type { Context, Next } from "koa";
 import fs, { existsSync } from "node:fs";
@@ -6,7 +6,7 @@ import path from "node:path";
 import yaml from "yaml";
 
 function getOrCreateAppConfigFile(appName: string): Record<string, any> {
-    const { confDir } = getConfigPath("agent-smith/" + appName, "config.db");
+    const { confDir } = conf.getConfigPath("agent-smith/" + appName, "config.db");
     if (!fs.existsSync(confDir)) {
         fs.mkdirSync(confDir)
     }
@@ -22,7 +22,7 @@ function getOrCreateAppConfigFile(appName: string): Record<string, any> {
 }
 
 function updateAppConfigFile(appName: string, content: Record<string, any>) {
-    const { confDir } = getConfigPath("agent-smith/" + appName, "config.db");
+    const { confDir } = conf.getConfigPath("agent-smith/" + appName, "config.db");
     const fp = path.join(confDir, "config.yml");
     const txt = yaml.stringify(content)
     fs.writeFileSync(fp, txt, { encoding: "utf-8" });

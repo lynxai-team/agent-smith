@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { default as color } from "ansi-colors";
-import Koa, { type Next } from 'koa';
+import Koa, { type Next, type Context } from 'koa';
 import { Router } from "@koa/router";
 import bodyParser from "koa-bodyparser";
 import cors from '@koa/cors';
@@ -8,10 +8,8 @@ import { useRouter } from './router.js';
 import websockify from 'koa-websocket';
 import route from 'koa-route';
 import serve from "koa-static";
-import { executeTask, executeWorkflow, init } from '@agent-smith/cli';
-import type { WsClientMsg, WsRawServerMsg } from '@agent-smith/types';
-import type { Context } from "node:vm";
-import type { HistoryTurn } from "@locallm/types";
+import { executeTask, executeWorkflow, state } from '@agent-smith/core';
+import type { WsClientMsg, WsRawServerMsg, HistoryTurn } from '@agent-smith/types';
 /* import { argv } from 'process';
 
 let env = "production";
@@ -112,12 +110,37 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
           ctx.websocket.send(JSON.stringify(rsm));
           return
         }
-        await init();
+        await state.init();
         if (msg.feature == "task") {
-          let buf = "";
+          msg.options.onThinkingToken = (t: string) => {
+            const rsm: WsRawServerMsg = {
+              type: "thinkingtoken",
+              msg: t,
+            }
+            ctx.websocket.send(JSON.stringify(rsm));
+            process.stdout.write(`\x1b[2m${t}\x1b[0m`);
+          };
           msg.options.onToken = (t: string) => {
-            buf += t;
+            const rsm2: WsRawServerMsg = {
+              type: "token",
+              msg: t,
+            }
+            ctx.websocket.send(JSON.stringify(rsm2));
             process.stdout.write(t);
+          };
+          msg.options.onStartThinking = () => {
+            const rsm: WsRawServerMsg = {
+              type: "thinkingstart",
+              msg: "",
+            }
+            ctx.websocket.send(JSON.stringify(rsm));
+          };
+          msg.options.onEndThinking = () => {
+            const rsm: WsRawServerMsg = {
+              type: "thinkingend",
+              msg: "",
+            }
+            ctx.websocket.send(JSON.stringify(rsm));
           };
           msg.options.onTurnEnd = (ht: Record<string, any>) => {
             const rsm: WsRawServerMsg = {
@@ -141,28 +164,10 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             ctx.websocket.send(JSON.stringify(rsm));
           };
           try {
-            const it = setInterval(() => {
-              const rsm: WsRawServerMsg = {
-                type: "token",
-                msg: buf,
-              }
-              if (buf !== "") {
-                // model is loading if no buffer
-                ctx.websocket.send(JSON.stringify(rsm));
-              }
-              buf = "";
-            }, sendTokensInterval);
+            //console.log("SRVTASK OPTS", msg.options);
             const res = await executeTask(msg.command, msg.payload, msg.options);
-            //setTimeout(() => {
-            clearInterval(it);
-            //}, sendTokensInterval);
             //console.dir(res, { depth: 3 });
-            let r: HistoryTurn;
-            if (res.template.id == "none") {
-              r = { assistant: res.answer.text };
-            } else {
-              r = res.template.history.pop() as HistoryTurn
-            }
+            let r: HistoryTurn = { assistant: res.text };
             const rsm: WsRawServerMsg = {
               type: "finalresult",
               msg: JSON.stringify(r),
@@ -176,6 +181,43 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             ctx.websocket.send(JSON.stringify(rsm));
           }
         } else if (msg.feature == "agent") {
+          msg.options.onThinkingToken = (t: string) => {
+            const rsm: WsRawServerMsg = {
+              type: "thinkingtoken",
+              msg: t,
+            }
+            ctx.websocket.send(JSON.stringify(rsm));
+            process.stdout.write(`\x1b[2m${t}\x1b[0m`);
+          };
+          msg.options.onToken = (t: string) => {
+            const rsm2: WsRawServerMsg = {
+              type: "token",
+              msg: t,
+            }
+            ctx.websocket.send(JSON.stringify(rsm2));
+            process.stdout.write(t);
+          };
+          msg.options.onStartThinking = () => {
+            const rsm: WsRawServerMsg = {
+              type: "thinkingstart",
+              msg: "",
+            }
+            ctx.websocket.send(JSON.stringify(rsm));
+          };
+          msg.options.onEndThinking = () => {
+            const rsm: WsRawServerMsg = {
+              type: "thinkingend",
+              msg: "",
+            }
+            ctx.websocket.send(JSON.stringify(rsm));
+          };
+          msg.options.onToolCallInProgress = (tcs: Array<any>) => {
+            const rsm: WsRawServerMsg = {
+              type: "toolcallinprogress",
+              msg: JSON.stringify(tcs),
+            }
+            ctx.websocket.send(JSON.stringify(rsm));
+          };
           msg.options.onToolsTurnStart = (tcs: Record<string, any>) => {
             const rsm: WsRawServerMsg = {
               type: "toolsturnstart",
@@ -224,12 +266,12 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             ctx.websocket.send(JSON.stringify(rsm));
             console.log("\n⚒️ ", color.bold(msg.command), "=>", `${color.yellowBright(tc.name)}`, tc.arguments);
           };
-          msg.options.onToolCallEnd = (id: string, tr: any) => {
+          msg.options.onToolCallEnd = (tc: any, tr: any) => {
             let toolResData: any;
             if (typeof tr == 'object') {
-              if (tr?.answer?.text) {
+              if (tr?.text) {
                 // comes from an inference task
-                toolResData = tr.answer.text
+                toolResData = tr.text
               } else {
                 toolResData = JSON.stringify(tr)
               }
@@ -238,7 +280,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             }
             const rsm: WsRawServerMsg = {
               type: "toolcallend",
-              msg: `${id}<|xtool_call_id|>` + toolResData,
+              msg: `${JSON.stringify(tc)}<|xtool_call_id|>` + toolResData,
             };
             //console.log("TOOL CALL END", toolResData);
             ctx.websocket.send(JSON.stringify(rsm));
@@ -259,16 +301,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
           }
           msg.options.isAgent = true;
           try {
-            //let buf = "";
-            msg.options.onToken = (t: string) => {
-              const rsm2: WsRawServerMsg = {
-                type: "token",
-                msg: t,
-              }
-              ctx.websocket.send(JSON.stringify(rsm2));
-              //buf += t;
-              process.stdout.write(t);
-            };
+            //let buf = "";            
             /*const it = setInterval(() => {
               if (buf == "") { return };
               const rsm: WsRawServerMsg = {
@@ -282,7 +315,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             //setTimeout(() => {
             //clearInterval(it);
             //}, sendTokensInterval);
-            const ht = JSON.stringify(res.template.history.pop());
+            const ht = JSON.stringify(res);
             //console.log("FINAL MSG", ht)
             const rsm: WsRawServerMsg = {
               type: "finalresult",

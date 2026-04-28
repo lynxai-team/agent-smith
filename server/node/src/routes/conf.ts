@@ -1,4 +1,4 @@
-import { createConfigFile, db, readConf, updateConfCmd } from '@agent-smith/cli';
+import { conf } from '@agent-smith/core';
 import type Router from '@koa/router';
 import type { Context, Next } from 'koa';
 import { getConfig } from '../utils.js';
@@ -20,7 +20,7 @@ function createConfRoute(r: Router) {
     r.get('/conf/create', async (ctx: Context, next: Next) => {
         let cfp: string | null = null;
         try {
-            cfp = createConfigFile(undefined, ["llamacpp"]);
+            cfp = conf.createConfigFile(undefined, ["llamacpp"]);
         } catch (e) {
             console.error("500", e);
             ctx.body = e;
@@ -29,7 +29,7 @@ function createConfRoute(r: Router) {
         if (cfp) {
             ctx.body = cfp;
             ctx.status = 201;
-            await updateConfCmd([cfp]);
+            await conf.updateConfCmd([cfp]);
         }
     })
 }

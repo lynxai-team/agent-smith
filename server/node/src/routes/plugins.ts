@@ -1,6 +1,6 @@
 import type Router from '@koa/router';
 import type { Context, Next } from 'koa';
-import { execute, updateConfCmd, updateConfigFile, init } from '@agent-smith/cli';
+import { execute, conf as c, state } from '@agent-smith/core';
 import { getConfig } from '../utils.js';
 
 function installPluginRoute(r: Router) {
@@ -12,7 +12,7 @@ function installPluginRoute(r: Router) {
             const res = await execute("npm", ["i", "-g", p]);
             console.log(p, res)
         }
-        await init();
+        await state.init();
         const { found, conf, path } = getConfig();
         if (!found) {
             throw new Error("no config file found")
@@ -25,9 +25,9 @@ function installPluginRoute(r: Router) {
         };
         console.log("Updating config file at", path);
         console.dir(conf, { depth: 3 });
-        updateConfigFile(conf, path);
+        c.updateConfigFile(conf, path);
         console.log("Updating db features from config file");
-        await updateConfCmd([path])
+        await c.updateConfCmd([path])
         ctx.status = 202;
     })
 }

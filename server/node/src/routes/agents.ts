@@ -1,5 +1,5 @@
-import { db, fs } from '@agent-smith/cli';
-import type { FeatureSpec } from '@agent-smith/cli/dist/interfaces';
+import { db, fs } from '@agent-smith/core';
+import type { FeatureSpec } from '@agent-smith/types';
 import type Router from '@koa/router';
 import type { Next, Context } from 'koa';
 import { excludedTaskTypes } from '../utils.js';
