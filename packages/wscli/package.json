@@ -9,17 +9,16 @@
     "docs": "typedoc --entryPointStrategy expand"
   },
   "devDependencies": {
-    "@agent-smith/types": "^0.0.3",
-    "@locallm/types": "^0.7.1",
+    "@agent-smith/types": "file:../types",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.6.0",
     "restmix": "^0.6.1",
-    "rollup": "^4.60.1",
+    "rollup": "^4.60.2",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "files": [
     "dist"
