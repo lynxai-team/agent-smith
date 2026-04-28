@@ -1,4 +1,4 @@
-import { executeTask, init, extractBetweenTags, splitThinking } from "../../packages/cli/dist/main.js";
+import { executeTask, init, extractBetweenTags, splitThinking } from "../../../packages/cli/dist/main.js";
 import { confirm } from '@inquirer/prompts';
 import { input } from '@inquirer/prompts';
 import { exit } from "node:process";
