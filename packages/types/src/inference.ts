@@ -9,7 +9,6 @@ import type { AgentCallbacks, AllCallbacks, InferenceCallbacks } from "./callbac
  *
  * @interface InferenceParams
  * @param {boolean | undefined} stream - Indicates if results should be streamed progressively.
- * @param {string | undefined} template - The template to use, for the backends that support it.
  * @param {number | undefined} max_tokens - The number of predictions to return.
  * @param {number | undefined} top_k - Limits the result set to the top K results.
  * @param {number | undefined} top_p - Filters results based on cumulative probability.
@@ -43,7 +42,6 @@ import type { AgentCallbacks, AllCallbacks, InferenceCallbacks } from "./callbac
  */
 interface InferenceParams {
     stream?: boolean;
-    template?: string;
     max_tokens?: number;
     top_k?: number;
     top_p?: number;

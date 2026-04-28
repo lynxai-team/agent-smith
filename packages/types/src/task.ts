@@ -125,7 +125,7 @@ interface UserTaskVariables extends TaskVariables {
  * @param {Ref<boolean>} isReady - Reactive reference indicating if service is ready.
  * @param {Ref<Record<string, any>>} task - Reactive reference to current task.
  * @param {Reactive<UserTaskVariables>} variables - Reactive task variables.
- * @param {Reactive<{ data: InferenceParams }>} inferParams - Reactive inference parameters.
+ * @param {Reactive<{ params: InferenceParams, model: string }>} inferOptions - Reactive inference parameters.
  * @param {Reactive<{ servers: Record<string, any> }>} mcp - Reactive MCP servers.
  * @param {() => Promise<Record<string, any>>} loadModels - Loads available models.
  * @param {() => Promise<Record<string, Record<string, any>>>} loadTaskSettings - Loads task settings.
@@ -143,7 +143,7 @@ interface UserTaskVariables extends TaskVariables {
  *   isReady: ref(false),
  *   task: ref({}),
  *   variables: reactive({ values: { required: {}, optional: {} } }),
- *   inferParams: reactive({ data: {} }),
+ *   inferOptions: reactive({ data: {}, model: "" }),
  *   mcp: reactive({ servers: {} }),
  *   loadModels: async () => ({}),
  *   loadTaskSettings: async () => ({}),
@@ -162,7 +162,7 @@ interface TaskService {
     isReady: Ref<boolean>;
     task: Ref<Record<string, any>>;
     variables: Reactive<UserTaskVariables>;
-    inferParams: Reactive<{ data: InferenceParams }>;
+    inferOptions: Reactive<{ params: InferenceParams, model: string }>;
     mcp: Reactive<{ servers: Record<string, any> }>;
     loadModels: () => Promise<Record<string, any>>;
     loadTaskSettings: () => Promise<Record<string, Record<string, any>>>;

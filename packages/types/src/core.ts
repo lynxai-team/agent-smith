@@ -47,15 +47,6 @@ interface BackendEntries {
     [key: string]: ConfInferenceBackend | string | Array<"llamacpp" | "koboldcpp" | "ollama">;
 }
 
-interface ConfigFile {
-    promptfile?: string;
-    datadir?: string;
-    features?: Array<string>;
-    plugins?: Array<string>;
-    backends?: BackendEntries;
-    tasks?: Record<string, TaskSettings>;
-}
-
 interface Settings {
     name: string;
     inputmode: InputMode;
@@ -110,19 +101,6 @@ interface McpServerTool {
         properties: Record<string, { type: string; description: string }>;
         required: string[];
     };
-}
-
-interface TaskSettings {
-    model?: string;
-    template?: string;
-    ctx?: number;
-    max_tokens?: number;
-    top_k?: number;
-    top_p?: number;
-    min_p?: number;
-    temperature?: number;
-    repeat_penalty?: number;
-    backend?: string;
 }
 
 type InputMode = "manual" | "promptfile" | "clipboard";

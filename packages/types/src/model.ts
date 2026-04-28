@@ -2,6 +2,7 @@
  * Model information structure.
  *
  * @interface ModelInfo
+ * @param {string} id - The model id
  * @param {string} status - The status of the model.
  * @param {number} ctx - Context window size.
  * @example
@@ -11,6 +12,7 @@
  * };
  */
 interface ModelInfo {
+    id: string;
     status: string;
     ctx: number;
 }

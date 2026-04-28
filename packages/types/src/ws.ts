@@ -2,6 +2,7 @@ import type { FeatureType } from "./task.js";
 import type { ToolCallSpec } from "./tools.js";
 import type { HistoryTurn, ToolTurn } from "./history.js";
 import type { InferenceParams } from "./inference.js";
+import type { AllCallbacks } from "./callbacks.js";
 
 /**
  * WebSocket client message structure.
@@ -83,56 +84,12 @@ interface StreamedMessage {
     data?: Record<string, any>;
 }
 
-/**
- * Server parameters for handling WebSocket messages.
- *
- * @interface ServerParams
- * @param {(token: string) => void} onToken - Callback for token events.
- * @param {(msg: string) => void} [onError] - Callback for error messages.
- * @param {(tc: ToolCallSpec) => void} [onToolCall] - Callback for tool calls.
- * @param {(id: string, tr: any) => void} [onToolCallEnd] - Callback for tool call completion.
- * @param {(tc: Array<ToolCallSpec>) => void} [onToolsTurnStart] - Callback for tools turn start.
- * @param {(tr: Array<ToolTurn>) => void} [onToolsTurnEnd] - Callback for tools turn end.
- * @param {(hist: HistoryTurn) => void} [onFinalResult] - Callback for final results.
- * @param {(ht: HistoryTurn) => void} [onTurnEnd] - Callback for turn end.
- * @param {(txt: string) => void} [onAssistant] - Callback for assistant messages.
- * @param {(txt: string) => void} [onThink] - Callback for thinking messages.
- * @param {(tool: ToolCallSpec) => Promise<boolean>} [onConfirmToolUsage] - Callback for tool usage confirmation.
- * @param {(ht: HistoryTurn) => void} [onInferenceResult] - Callback for inference results.
- * @param {string} [url] - Server URL.
- * @param {boolean} [isVerbose] - Whether to enable verbose logging.
- * @param {InferenceParams} [defaultInferenceParams] - Default inference parameters.
- * @example
- * const serverParams: ServerParams = {
- *   onToken: (token) => console.log(token),
- *   onError: (msg) => console.error(msg),
- *   onToolCall: (tc) => console.log('Tool call:', tc),
- *   onFinalResult: (hist) => console.log('Final result:', hist)
- * };
- */
-interface ServerParams {
-    onToken: (token: string) => void;
-    onError?: (msg: string) => void;
-    onToolCall?: (tc: ToolCallSpec) => void;
-    onToolCallEnd?: (id: string, tr: any) => void;
-    onToolsTurnStart?: (tc: Array<ToolCallSpec>) => void;
-    onToolsTurnEnd?: (tr: Array<ToolTurn>) => void;
-    onFinalResult?: (hist: HistoryTurn) => void;
-    onTurnEnd?: (ht: HistoryTurn) => void;
-    onAssistant?: (txt: string) => void;
-    onThink?: (txt: string) => void;
-    onConfirmToolUsage?: (tool: ToolCallSpec) => Promise<boolean>;
-    onInferenceResult?: (ht: HistoryTurn) => void;
+interface ServerParams extends AllCallbacks {
     url?: string;
     isVerbose?: boolean;
-    defaultInferenceParams?: InferenceParams,
+    defaultInferenceParams?: InferenceParams;
+    onConfirmToolUsage?: (tool: ToolCallSpec) => Promise<boolean>;
 }
-
-
-
-
-
-
 
 /**
  * WebSocket server message types.
@@ -143,8 +100,12 @@ interface ServerParams {
  */
 type WsServerMsgType = 'error'
     | 'token'
+    | 'thinkingtoken'
     | 'turnend'
     | 'assistant'
+    | 'thinkingstart'
+    | 'thinkingend'
+    | 'toolcallinprogress'
     | 'toolsturnstart'
     | 'toolsturnend'
     | 'toolcall'
