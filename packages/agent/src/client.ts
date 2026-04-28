@@ -1,17 +1,17 @@
 import type {
-    InferenceOptions,
+    InferenceCallbacks,
     InferenceParams,
     InferenceResult,
     InferenceStats,
     IngestionStats,
     LmProvider,
     LmProviderParams,
+    ModelInfo,
     OnLoadProgress,
     ToolCallSpec,
-    ToolSpec,
-    ModelInfo,
-    InferenceCallbacks,
+    ToolSpec
 } from "@agent-smith/types";
+import type { ClientInferenceOptions } from "@agent-smith/types/dist/inference.js";
 import { createParser } from 'eventsource-parser';
 import {
     type ChatCompletionContentPart,
@@ -25,7 +25,6 @@ import {
 import { useApi } from "restmix";
 import { useStats } from "./stats.js";
 import { convertToolCallSpec, generateId } from './tools.js';
-import type { ClientInferenceOptions } from "@agent-smith/types/dist/inference.js";
 
 class Lm implements LmProvider {
     name: string;
@@ -67,19 +66,48 @@ class Lm implements LmProvider {
             serverUrl: params.serverUrl,
             credentials: "omit",
         });
+        this.api.addHeader('Content-Type', 'application/json')
+        if (this.apiKey.length > 0) {
+            this.api.addHeader("Authorization", `Bearer ${this.apiKey}`);
+        }
     }
 
     async modelsInfo(): Promise<Array<ModelInfo>> {
-        const res = await this.api.get<Record<string, any>>("/models");
-        if (res.ok) {
-            (res.data.data as Array<Record<string, any>>).forEach(row => this.models.push(row.id))
+        const baseUrl = this.serverUrl.replace("/v1", "");
+        // use llama.cpp's /models endpoint
+        let api = useApi({
+            serverUrl: baseUrl,
+            credentials: "omit",
+        });
+        api.addHeader('Content-Type', 'application/json')
+        if (this.apiKey.length > 0) {
+            api.addHeader("Authorization", `Bearer ${this.apiKey}`);
         }
-        return this.models
+        const res = await api.get<Record<string, any>>("/models");
+        const ms = new Array<ModelInfo>();
+        if (res.ok) {
+            //console.dir(res.data.data, { depth: 3 });            
+            res.data.data.forEach((m: Record<string, any>) => {
+                //console.log("M", m.id);
+                let prevArg = "";
+                let ctx = 0;
+                for (const a of m.status.args) {
+                    //console.log("A", a);
+                    if (prevArg == "--ctx-size") {
+                        ctx = parseInt(a);
+                        ms.push({ id: m.id, status: m.status.value, ctx: ctx });
+                        break
+                    }
+                    prevArg = a;
+                }
+            })
+        }
+        return ms
     }
 
     async modelInfo(): Promise<ModelInfo> {
         console.warn("Not implemented for this provider")
-        return { status: "", ctx: -1 }
+        return { id: "", status: "", ctx: -1 }
     }
 
     /**
@@ -288,11 +316,7 @@ class Lm implements LmProvider {
                 ip.tools = tools;
                 ip.tool_choice = "auto";
             }
-            //console.log("IP", JSON.stringify(ip, null, 2));
-            this.api.addHeader('Content-Type', 'application/json')
-            if (this.apiKey.length > 0) {
-                this.api.addHeader("Authorization", `Bearer ${this.apiKey}`);
-            }
+            //console.log("IP", JSON.stringify(ip, null, 2));            
             const _url = `/chat/completions`;
             //console.log("URL", _url);
             const res = await this.api.post<Record<string, any>>(_url, ip, false, true);
