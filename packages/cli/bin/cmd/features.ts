@@ -1,5 +1,5 @@
 import { executeAction, executeTask, executeWorkflow, getTaskPrompt, getInputFromOptions } from "@agent-smith/core";
-import { parseCommandArgs } from "../utils.js";
+import { confirmToolUsage, parseCommandArgs } from "../utils.js";
 import type { InferenceResult } from "@agent-smith/types";
 
 async function executeWorkflowCmd(name: string, wargs: Array<any>): Promise<any> {
@@ -46,6 +46,7 @@ async function executeAgentCmd(
     const ca = parseCommandArgs(targs);
     const prompt = await getTaskPrompt(name, ca.args, ca.options);
     ca.options.isAgent = true;
+    ca.options.confirmToolUsage = confirmToolUsage;
     const res = await executeTask(name, { prompt: prompt }, ca.options)
     return res
 }

@@ -1,3 +1,7 @@
+import type { ToolCallSpec } from '@agent-smith/types';
+import { confirm } from '@inquirer/prompts';
+import colors from "ansi-colors";
+
 function parseCommandArgs(args: Array<any>): {
     args: Array<string>,
     options: Record<string, any>,
@@ -16,6 +20,17 @@ function parseCommandArgs(args: Array<any>): {
     return res
 }
 
+async function confirmToolUsage(toolCall: ToolCallSpec) {
+    console.log("Tool call:", colors.bold(toolCall.name));
+    if (toolCall?.arguments) {
+        console.log("Arguments:", toolCall.arguments);
+    } else {
+        console.log("No arguments")
+    }
+    return await confirm({ message: `Execute tool ${toolCall.name}?` });
+}
+
 export {
     parseCommandArgs,
+    confirmToolUsage,
 }
