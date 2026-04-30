@@ -2,7 +2,7 @@ import path from "path";
 import { Agent } from "@agent-smith/agent";
 import { NodeTask } from "@agent-smith/nodetask";
 import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
-import type { ToolSpec, ToolCallSpec, LmTaskConfig, TaskDef } from "@agent-smith/types";
+import type { ToolSpec, ToolCallSpec, LmTaskConfig, TaskDef, AgentInferenceOptions } from "@agent-smith/types";
 import { readTool } from "../db/read.js";
 import { executeAction } from "../actions/cmd.js";
 import { McpClient } from "../mcp.js";
@@ -14,7 +14,7 @@ import { openTaskSpec } from "../utils/io.js";
 //import { confirmToolUsage } from "../tools.js";
 
 async function readTask(
-    name: string, payload: Record<string, any>, options: Record<string, any>, agent: Agent
+    name: string, payload: Record<string, any>, options: Record<string, any> & AgentInferenceOptions, agent: Agent
 ): Promise<{
     task: NodeTask;
     model: string;

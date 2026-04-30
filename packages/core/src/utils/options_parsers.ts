@@ -3,7 +3,7 @@ import { InferenceParams, LmTaskConfig } from "@agent-smith/types";
 
 
 function parseTaskConfigOptions(options: Record<string, any>): LmTaskConfig {
-    const conf: LmTaskConfig = { inferParams: {}, templateName: "" };
+    const conf: LmTaskConfig = { inferParams: {} };
     const optionsInferParams: InferenceParams = {};
     if (options?.temperature) {
         optionsInferParams.temperature = options.temperature
@@ -27,13 +27,7 @@ function parseTaskConfigOptions(options: Record<string, any>): LmTaskConfig {
         optionsInferParams.images = options.images
     }
     if (options?.model !== undefined) {
-        if (!conf?.model) {
-            conf.model = undefined
-        }
         conf.model = options.model;
-    }
-    if (options?.template !== undefined) {
-        conf.templateName = options.template
     }
     conf.inferParams = optionsInferParams;
     return conf

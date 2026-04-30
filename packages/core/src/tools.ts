@@ -1,19 +1,8 @@
 import YAML from 'yaml';
 import * as fs from 'fs';
-import { ToolSpec, FeatureExtension } from '@agent-smith/types';
+import type { ToolSpec, FeatureExtension } from '@agent-smith/types';
 import { readYmlFile } from './utils/sys/read_yml_file.js';
-//import { confirm } from '@inquirer/prompts';
-//import colors from "ansi-colors";
 
-/*async function confirmToolUsage(toolCall: ToolCallSpec) {
-    console.log("Tool call:", colors.bold(toolCall.name));
-    if (toolCall?.arguments) {
-        console.log("Arguments:", toolCall.arguments);
-    } else {
-        console.log("No arguments")
-    }
-    return await confirm({ message: `Execute tool ${toolCall.name}?` });
-}*/
 
 function _extractToolDoc(filePath: string, startComment: string, endComment: string): { found: boolean, doc: string } {
     try {
@@ -163,5 +152,4 @@ function extractToolDoc(name: string, ext: FeatureExtension, dirPath: string): {
 export {
     extractToolDoc,
     extractTaskToolDocAndVariables,
-    //confirmToolUsage,
 }

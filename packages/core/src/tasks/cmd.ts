@@ -44,8 +44,7 @@ async function executeTask(
     if (options?.debug || options?.backend) {
         console.log("Agent:", color.bold(agent.name));
     }
-    const { task, model, conf, vars, mcpServers } = await readTask(name, payload, options, agent);
-    let _model = model;
+    let { task, model, conf, vars, mcpServers } = await readTask(name, payload, options, agent);
     if (options?.debug && mcpServers.length > 0) {
         console.log("Starting", mcpServers.length, "mcp servers")
     }
@@ -63,7 +62,7 @@ async function executeTask(
     }
     if (hasSettings) {
         if (settings?.model) {
-            _model = settings.model;
+            model = settings.model;
         }
         if (settings?.template) {
             options.template = settings.template;
@@ -201,7 +200,7 @@ async function executeTask(
     }
     const agentOptions: AgentInferenceOptions = {
         //baseDir: taskDir,
-        model: _model,
+        model: model,
         debug: options?.debug ?? false,
         onToolCall: onToolCall,
         onToolCallEnd: onToolCallEnd,
