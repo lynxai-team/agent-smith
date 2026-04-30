@@ -43,10 +43,6 @@ interface InferenceBackend extends ConfInferenceBackend {
     isDefault?: boolean;
 }
 
-interface BackendEntries {
-    [key: string]: ConfInferenceBackend | string | Array<"llamacpp" | "koboldcpp" | "ollama">;
-}
-
 interface Settings {
     name: string;
     inputmode: InputMode;
@@ -72,7 +68,6 @@ interface LmTaskFileSpec extends TaskDef {
 }
 
 interface BaseLmTaskConfig {
-    templateName: string;
     inferParams: InferenceParams;
     debug?: boolean;
 }
