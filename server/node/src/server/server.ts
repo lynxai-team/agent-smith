@@ -10,6 +10,7 @@ import route from 'koa-route';
 import serve from "koa-static";
 import { executeTask, executeWorkflow, state } from '@agent-smith/core';
 import type { WsClientMsg, WsRawServerMsg, HistoryTurn } from '@agent-smith/types';
+import path from "node:path";
 /* import { argv } from 'process';
 
 let env = "production";
@@ -59,8 +60,8 @@ function createAwaiter<T>() {
 }
 
 function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
+  state.init();
   const router = useRouter(routes);
-  const sendTokensInterval = 100;
 
   const confirmToolCalls: Record<string, (value: boolean) => void> = {};
 
@@ -110,7 +111,6 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
           ctx.websocket.send(JSON.stringify(rsm));
           return
         }
-        await state.init();
         if (msg.feature == "task") {
           msg.options.onThinkingToken = (t: string) => {
             const rsm: WsRawServerMsg = {
@@ -371,22 +371,28 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
 
   app.use(logger);
 
-  app.use(router.routes()).use(router.allowedMethods());
+  const { baseRouter, apiRouter } = router;
+  app
+    .use(baseRouter.routes()).use(baseRouter.allowedMethods())
+    .use(apiRouter.routes()).use(apiRouter.allowedMethods());
 
   // 404 middleware - runs after router
   app.use((ctx) => {
     if (!ctx.matched || ctx.matched.length === 0) {
-      ctx.status = 404;
+      ctx.redirect('/')
+      ctx.status = 301
+
+      /*ctx.status = 404;
       //console.log("404 ROUTE", ctx);
       ctx.body = {
         error: 'Not Found',
         path: ctx.path
-      };
+      };*/
     }
   });
 
   app.listen(5184, () => {
-    console.log('Please open url localhost:5184 in a browser');
+    console.log('Please open url http://localhost:5184 in a browser');
   });
 }
 
