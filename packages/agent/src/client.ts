@@ -91,15 +91,18 @@ class Lm implements LmProvider {
                 //console.log("M", m.id);
                 let prevArg = "";
                 let ctx = 0;
+                let hasVision = false;
                 for (const a of m.status.args) {
                     //console.log("A", a);
                     if (prevArg == "--ctx-size") {
                         ctx = parseInt(a);
-                        ms.push({ id: m.id, status: m.status.value, ctx: ctx });
-                        break
+                    }
+                    if (a == "--mmproj") {
+                        hasVision = true
                     }
                     prevArg = a;
                 }
+                ms.push({ id: m.id, status: m.status.value, ctx: ctx, hasVision: hasVision });
             })
         }
         return ms
@@ -107,7 +110,7 @@ class Lm implements LmProvider {
 
     async modelInfo(): Promise<ModelInfo> {
         console.warn("Not implemented for this provider")
-        return { id: "", status: "", ctx: -1 }
+        return { id: "", status: "", ctx: -1, hasVision: false }
     }
 
     /**
@@ -178,7 +181,7 @@ class Lm implements LmProvider {
         //console.log("CLI OPTS", options);
         this.abortController = new AbortController();
         const params = options?.params ?? {};
-        let inferenceParams: Record<string, any> = Object.assign({}, params);
+        const inferenceParams: Record<string, any> = Object.assign({}, params);
         if ("max_tokens" in inferenceParams) {
             inferenceParams.max_completion_tokens = params.max_tokens;
             delete inferenceParams.max_tokens;
@@ -247,6 +250,7 @@ class Lm implements LmProvider {
                 }
             );
         }
+        //console.log("AGENT IP", inferenceParams);
         if (inferenceParams?.images) {
             const usermsgs = new Array<ChatCompletionContentPart>();
             usermsgs.push(
@@ -277,16 +281,19 @@ class Lm implements LmProvider {
             msgs.push({ role: "assistant", content: options.assistant });
         }
         if (params?.extra) {
-            inferenceParams = { ...inferenceParams, ...params.extra };
+            //inferenceParams = { ...inferenceParams, ...params.extra };
+            for (const [k, v] of Object.entries(params.extra)) {
+                inferenceParams[k] = v
+            }
             delete inferenceParams.extra;
         }
         if (options?.debug || options?.verbose) {
             const tn = Object.keys(this.tools);
             console.log(tn.length, "available tools:", tn);
         }
-        if (options?.debug) {
+        /*if (options?.debug) {
             console.dir(tools, { depth: 6 })
-        }
+        }*/
         if (options?.debug || options?.verbose) {
             console.log("Messages ----------\n");
             console.dir(msgs, { depth: 6 });
@@ -374,11 +381,11 @@ class Lm implements LmProvider {
             }
             const _url = `${this.serverUrl}/chat/completions`;
             const body = JSON.stringify(ip);
-            if (options?.debug) {
-                console.log("Locallm: request body -------------");
+            /*if (options?.debug) {
+                console.log("Agent: request body -------------");
                 console.log(ip);
                 console.log("-----------------------------------");
-            }
+            }*/
             //console.log("IP", JSON.stringify(ip, null, 2));
             const response = await fetch(_url, {
                 method: 'POST',
