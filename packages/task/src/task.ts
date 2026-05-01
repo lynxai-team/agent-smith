@@ -50,10 +50,10 @@ class Task {
         const finalPrompt = this.def.prompt.replace("{prompt}", params.prompt);
         //console.log("FP", finalPrompt);        
         let answer: InferenceResult;
-        if (options?.debug) {
+        /*if (options?.debug) {
             // cut debug here. TODO: debug log levels
             options.debug = false
-        }
+        }*/
         let isRoutingAgent = false;
         if (this.def?.description) {
             isRoutingAgent = this.def.description.includes("routing agent")
