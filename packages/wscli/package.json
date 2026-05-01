@@ -37,6 +37,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@vue/reactivity": "^3.5.33",
     "reconnecting-websocket": "^4.4.0"
   }
 }
