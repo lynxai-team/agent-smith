@@ -83,7 +83,7 @@ const alias = `CREATE TABLE IF NOT EXISTS aliases (
 const backend = `CREATE TABLE IF NOT EXISTS backend (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
-    type TEXT NOT NULL CHECK ( type IN ('llamacpp', 'koboldcpp', 'ollama', 'openai') ),
+    type TEXT CHECK ( type IN ('browser', 'openai') ),
     url TEXT NOT NULL,
     isdefault INTEGER NOT NULL,
     apiKey TEXT
@@ -93,14 +93,15 @@ const tasksSettings = `CREATE TABLE IF NOT EXISTS tasksettings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
     model TEXT,
-    template TEXT,
     ctx INTEGER,
-    maxtokens INTEGER
-    topk INTEGER,
-    topp REAL,
-    minp REAL,
+    max_tokens INTEGER
+    top_k INTEGER,
+    top_p REAL,
+    min_p REAL,
     temperature REAL,
-    repeat REAL,
+    repeat_penalty REAL,
+    presence_penalty REAL,
+    frequence_penalty REAL,
     backend TEXT
 );`;
 

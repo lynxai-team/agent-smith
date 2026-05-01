@@ -41,9 +41,9 @@ async function executeTask(
         //console.log("SET AGENT BACKEND TO", backends[options.backend]);
         agent.lm = backends[settings.backend]
     }
-    if (options?.debug || options?.backend) {
+    /*if (options?.debug || options?.backend) {
         console.log("Agent:", color.bold(agent.name));
-    }
+    }*/
     let { task, model, conf, vars, mcpServers } = await readTask(name, payload, options, agent);
     if (options?.debug && mcpServers.length > 0) {
         console.log("Starting", mcpServers.length, "mcp servers")
@@ -64,9 +64,6 @@ async function executeTask(
         if (settings?.model) {
             model = settings.model;
         }
-        if (settings?.template) {
-            options.template = settings.template;
-        }
         if (settings?.max_tokens && !conf?.inferParams?.max_tokens) {
             options.params.max_tokens = settings.max_tokens;
         }
@@ -84,6 +81,12 @@ async function executeTask(
         }
         if (settings?.repeat_penalty && !conf?.inferParams?.repeat_penalty) {
             options.params.repeat_penalty = settings.repeat_penalty;
+        }
+        if (settings?.presence_penalty && !conf?.inferParams?.presence_penalty) {
+            options.params.presence_penalty = settings.presence_penalty;
+        }
+        if (settings?.frequency_penalty && !conf?.inferParams?.frequency_penalty) {
+            options.params.frequency_penalty = settings.frequency_penalty;
         }
     }
     //console.log("TASK MODEL", model);

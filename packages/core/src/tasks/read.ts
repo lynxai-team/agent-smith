@@ -31,8 +31,8 @@ async function readTask(
     const { taskFileSpec, taskPath } = openTaskSpec(name, options?.isAgent);
     const taskDir = path.dirname(taskPath);
     // merge passed options from payload
-    const opts = payload?.inferParams ? { ...options, ...payload.inferParams } : options;
-    const conf = parseTaskConfigOptions(opts);
+    //const opts = payload?.inferParams ? { ...options, ...payload.inferParams } : options;
+    const conf = parseTaskConfigOptions(options);
     if (options?.debug) {
         console.log("Task conf:", conf);
         conf.debug = true;

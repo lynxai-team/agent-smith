@@ -287,10 +287,6 @@ function upsertTaskSettings(taskName: string, settings: TaskSettings): boolean {
             qparams.push("model = ?");
             qvalues.push(settings.model)
         }
-        if (settings?.template) {
-            qparams.push("template = ?");
-            qvalues.push(settings.template)
-        }
         if (settings?.ctx) {
             qparams.push("ctx = ?");
             qvalues.push(settings.ctx)
@@ -335,28 +331,24 @@ function upsertTaskSettings(taskName: string, settings: TaskSettings): boolean {
             qnames.push("model");
             qvalues.push(settings.model)
         }
-        if (settings?.template) {
-            qnames.push("template");
-            qvalues.push(settings.template)
-        }
         if (settings?.ctx) {
             qnames.push("ctx");
             qvalues.push(settings.ctx)
         }
         if (settings?.max_tokens) {
-            qnames.push("maxtokens");
+            qnames.push("max_tokens");
             qvalues.push(settings.max_tokens)
         }
         if (settings?.top_k) {
-            qnames.push("topk");
+            qnames.push("top_k");
             qvalues.push(settings.top_k)
         }
         if (settings?.top_p) {
-            qnames.push("topp");
+            qnames.push("top_p");
             qvalues.push(settings.top_p)
         }
         if (settings?.min_p) {
-            qnames.push("minp");
+            qnames.push("min_p");
             qvalues.push(settings.min_p)
         }
         if (settings?.temperature) {
@@ -364,8 +356,16 @@ function upsertTaskSettings(taskName: string, settings: TaskSettings): boolean {
             qvalues.push(settings.temperature)
         }
         if (settings?.repeat_penalty) {
-            qnames.push("repeat");
+            qnames.push("repeat_penalty");
             qvalues.push(settings.repeat_penalty)
+        }
+        if (settings?.presence_penalty) {
+            qnames.push("presence_penalty");
+            qvalues.push(settings.presence_penalty)
+        }
+        if (settings?.frequency_penalty) {
+            qnames.push("frequency_penalty");
+            qvalues.push(settings.frequency_penalty)
         }
         if (settings?.backend) {
             qnames.push("backend");

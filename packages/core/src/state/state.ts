@@ -40,6 +40,9 @@ function initFilepaths() {
 }
 
 async function init() {
+    if (isStateReady.value) {
+        return
+    }
     //const perf = usePerfTimer();
     await initState();
     //perf.measure("initState");

@@ -45,15 +45,13 @@ function updateConfigFile(conf: ConfigFile, cfp?: string): string {
     return fp
 }
 
-function createConfigFile(cfp?: string, local: Array<"llamacpp" | "koboldcpp" | "ollama"> = ["llamacpp", "koboldcpp", "ollama"]): string {
+function createConfigFile(cfp?: string): string {
     createDirectoryIfNotExists(confDir);
     const fp = cfp ? cfp : path.join(confDir, "config.yml")
     const fc: ConfigFile = {
         backends: {
-            default: "llamacpp_oai",
-            local: local,
-            llamacpp_oai: {
-                type: "openai",
+            default: "llamacpp",
+            llamacpp: {
                 url: "http://localhost:8080/v1"
             }
         },
@@ -86,16 +84,6 @@ async function processConfPath(confPath: string): Promise<{ paths: Array<string>
     if (data?.backends) {
         for (const [name, val] of Object.entries(data.backends)) {
             switch (name) {
-                case "local":
-                    const bs = val as Array<string>;
-                    bs.forEach(b => {
-                        if (!["llamacpp", "koboldcpp", "ollama"].includes(b)) {
-                            throw new Error(`Unknow backend default value: ${b}`);
-                        }
-                        const lb = localBackends[b];
-                        backends[lb.name] = lb;
-                    })
-                    break;
                 case "default":
                     const v1 = val as string;
                     defaultBackendName = v1;

@@ -38,7 +38,7 @@ async function executeWorkflow(wname: string, args: any, options: Record<string,
                     } else {
                         if (prevStepType) {
                             if (prevStepType == "task") {
-                                tdata.prompt = taskRes.answer.text;
+                                tdata.prompt = taskRes.text;
                             } else if (prevStepType == "action") {
                                 if (taskRes?.args) {
                                     if (typeof taskRes.args == "string") {
@@ -66,7 +66,7 @@ async function executeWorkflow(wname: string, args: any, options: Record<string,
                     } else {
                         if (prevStepType) {
                             if (prevStepType == "task") {
-                                tdata.prompt = taskRes.answer.text;
+                                tdata.prompt = taskRes.text;
                             } else if (prevStepType == "action") {
                                 if (taskRes?.args) {
                                     if (typeof taskRes.args == "string") {
