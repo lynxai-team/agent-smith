@@ -60,7 +60,7 @@ function createAwaiter<T>() {
 }
 
 function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
-  state.init();
+  //state.init();
   const router = useRouter(routes);
 
   const confirmToolCalls: Record<string, (value: boolean) => void> = {};

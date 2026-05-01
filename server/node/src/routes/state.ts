@@ -8,7 +8,7 @@ function getStateRoute(r: Router) {
     r.get('/state', async (ctx: Context, next: Next) => {
         //console.log('STATE URL --> ' + ctx.request.url);
         //console.log("STATE ROUTE");
-        const { confDir, dbPath } = conf.getConfigPath("agent-smith", "config.db");
+        const { dbPath } = conf.getConfigPath("agent-smith", "config.db");
         //console.log("conf paths", confDir, dbPath);
         if (!fs.existsSync(dbPath)) {
             ctx.body = "no db found at " + dbPath;

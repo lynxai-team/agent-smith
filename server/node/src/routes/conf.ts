@@ -20,7 +20,7 @@ function createConfRoute(r: Router) {
     r.get('/conf/create', async (ctx: Context, next: Next) => {
         let cfp: string | null = null;
         try {
-            cfp = conf.createConfigFile(undefined, ["llamacpp"]);
+            cfp = conf.createConfigFile();
         } catch (e) {
             console.error("500", e);
             ctx.body = e;
