@@ -1,25 +1,26 @@
 
 import type { Reactive, Ref } from "vue";
-import type { AgentInferenceOptions, InferenceParams, InferenceResult } from "./inference.js";
-import type { ToolCallSpec, ToolDefSpec, ToolSpec } from "./tools.js";
 import type { ConfigFile } from "./conf.js";
+import type { HistoryTurn, UiHistoryTurn } from "./history.js";
+import type { AgentInferenceOptions, InferenceParams } from "./inference.js";
 import type { ModelInfo } from "./model.js";
-import type { HistoryTurn, ToolTurn, UiHistoryTurn } from "./history.js";
-import type { AllCallbacks } from "./callbacks.js";
+import type { ToolDefSpec, ToolSpec } from "./tools.js";
+import type { LmTaskFileSpec } from "./core.js";
 
 /**
  * Settings for a task configuration.
  *
  * @interface TaskSettings
  * @param {string} [model] - The model to use for the task.
- * @param {string} [template] - The template to use for the task.
  * @param {number} [ctx] - Context window size.
  * @param {number} [max_tokens] - Maximum number of tokens to generate.
  * @param {number} [top_k] - Top-k sampling parameter.
  * @param {number} [top_p] - Top-p sampling parameter.
  * @param {number} [min_p] - Minimum probability for nucleus sampling.
  * @param {number} [temperature] - Sampling temperature.
- * @param {number} [repeat_penalty] - Penalty for repeated tokens.
+ * @param {number | undefined} repeat_penalty - Adjusts penalty for repeated tokens.
+ * @param {number | undefined} presence_penalty - Adjusts penalty for presence.
+ * @param {number | undefined} frequency_penalty - Repeat alpha frequency penalty.
  * @param {string} [backend] - The backend to use for the task.
  * @example
  * const taskSettings: TaskSettings = {
@@ -30,7 +31,6 @@ import type { AllCallbacks } from "./callbacks.js";
  */
 interface TaskSettings {
     model?: string;
-    template?: string;
     ctx?: number;
     max_tokens?: number;
     top_k?: number;
@@ -38,6 +38,8 @@ interface TaskSettings {
     min_p?: number;
     temperature?: number;
     repeat_penalty?: number;
+    presence_penalty?: number;
+    frequency_penalty?: number;
     backend?: string;
 }
 
@@ -118,14 +120,19 @@ interface UserTaskVariables extends TaskVariables {
     }
 }
 
+interface ClientFeaturesOptions extends AgentInferenceOptions {
+    backend?: string;
+    variables?: Record<string, any>;
+    nohistory?: boolean;
+}
+
 /**
  * Service interface for task management.
  *
- * @interface TaskService
+ * @interface ClientFeaturesService
  * @param {Ref<boolean>} isReady - Reactive reference indicating if service is ready.
- * @param {Ref<Record<string, any>>} task - Reactive reference to current task.
+ * @param {Ref<LmTaskFileSpec>} task - Reactive reference to current task.
  * @param {Reactive<UserTaskVariables>} variables - Reactive task variables.
- * @param {Reactive<{ params: InferenceParams, model: string }>} inferOptions - Reactive inference parameters.
  * @param {Reactive<{ servers: Record<string, any> }>} mcp - Reactive MCP servers.
  * @param {() => Promise<Record<string, any>>} loadModels - Loads available models.
  * @param {() => Promise<Record<string, Record<string, any>>>} loadTaskSettings - Loads task settings.
@@ -139,7 +146,7 @@ interface UserTaskVariables extends TaskVariables {
  * @param {(tools: Array<string>) => Promise<Array<{ def: ToolDefSpec, type: string }>>} getTools - Retrieves tool specifications.
  * @param {() => Promise<{ found: boolean, config: ConfigFile }>} checkState - Checks current configuration state.
  * @example
- * const taskService: TaskService = {
+ * const taskService: ClientFeaturesService = {
  *   isReady: ref(false),
  *   task: ref({}),
  *   variables: reactive({ values: { required: {}, optional: {} } }),
@@ -158,11 +165,11 @@ interface UserTaskVariables extends TaskVariables {
  *   checkState: async () => ({ found: false, config: {} })
  * };
  */
-interface TaskService {
+interface ClientFeaturesService {
     isReady: Ref<boolean>;
-    task: Ref<Record<string, any>>;
+    task: Ref<LmTaskFileSpec>;
     variables: Reactive<UserTaskVariables>;
-    inferOptions: Reactive<{ params: InferenceParams, model: string }>;
+    //inferOptions: Reactive<{ params: InferenceParams, model: string }>;
     mcp: Reactive<{ servers: Record<string, any> }>;
     loadModels: () => Promise<Record<string, any>>;
     loadTaskSettings: () => Promise<Record<string, Record<string, any>>>;
@@ -170,8 +177,12 @@ interface TaskService {
     loadWorkflow: (name: string) => Promise<Record<string, any>>;
     loadBackends: () => Promise<Record<string, any>>;
     setBackend: (name: string) => Promise<boolean>;
-    exec: (prompt: string, opts?: Record<string, any>, isAgent?: boolean) => Promise<void>;
-    execSync: (prompt: string, opts?: Record<string, any>, isAgent?: boolean, isSync?: boolean) => Promise<void>;
+    executeTask: (prompt: string, opts?: ClientFeaturesOptions) => Promise<void>;
+    executeTaskSync: (prompt: string, opts?: ClientFeaturesOptions) => Promise<void>;
+    executeAgent: (prompt: string, opts?: ClientFeaturesOptions) => Promise<void>;
+    executeAgentSync: (prompt: string, opts?: ClientFeaturesOptions) => Promise<void>;
+    executeWorkflow: (name: string, payload: any, options?: ClientFeaturesOptions) => Promise<void>;
+    executeWorkflowSync: (name: string, payload: any, options?: ClientFeaturesOptions) => Promise<void>;
     cancel: () => Promise<void>;
     getTools: (tools: Array<string>) => Promise<Array<{ def: ToolDefSpec, type: string }>>;
     checkState: () => Promise<{ found: boolean, config: ConfigFile }>;
@@ -279,24 +290,7 @@ interface TaskDef {
     category?: string;
 }
 
-/**
- * Feature types.
- *
- * @type {FeatureType}
- * @example
- * const featureType: FeatureType = 'task';
- */
-type FeatureType = "task" | "agent" | "action" | "cmd" | "workflow" | "adaptater";
-
 export {
-    TaskSettings,
-    TaskVariableDef,
-    TaskOptionalVariableDef,
-    TaskVariables,
-    UserTaskVariables,
-    TaskService,
-    TaskState,
-    FeatureType,
-    TemplateSpec,
-    TaskDef,
-}
+    ClientFeaturesOptions, TaskDef, TaskOptionalVariableDef, ClientFeaturesService, TaskSettings, TaskState, TaskVariableDef, TaskVariables, TemplateSpec, UserTaskVariables
+};
+

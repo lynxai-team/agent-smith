@@ -5,16 +5,20 @@
  * @param {string} id - The model id
  * @param {string} status - The status of the model.
  * @param {number} ctx - Context window size.
+ * @param {boolean} hasVision - If the model can process images 
  * @example
  * const modelInfo: ModelInfo = {
+ *   id: "qwen4b"
  *   status: 'loaded',
- *   ctx: 2048
+ *   ctx: 31768,
+ *   hasVision: true
  * };
  */
 interface ModelInfo {
     id: string;
     status: string;
     ctx: number;
+    hasVision: boolean;
 }
 
 /**

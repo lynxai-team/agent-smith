@@ -5,7 +5,7 @@ import type { TaskSettings } from "./task.js";
  * Configuration for an inference backend.
  *
  * @interface ConfInferenceBackend
- * @param {LmProviderType} type - The type of language model provider.
+ * @param {LmProviderType | undefined} type - The type of language model provider.
  * @param {string} url - The URL of the backend service.
  * @param {string} [apiKey] - The API key for authentication (optional).
  * @example
@@ -16,13 +16,19 @@ import type { TaskSettings } from "./task.js";
  * };
  */
 interface ConfInferenceBackend {
-    type: LmProviderType;
+    type?: LmProviderType;
     url: string;
     apiKey?: string;
 }
 
 interface BackendEntries {
-    [key: string]: ConfInferenceBackend | string | Array<"llamacpp" | "koboldcpp" | "ollama">;
+    default: string;
+    [key: string]: ConfInferenceBackend | string;
+}
+
+interface InferenceBackend extends ConfInferenceBackend {
+    name: string;
+    isDefault?: boolean;
 }
 
 /**
@@ -31,19 +37,17 @@ interface BackendEntries {
  * @interface ConfigFile
  * @param {string} [promptfile] - Path to the prompt file.
  * @param {string} [datadir] - Directory for data storage.
- * @param {Array<string>} [features] - Enabled features.
+ * @param {Array<string>} [features] - Enabled features directories.
  * @param {Array<string>} [plugins] - Loaded plugins.
  * @param {BackendEntries} [backends] - Backend configurations.
  * @param {Record<string, TaskSettings>} [tasks] - Task settings.
  * @param {Record<string, string>} [apps] - Application configurations.
  * @example
  * const config: ConfigFile = {
- *   datadir: './data',
- *   features: ['chat', 'tools'],
+ *   features: ['/some/fetures/dir'],
  *   backends: {
  *     'default': {
- *       type: 'ollama',
- *       url: 'http://localhost:11434'
+ *       url: 'http://localhost:8080/v1'
  *     }
  *   }
  * };
@@ -60,6 +64,7 @@ interface ConfigFile {
 
 export {
     ConfInferenceBackend,
+    InferenceBackend,
     BackendEntries,
     ConfigFile,
 }

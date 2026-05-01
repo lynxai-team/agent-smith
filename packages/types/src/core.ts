@@ -32,17 +32,6 @@ interface UserCmdDef {
     options?: Array<Array<string> | string>;
 }
 
-interface ConfInferenceBackend {
-    type: LmProviderType;
-    url: string;
-    apiKey?: string;
-}
-
-interface InferenceBackend extends ConfInferenceBackend {
-    name: string;
-    isDefault?: boolean;
-}
-
 interface Settings {
     name: string;
     inputmode: InputMode;
@@ -140,8 +129,8 @@ export {
     LmTaskConfig,
     McpServerSpec,
     McpServerTool,
-    InferenceBackend,
     FeatureExecutor,
     WorkflowStep,
     UserCmdDef,
+    FeatureType,
 }

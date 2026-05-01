@@ -1,5 +1,6 @@
 import {
     ConfInferenceBackend,
+    InferenceBackend,
     BackendEntries,
     ConfigFile,
 } from "./conf.js";
@@ -48,11 +49,11 @@ import {
     TaskOptionalVariableDef,
     TaskVariables,
     UserTaskVariables,
-    TaskService,
+    ClientFeaturesService,
     TaskState,
-    FeatureType,
     TemplateSpec,
     TaskDef,
+    ClientFeaturesOptions,
 } from "./task.js";
 import {
     ToolCallSpec,
@@ -100,10 +101,10 @@ import {
     LmTaskConfig,
     McpServerSpec,
     McpServerTool,
-    InferenceBackend,
     FeatureExecutor,
     WorkflowStep,
     UserCmdDef,
+    FeatureType,
 } from "./core.js";
 
 export {
@@ -142,7 +143,7 @@ export {
     TaskOptionalVariableDef,
     TaskVariables,
     UserTaskVariables,
-    TaskService,
+    ClientFeaturesService,
     TaskState,
     FeatureType,
     ToolCallSpec,
@@ -190,4 +191,5 @@ export {
     FeatureExecutor,
     WorkflowStep,
     UserCmdDef,
+    ClientFeaturesOptions,
 }
