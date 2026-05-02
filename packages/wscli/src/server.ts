@@ -1,7 +1,7 @@
 import type {
-    ClientFeaturesOptions, ClientFeaturesService, InferenceParams, ModelInfo, ToolDefSpec,
+    ClientFeaturesOptions, ClientFeaturesService, ModelInfo, ToolDefSpec,
     ConfigFile, TaskState, UserTaskVariables, ServerParams,
-    LmTaskFileSpec
+    TaskDef
 } from "@agent-smith/types";
 import { reactive, ref, toRaw } from "@vue/reactivity";
 import { api } from "./api.js";
@@ -12,7 +12,7 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
     //console.log(from, ":", params);
     const ws = useWsServer(params);
     const isReady = ref<boolean>(false);
-    const task = ref<LmTaskFileSpec>({} as LmTaskFileSpec);
+    const task = ref<TaskDef>({} as TaskDef);
     const variables = reactive<UserTaskVariables>({ required: {}, optional: {}, values: { required: {}, optional: {} } });
     const mcp = reactive<{ servers: Record<string, any> }>({ servers: {} });
     let { awaiter, unblock } = createAwaiter<boolean>();
@@ -46,7 +46,7 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         variables.required = {};
         variables.optional = {};
         const type = isAgent ? "agent" : "task";
-        const res = await api.get<LmTaskFileSpec>(`/${type}/` + name);
+        const res = await api.get<TaskDef>(`/${type}/` + name);
         task.value = res.data;
         // set stateLocal
         if (stateLocal?.currentFeature) {
@@ -55,13 +55,13 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
             stateLocal.currentFeature.name = name;
         }
         //console.log(res.data);
-        if (res.data?.inferParams) {
+        /*if (res.data?.inferParams) {
             //inferOptions.params = res.data.inferParams;
             for (const [k, v] of Object.entries(res.data.inferParams)) {
                 // @ts-ignore
                 inferOptions.params[k] = v
             }
-        };
+        };*/
         /*if (res.data.model?.template) {
             inferOptions.params.template = res.data.model.template;
         }*/
@@ -112,11 +112,10 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
                 unblock(true);
             }
         }
-        const payload = { prompt: prompt, inferParams: {} };
         //console.log(payload);
         //options.model = task.value.model;
         let taskvars: Record<string, string> = {};
-        // @ts-ignore
+
         if (opts?.variables) {
             taskvars = Object.assign({}, opts.variables);
         } else {
@@ -132,17 +131,18 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
                 };
             };
         }
+        //console.log("SRV OPTS VARS", taskvars);
+        const payload = { prompt: prompt, ...taskvars }
         /*const _options: Record<string, any> = { model: task.value.model ?? opts.model };
         if (opts?.backend) {
             _options.backend = opts.backend;
         }*/
-        const options = { ...opts, ...taskvars };
         if (!opts?.nohistory) {
             //console.log("OPTIONS", options)
             let pr = task.value.prompt.replace("{prompt}", prompt);
             if (stateLocal.history.length > 0) {
                 //options.chatMode = true;
-                options.history = toRaw(stateLocal.history);
+                opts.history = toRaw(stateLocal.history);
                 pr = prompt;
             };
             stateLocal.history.push({
@@ -158,12 +158,12 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         }
         //console.log("==> OPTS", options);
         if (!isAgent) {
-            ws.executeTask(task.value?.name, payload, options);
+            ws.executeTask(task.value?.name, payload, opts);
             if (isSync) {
                 await awaiter;
             }
         } else {
-            ws.executeAgent(task.value?.name, payload, options);
+            ws.executeAgent(task.value?.name, payload, opts);
             if (isSync) {
                 await awaiter;
             }
