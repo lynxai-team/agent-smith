@@ -1,7 +1,7 @@
 import YAML from 'yaml';
 import { readClipboard } from '../utils/sys/clipboard.js';
 import { readTask } from "../utils/sys/read_task.js";
-import { FeatureType, LmTaskFileSpec, type InferenceResult } from "@agent-smith/types";
+import type { FeatureType, InferenceResult, TaskDef } from "@agent-smith/types";
 import { getFeatureSpec } from "../state/features.js";
 import { runtimeDataError } from '../utils/user_msgs.js';
 import { initFilepaths, promptfilePath, outputMode, formatMode } from "../state/state.js";
@@ -51,7 +51,7 @@ async function processOutput(res: InferenceResult) {
     }
 }
 
-function openTaskSpec(name: string, isAgent = false): { taskFileSpec: LmTaskFileSpec, taskPath: string } {
+function openTaskSpec(name: string, isAgent = false): { taskDef: TaskDef, taskPath: string } {
     const ft = isAgent ? "agent" : "task";
     const { found, path } = getFeatureSpec(name, ft as FeatureType);
     if (!found) {
@@ -61,9 +61,9 @@ function openTaskSpec(name: string, isAgent = false): { taskFileSpec: LmTaskFile
     if (!res.found) {
         throw new Error(`${ft} ${name}, ${path} not found`)
     }
-    const taskFileSpec = YAML.parse(res.ymlTask);
-    taskFileSpec.name = name;
-    return { taskFileSpec: taskFileSpec as LmTaskFileSpec, taskPath: path }
+    const taskDef = YAML.parse(res.ymlTask);
+    taskDef.name = name;
+    return { taskDef: taskDef, taskPath: path }
 }
 
 async function getInputFromOptions(

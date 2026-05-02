@@ -1,6 +1,6 @@
 import colors from "ansi-colors";
 import { pathToFileURL } from "node:url";
-import type { FeatureType } from "@agent-smith/types";
+import type { AgentInferenceOptions, FeatureType } from "@agent-smith/types";
 import { getFeatureSpec } from "../state/features.js";
 import { executeAction } from "../actions/cmd.js";
 import { executeAdaptater } from "../adaptaters/cmd.js";
@@ -9,7 +9,7 @@ import { getInputFromOptions, getTaskPrompt } from "../utils/io.js";
 import { runtimeError } from "../utils/user_msgs.js";
 import { readWorkflow } from "./read.js";
 
-async function executeWorkflow(wname: string, args: any, options: Record<string, any> = {}): Promise<any> {
+async function executeWorkflow(wname: string, args: any, options: AgentInferenceOptions): Promise<any> {
     const { workflow, found } = await readWorkflow(wname);
     if (!found) {
         throw new Error(`Workflow ${wname} not found`)
@@ -104,7 +104,7 @@ async function executeWorkflow(wname: string, args: any, options: Record<string,
                     const ares = await executeAction(step.name, actArgs, options, true);
                     //console.log("WF ACTION RES", typeof ares, ares);
                     //console.log("LAST ACT", i, finalTaskIndex);
-                    if (i == finalTaskIndex && !options?.isToolCall && !options?.quiet) {
+                    if (i == finalTaskIndex && !options?.isToolCall) {
                         console.log(ares);
                         break
                     }
@@ -138,7 +138,7 @@ async function executeWorkflow(wname: string, args: any, options: Record<string,
                     const adres = await executeAdaptater(step.name, actArgs, options);
                     //console.log("WF AD FINAL RES", taskRes);
                     //console.log("LAST ACT", i, finalTaskIndex);
-                    if (i == finalTaskIndex && !options?.isToolCall && !options?.quiet) {
+                    if (i == finalTaskIndex && !options?.isToolCall) {
                         console.log(adres);
                         break
                     }

@@ -12,7 +12,7 @@ import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
 //import { chat, program } from "../../cmds.js";
 
 async function executeTask(
-    name: string, payload: Record<string, any>, options: Record<string, any> & AgentInferenceOptions
+    name: string, payload: Record<string, any>, options: AgentInferenceOptions
 ): Promise<InferenceResult> {
     //console.log("EXEC TASK OPTS", options);
     //console.log("TN", name);
@@ -44,7 +44,15 @@ async function executeTask(
     /*if (options?.debug || options?.backend) {
         console.log("Agent:", color.bold(agent.name));
     }*/
-    let { task, model, conf, vars, mcpServers } = await readTask(name, payload, options, agent);
+    let { task, vars, mcpServers, taskDir } = await readTask(name, payload, options, agent);
+    if (!options?.model) {
+        options.model = task.def.model;
+        if (hasSettings) {
+            if (settings?.model) {
+                options.model = settings.model;
+            }
+        }
+    }
     if (options?.debug && mcpServers.length > 0) {
         console.log("Starting", mcpServers.length, "mcp servers")
     }
@@ -61,31 +69,28 @@ async function executeTask(
         options.params = {}
     }
     if (hasSettings) {
-        if (settings?.model) {
-            model = settings.model;
-        }
-        if (settings?.max_tokens && !conf?.inferParams?.max_tokens) {
+        if (settings?.max_tokens && !options?.params?.max_tokens) {
             options.params.max_tokens = settings.max_tokens;
         }
-        if (settings?.top_k && !conf?.inferParams?.top_k) {
+        if (settings?.top_k && !options?.params?.top_k) {
             options.params.top_k = settings.top_k;
         }
-        if (settings?.top_p && !conf?.inferParams?.top_p) {
+        if (settings?.top_p && !options?.params?.top_p) {
             options.params.top_p = settings.top_p;
         }
-        if (settings?.min_p && !conf?.inferParams?.min_p) {
+        if (settings?.min_p && !options?.params?.min_p) {
             options.params.min_p = settings.min_p;
         }
-        if (settings?.temperature && !conf?.inferParams?.temperature) {
+        if (settings?.temperature && !options?.params?.temperature) {
             options.params.temperature = settings.temperature;
         }
-        if (settings?.repeat_penalty && !conf?.inferParams?.repeat_penalty) {
+        if (settings?.repeat_penalty && !options?.params?.repeat_penalty) {
             options.params.repeat_penalty = settings.repeat_penalty;
         }
-        if (settings?.presence_penalty && !conf?.inferParams?.presence_penalty) {
+        if (settings?.presence_penalty && !options?.params?.presence_penalty) {
             options.params.presence_penalty = settings.presence_penalty;
         }
-        if (settings?.frequency_penalty && !conf?.inferParams?.frequency_penalty) {
+        if (settings?.frequency_penalty && !options?.params?.frequency_penalty) {
             options.params.frequency_penalty = settings.frequency_penalty;
         }
     }
@@ -98,7 +103,7 @@ async function executeTask(
     }
     let c = false;
     if (options?.debug) {
-        console.log("Task model:", model);
+        console.log("Task model:", options.model);
         console.log("Task vars:", vars);
     }
     let emittedTokens = 0;
@@ -107,7 +112,7 @@ async function executeTask(
         if (dim === true) {
             process.stdout.write(`\x1b[2m${t}\x1b[0m`);
         } else {
-            if (options?.tokens === true) {
+            if (options?.showTokens === true) {
                 let txt = t;
                 txt = c ? t : `\x1b[100m${t}\x1b[0m`
                 process.stdout.write(txt);
@@ -194,17 +199,10 @@ async function executeTask(
     } else {
         task.agent.lm.onToken = processToken;
     }
-    if (!conf?.inferParams) {
-        conf.inferParams = {}
-    }
-    conf.inferParams.stream = true;
-    if (conf?.model) {
-        delete conf.model
-    }
+    options.params.stream = true;
+
     const agentOptions: AgentInferenceOptions = {
-        //baseDir: taskDir,
-        model: model,
-        debug: options?.debug ?? false,
+        baseDir: taskDir,
         onToolCall: onToolCall,
         onToolCallEnd: onToolCallEnd,
         onToolsTurnStart: onToolsTurnStart,
@@ -216,9 +214,9 @@ async function executeTask(
         onStartThinking: onStartThinking,
         onEndThinking: onEndThinking,
         onToolCallInProgress: onToolCallInProgress,
-        ...conf,
+        ...options,
     }
-    //console.log("AGENT OPTS", agentOptions);
+    //console.log("CORE AGENT OPTS", agentOptions);
     if (options?.history) {
         agent.history = options.history;
     }

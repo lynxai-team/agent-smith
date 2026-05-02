@@ -2,11 +2,10 @@ import path from "path";
 import { Agent } from "@agent-smith/agent";
 import { NodeTask } from "@agent-smith/nodetask";
 import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
-import type { ToolSpec, ToolCallSpec, LmTaskConfig, TaskDef, AgentInferenceOptions } from "@agent-smith/types";
+import type { ToolSpec, ToolCallSpec, AgentInferenceOptions } from "@agent-smith/types";
 import { readTool } from "../db/read.js";
 import { executeAction } from "../actions/cmd.js";
 import { McpClient } from "../mcp.js";
-import { parseTaskConfigOptions } from "../utils/options_parsers.js";
 import { executeWorkflow } from "../workflows/cmd.js";
 import { executeTask } from "./cmd.js";
 import { mergeInferParams } from "./conf.js";
@@ -14,11 +13,9 @@ import { openTaskSpec } from "../utils/io.js";
 //import { confirmToolUsage } from "../tools.js";
 
 async function readTask(
-    name: string, payload: Record<string, any>, options: Record<string, any> & AgentInferenceOptions, agent: Agent
+    name: string, payload: Record<string, any>, options: AgentInferenceOptions, agent: Agent
 ): Promise<{
     task: NodeTask;
-    model: string;
-    conf: LmTaskConfig;
     vars: Record<string, any>;
     mcpServers: Array<McpClient>;
     taskDir: string;
@@ -28,46 +25,41 @@ async function readTask(
         console.log("Payload:", payload);
         console.log("Task options:", options);
     }
-    const { taskFileSpec, taskPath } = openTaskSpec(name, options?.isAgent);
+    const { taskDef, taskPath } = openTaskSpec(name, options?.isAgent);
     const taskDir = path.dirname(taskPath);
     // merge passed options from payload
     //const opts = payload?.inferParams ? { ...options, ...payload.inferParams } : options;
-    const conf = parseTaskConfigOptions(options);
-    if (options?.debug) {
+    //const conf = parseTaskConfigOptions(options);
+    /*if (options?.debug) {
         console.log("Task conf:", conf);
         conf.debug = true;
-    }
-    conf.inferParams = mergeInferParams(conf.inferParams, taskFileSpec.inferParams ?? {});
-    const model = conf?.model ? conf.model : taskFileSpec.model;
+    }*/
+    options.params = mergeInferParams(options.params ?? {}, taskDef.inferParams ?? {});
+    //const model = options?.model ? options.model : taskDef.model;
     // vars
-    const taskSpec = taskFileSpec as TaskDef;
     let vars: Record<string, any> = {};
-    if (taskSpec?.variables?.optional) {
-        for (const k of Object.keys(taskSpec.variables.optional)) {
-            if (k in options) {
-                vars[k] = options[k]
-            } else if (k in payload) {
+    if (taskDef?.variables?.optional) {
+        for (const k of Object.keys(taskDef.variables.optional)) {
+            if (k in payload) {
                 vars[k] = payload[k]
             }
         }
     }
-    if (taskSpec?.variables?.required) {
-        for (const k of Object.keys(taskSpec.variables.required)) {
-            //console.log("TASK V required:", Object.keys(taskSpec.variables.required), "/", k in options, "/", k in payload);
-            if (k in options) {
-                vars[k] = options[k]
-            } else if (k in payload) {
+    if (taskDef?.variables?.required) {
+        for (const k of Object.keys(taskDef.variables.required)) {
+            //console.log("TASK V required:", Object.keys(taskDef.variables.required), "/", k in options, "/", k in payload);
+            if (k in payload) {
                 vars[k] = payload[k]
             }
         }
     }
     const mcpServers = new Array<McpClient>();
-    if (!taskSpec?.tools) {
-        taskSpec.tools = []
+    if (!taskDef?.tools) {
+        taskDef.tools = []
     }
     const mcpServersArgs: Record<string, Array<string>> = {};
-    if (options?.mcp) {
-        (options.mcp as Array<string>).forEach(v => {
+    if (options?.mcpArgs) {
+        (options.mcpArgs).forEach(v => {
             const s = v.split(":");
             if (s.length < 2) {
                 throw new Error(`Malformed mcp option ${v}: use --mcp servername:arg1,arg2`)
@@ -78,12 +70,12 @@ async function readTask(
             mcpServersArgs[sn] = _margs;
         });
         if (options?.debug) {
-            console.log("Opening", options.mcp.length, "server(s)")
+            console.log("Opening", options.mcpArgs.length, "server(s)")
         }
     }
     // mcp tools
-    if (taskFileSpec?.mcp) {
-        for (const [servername, tool] of Object.entries(taskFileSpec.mcp)) {
+    if (taskDef?.mcp) {
+        for (const [servername, tool] of Object.entries(taskDef.mcp)) {
             //console.log("MCP TOOL:", tool)
             const authorizedTools = new Array<string>();
             const askUserTools = new Array<string>();
@@ -112,13 +104,13 @@ async function readTask(
             mcpServers.push(mcp);
             /*await mcp.start();
             const tools = await mcp.extractTools();
-            tools.forEach(t => taskSpec.tools?.push(t))*/
+            tools.forEach(t => taskDef.tools?.push(t))*/
         }
     }
     // tools
-    //console.log("Task tools list:", taskSpec.toolsList);
-    if (taskSpec.toolsList) {
-        for (const rawToolName of taskSpec.toolsList) {
+    //console.log("Task tools list:", taskDef.toolsList);
+    if (taskDef.toolsList) {
+        for (const rawToolName of taskDef.toolsList) {
             let toolName = rawToolName;
             let autoRunTool = true;
             if (rawToolName.endsWith("?")) {
@@ -127,7 +119,7 @@ async function readTask(
             }
             const { found, tool, type } = readTool(toolName);
             if (!found) {
-                throw new Error(`tool ${toolName} not found for task ${taskSpec.name}`);
+                throw new Error(`tool ${toolName} not found for task ${taskDef.name}`);
             }
             //console.log("Tool found:", toolName, tool);
             const quiet = !options?.debug;
@@ -173,27 +165,27 @@ async function readTask(
                 }
                 lmTool.canRun = options.confirmToolUsage as (tool: ToolCallSpec) => Promise<boolean>;
             }
-            taskSpec.tools.push(lmTool)
+            taskDef.tools.push(lmTool)
         }
-        delete taskSpec.toolsList
+        delete taskDef.toolsList
     };
-    if (options?.chatMode) {
-        taskSpec.prompt = "{prompt}";
+    if (options?.isChatMode) {
+        taskDef.prompt = "{prompt}";
     }
-    //console.log("TASK SPEC:", JSON.stringify(taskSpec, null, "  "));
-    const task = new NodeTask(agent, taskSpec);
-    //task.addTools(taskSpec.tools);
+    //console.log("TASK SPEC:", JSON.stringify(taskDef, null, "  "));
+    const task = new NodeTask(agent, taskDef);
+    //task.addTools(taskDef.tools);
     //console.log("TASK TOOLS", task.agent.tools);
     // check for grammars
-    if (taskSpec?.inferParams?.tsGrammar) {
+    if (taskDef?.inferParams?.tsGrammar) {
         //console.log("TSG");
-        taskSpec.inferParams.grammar = serializeGrammar(await compile(taskSpec.inferParams.tsGrammar, "Grammar"));
+        taskDef.inferParams.grammar = serializeGrammar(await compile(taskDef.inferParams.tsGrammar, "Grammar"));
     }
     /*if (options?.debug) {
         console.log("Task model:", model);
         //console.log("Task vars:", vars);
     }*/
-    return { task, model, conf, vars, mcpServers, taskDir }
+    return { task, vars, mcpServers, taskDir }
 }
 
 export {
