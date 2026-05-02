@@ -8,7 +8,7 @@ function _replaceFilePlaceholders(text: string, baseDir: string = ""): string {
     const resultText = text.replace(fileRegex, (match, filePath) => {
         if (!baseDir) {
             if (!path.isAbsolute(filePath)) {
-                throw new Error(`Can not replace relative file placeholder ${filePath} without a baseDir set. Use absolute paths or set a baseDir in TaskConf`)
+                throw new Error(`Can not replace relative file placeholder ${filePath} without a baseDir set. Use absolute paths or set a baseDir in options`)
             }
         }
 
