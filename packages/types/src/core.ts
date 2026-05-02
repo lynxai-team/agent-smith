@@ -1,5 +1,4 @@
 import type { InferenceParams } from "./inference.js";
-import type { LmProviderType } from "./lm.js";
 import type { TaskDef, TaskVariables } from "./task.js";
 
 
@@ -49,21 +48,6 @@ interface DbModelDef {
     name: string;
     shortname: string;
     data: Record<string, any>;
-}
-
-interface LmTaskFileSpec extends TaskDef {
-    ctx: number;
-    mcp?: McpServerSpec;
-}
-
-interface BaseLmTaskConfig {
-    inferParams: InferenceParams;
-    debug?: boolean;
-}
-
-interface LmTaskConfig extends BaseLmTaskConfig {
-    model?: string;
-    quiet?: boolean;
 }
 
 interface WorkflowStep {
@@ -125,8 +109,6 @@ export {
     ToolType,
     Settings,
     DbModelDef,
-    LmTaskFileSpec,
-    LmTaskConfig,
     McpServerSpec,
     McpServerTool,
     FeatureExecutor,

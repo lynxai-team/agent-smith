@@ -3,6 +3,7 @@ import type { HistoryTurn, ToolTurn } from "./history.js";
 import type { InferenceStats } from "./stats.js";
 import type { ToolCallSpec } from "./tools.js";
 import type { AgentCallbacks, AllCallbacks, InferenceCallbacks } from "./callbacks.js";
+import type { McpServerSpec } from "./core.js";
 
 /**
  * Describes the parameters for making an inference request.
@@ -100,7 +101,18 @@ interface InferenceOptions {
 
 interface ClientInferenceOptions extends InferenceOptions, InferenceCallbacks { }
 
-interface AgentInferenceOptions extends InferenceOptions, AllCallbacks { }
+interface AgentInferenceOptions extends InferenceOptions, AllCallbacks {
+    baseDir?: string;
+    isAgent?: boolean;
+    isToolCall?: boolean;
+    isChatMode?: boolean;
+    showTokens?: boolean;
+    nocli?: boolean;
+    backend?: string;
+    mcpArgs?: Array<string>;
+    confirmToolUsage?: (tool: ToolCallSpec) => Promise<boolean>;
+    abort?: AbortController;
+}
 
 /**
  * Represents the result returned after an inference request.

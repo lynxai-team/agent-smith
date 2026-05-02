@@ -5,7 +5,7 @@ import type { HistoryTurn, UiHistoryTurn } from "./history.js";
 import type { AgentInferenceOptions, InferenceParams } from "./inference.js";
 import type { ModelInfo } from "./model.js";
 import type { ToolDefSpec, ToolSpec } from "./tools.js";
-import type { LmTaskFileSpec } from "./core.js";
+import type { McpServerSpec } from "./core.js";
 
 /**
  * Settings for a task configuration.
@@ -167,7 +167,7 @@ interface ClientFeaturesOptions extends AgentInferenceOptions {
  */
 interface ClientFeaturesService {
     isReady: Ref<boolean>;
-    task: Ref<LmTaskFileSpec>;
+    task: Ref<TaskDef>;
     variables: Reactive<UserTaskVariables>;
     //inferOptions: Reactive<{ params: InferenceParams, model: string }>;
     mcp: Reactive<{ servers: Record<string, any> }>;
@@ -288,6 +288,7 @@ interface TaskDef {
     toolsList?: Array<string>;
     type?: string;
     category?: string;
+    mcp?: McpServerSpec;
 }
 
 export {
