@@ -28,7 +28,7 @@ function getAgentRoute(r: Router) {
     r.get('/agent/:id', async (ctx: Context, next: Next) => {
         //console.log(ctx.params.id)
         const taskSpec = fs.openTaskSpec(ctx.params.id, true);
-        ctx.body = taskSpec.taskFileSpec;
+        ctx.body = taskSpec.taskDef;
         ctx.status = 200;
         //await next()
     })
