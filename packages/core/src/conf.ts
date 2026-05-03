@@ -7,7 +7,6 @@ import yaml from "yaml";
 import { runtimeError } from "./utils/user_msgs.js";
 import { createDirectoryIfNotExists } from "./utils/sys/dirs.js";
 import { readConf } from "./utils/sys/read_conf.js";
-import { localBackends } from "./const.js";
 import { deleteTaskSettings, insertFeaturesPathIfNotExists, insertPluginIfNotExists, upsertBackends, upsertTaskSettings } from "./db/write.js";
 import { buildPluginsPaths } from "./state/plugins.js";
 import { initTaskSettings, tasksSettings } from "./state/tasks.js";

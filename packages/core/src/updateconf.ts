@@ -8,11 +8,28 @@ import { readFeaturesDirs } from "./state/features.js";
 import { readPluginsPaths } from "./state/plugins.js";
 import { dataDirPath, promptfilePath } from "./state/state.js";
 //import { runtimeDataError, runtimeInfo } from './user_msgs.js';
-//import { readUserCmd } from "./sys/read_cmds.js";
+import { readUserCmd } from "./utils/sys/read_cmds.js";
+
+async function getUserCmdsData(feats: Features): Promise<Features> {
+    for (const feat of feats.cmd) {
+        const cmdPath = path.join(feat.path, feat.name + "." + feat.ext);
+        const { found, userCmd } = await readUserCmd(feat.name, cmdPath);
+        if (found) {
+            feat.variables = {
+                description: userCmd.description,
+                name: userCmd.name,
+            }
+            if (userCmd?.options) {
+                feat.variables.options = userCmd.options
+            }
+        }
+    }
+    return feats
+}
 
 async function updateAllFeatures(paths: Array<string>, userFeats?: Features) {
     let feats = readFeaturesDirs(paths, true);
-    //feats = await getUserCmdsData(feats);
+    feats = await getUserCmdsData(feats);
     if (userFeats?.action) {
         feats.action.push(...userFeats.action)
     }

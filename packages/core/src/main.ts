@@ -6,7 +6,7 @@ import { extractToolDoc } from "./tools.js";
 import { executeWorkflow } from "./workflows/cmd.js";
 import { readWorkflow } from "./workflows/read.js";
 import { writeToClipboard } from "./utils/sys/clipboard.js";
-import { execute, run } from "./utils/sys/execute.js";
+import { execute, runShellCmd } from "./utils/sys/execute.js";
 import { readConf } from "./utils/sys/read_conf.js";
 import { confDir, createConfigFile, dbPath, getConfigPath, processConfPath, updateConfigFile } from "./conf.js";
 import { initDb } from "./db/db.js";
@@ -14,7 +14,7 @@ import { usePerfTimer } from "./utils/perf.js";
 import { deleteFileIfExists } from "./utils/sys/delete_file.js";
 import { getTaskPrompt, getInputFromOptions } from "./utils/io.js";
 import { getFeatureSpec } from "./state/features.js";
-//import { extractBetweenTags, splitThinking } from "./utils/text.js";
+
 import {
     updatePromptfilePath,
     updateDataDirPath,
@@ -75,6 +75,7 @@ import {
     readTask,
     readTasksDir,
 } from "./utils/sys/read_task.js";
+import { extractBetweenTags } from "./utils/text.js";
 import {
     updateConfCmd,
     updateFeaturesCmd,
@@ -128,9 +129,14 @@ const conf = {
 }
 
 const utils = {
+    execute,
+    runShellCmd,
     deleteFileIfExists,
     readTask,
     readTasksDir,
+    extractBetweenTags,
+    writeToClipboard,
+    usePerfTimer,
 }
 
 const state = {
@@ -158,11 +164,15 @@ const state = {
 }
 
 export {
-    backend, db, execute, executeAction, getTaskPrompt, getInputFromOptions,
+    backend, db, fs, conf, utils, state,
+    executeAction,
+    executeTask,
+    executeWorkflow,
+    getTaskPrompt,
+    getInputFromOptions,
     getFeatureSpec,
-    executeTask, executeWorkflow, extractToolDoc, fs, conf, utils, state,
-    McpClient, openTaskSpec,
-    run,
-    usePerfTimer, writeToClipboard,
+    extractToolDoc,
+    McpClient,
+    openTaskSpec,
 };
 

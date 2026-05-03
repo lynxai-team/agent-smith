@@ -37,7 +37,7 @@ async function execute(
     }
 }
 
-function run(
+function runShellCmd(
     command: string,
     args: Array<string> = [],
     {
@@ -63,4 +63,4 @@ function run(
     return () => child.kill()
 }
 
-export { execute, run }
+export { execute, runShellCmd }
