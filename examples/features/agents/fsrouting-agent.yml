@@ -8,13 +8,11 @@ ctx: 16384
 template:
   afterSystem: |-
     Use your tools if they can help to fullfill the user request
-model:
-  name: qwen4b
-  template: chatml-tools
+model: qwen4b
 inferParams:
   top_k: 20
   top_p: 0.9
   min_p: 0.05
   temperature: 0.3
 toolsList:
-  - fsreadagent
+  - fs-light-routing-agent

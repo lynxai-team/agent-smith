@@ -2,9 +2,7 @@ description: Chat with a Youtube video
 prompt: |-
     {prompt}
 ctx: 32768
-model:
-    name: qwen4b
-    template: chatml-tools
+model: qwen4b
 inferParams:
     top_k: 20
     top_p: 0.95

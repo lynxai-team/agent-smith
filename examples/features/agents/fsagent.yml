@@ -2,9 +2,7 @@ description: An example agent
 prompt: |-
     {prompt}
 ctx: 32768
-model:
-  name: glmflash
-  template: glm-tools
+model: glmflash
 inferParams:
   top_p: 1
   min_p: 0.01

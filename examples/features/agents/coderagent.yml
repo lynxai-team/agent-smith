@@ -4,9 +4,7 @@ description: An example code agent
 prompt: |-
     {prompt}
 ctx: 32768
-model:
-  name: glmflash
-  template: glm-tools
+model: glmflash
 template:
   afterSystem: |-
     
