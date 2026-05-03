@@ -1,5 +1,5 @@
 import { Agent } from "@agent-smith/agent";
-import type { InferenceParams, TaskSettings, AgentInferenceOptions, InferenceResult, ToolCallSpec } from "@agent-smith/types";
+import type { TaskSettings, AgentInferenceOptions, InferenceResult, ToolCallSpec } from "@agent-smith/types";
 import { default as color } from "ansi-colors";
 import ora from 'ora';
 import { backend, backends, listBackends } from "../state/backends.js";
@@ -53,14 +53,14 @@ async function executeTask(
             }
         }
     }
-    if (options?.debug && mcpServers.length > 0) {
+    if (options?.verbosity?.mcp && mcpServers.length > 0) {
         console.log("Starting", mcpServers.length, "mcp servers")
     }
     for (const mcp of mcpServers) {
         await mcp.start();
         const tools = await mcp.extractTools(options);
         tools.forEach(t => task.def.tools?.push(t));
-        if (options?.debug) {
+        if (options?.verbosity?.mcp) {
             console.log("MCP start", mcp.name);
         }
     }
@@ -102,7 +102,7 @@ async function executeTask(
         delete options.params.tsGrammar;
     }
     let c = false;
-    if (options?.debug) {
+    if (options?.verbosity?.task) {
         console.log("Task model:", options.model);
         console.log("Task vars:", vars);
     }
@@ -173,21 +173,22 @@ async function executeTask(
             }
             emittedThinkingTokens++
         };
-    const onToolCallInProgress = options?.onToolCallInProgress ?
+    /* const onToolCallInProgress = options?.onToolCallInProgress ?
         options.onToolCallInProgress :
         (tc: Array<ToolCallSpec>) => console.log(color.dim(`Preparing tool call ${tc[tc.length - 1].name} ...`));
     const _onToolCall = (tc: Record<string, any>) => {
         //console.log("TC START");
         console.log("⚒️ ", color.bold(name), "=>", `${color.yellowBright(tc.name)}`, tc.arguments);
-    };
-    const onToolCall = options?.onToolCall as (tc: Record<string, any>) => void ?? _onToolCall;
-    const _onToolCallEnd = (tc: ToolCallSpec, tr: any) => {
+    };*/
+    /*const _onToolCallEnd = (tc: ToolCallSpec, tr: any) => {
         if (options?.debug) {
             console.log(tc.name + ":\n", tr)
         }
-    }
+    }*/
     // const spinnerInit = (name: string) => ora(`Executing the ${name} tool ...\n`);
-    const onToolCallEnd = options?.onToolCallEnd ?? _onToolCallEnd;
+    const onToolCallInProgress = options?.onToolCallInProgress;
+    const onToolCall = options?.onToolCall ?? undefined;
+    const onToolCallEnd = options?.onToolCallEnd ?? undefined;
     const onToolsTurnStart = options?.onToolsTurnStart ?? undefined;
     const onToolsTurnEnd = options?.onToolsTurnEnd ?? undefined;
     const onTurnEnd = options?.onTurnEnd ?? undefined;
@@ -310,13 +311,9 @@ async function executeTask(
         setChatInferenceParams(initialInferParams);
         //await chat(program, options, agent, mcpServers);
     }*/
-    if (options?.debug === true || options?.verbose === true) {
+    if (options?.verbosity?.stats) {
         try {
             console.log(emittedTokens.toString(), color.dim("tokens"), out.stats.tokensPerSecond, color.dim("tps"));
-            //console.log("\n", formatStats(out.answer.stats))
-            if (options?.debug === true) {
-                console.log(out.stats)
-            }
         } catch (e) {
             runtimeWarning("Error formating stats:", `${e}`)
         }
