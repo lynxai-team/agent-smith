@@ -30,7 +30,31 @@ async function confirmToolUsage(toolCall: ToolCallSpec) {
     return await confirm({ message: `Execute tool ${toolCall.name}?` });
 }
 
+let c = false;
+const printToken = (t: string, showTokens = false, dim = false) => {
+    if (dim === true) {
+        process.stdout.write(`\x1b[2m${t}\x1b[0m`);
+    } else {
+        if (showTokens === true) {
+            let txt = t;
+            txt = c ? t : `\x1b[100m${t}\x1b[0m`
+            process.stdout.write(txt);
+            c = !c
+        } else {
+            /*if (formatMode.value == "markdown") {
+                fullTxt += t;
+                process.stdout.write('\u001Bc\u001B[3J');
+                process.stdout.write(marked.parse(fullTxt) as string);*/
+            //} else {
+            process.stdout.write(t);
+            //}
+        }
+    }
+
+};
+
 export {
     parseCommandArgs,
     confirmToolUsage,
+    printToken,
 }

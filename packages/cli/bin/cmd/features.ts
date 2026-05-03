@@ -1,6 +1,7 @@
 import { executeAction, executeTask, executeWorkflow, getTaskPrompt, getInputFromOptions } from "@agent-smith/core";
 import { confirmToolUsage, parseCommandArgs } from "../utils.js";
 import type { InferenceResult } from "@agent-smith/types";
+import { useInferenceCallbacks } from "./callbacks.js";
 
 async function executeWorkflowCmd(name: string, wargs: Array<any>): Promise<any> {
     //console.log("WF INITIAL ARGS", typeof wargs, wargs.slice(0, -1));
@@ -16,7 +17,9 @@ async function executeTaskCmd(
 ): Promise<InferenceResult> {
     const ca = parseCommandArgs(targs);
     //console.log("ARGS", ca);
-    const prompt = await getTaskPrompt(name, ca.args, ca.options);
+    const inferenceCallbacks = useInferenceCallbacks(ca.options);
+    const options = { ...ca.options, ...inferenceCallbacks };
+    const prompt = await getTaskPrompt(name, ca.args, options);
     const tr = await executeTask(name, { prompt: prompt }, ca.options)
     //console.log("TR", tr);
     return tr
@@ -44,10 +47,12 @@ async function executeAgentCmd(
     targs: Array<any> = []
 ): Promise<InferenceResult> {
     const ca = parseCommandArgs(targs);
-    const prompt = await getTaskPrompt(name, ca.args, ca.options);
     ca.options.isAgent = true;
     ca.options.confirmToolUsage = confirmToolUsage;
-    const res = await executeTask(name, { prompt: prompt }, ca.options)
+    const inferenceCallbacks = useInferenceCallbacks(ca.options);
+    const options = { ...ca.options, ...inferenceCallbacks };
+    const prompt = await getTaskPrompt(name, ca.args, options);
+    const res = await executeTask(name, { prompt: prompt }, options)
     return res
 }
 
