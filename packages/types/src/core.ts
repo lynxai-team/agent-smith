@@ -75,7 +75,6 @@ type InputMode = "manual" | "promptfile" | "clipboard";
 type OutputMode = "txt" | "clipboard";
 type RunMode = "cli" | "cmd";
 type FormatMode = "text" | "markdown";
-type VerbosityMode = "quiet" | "verbose" | "debug";
 
 type FeatureType = "task" | "agent" | "action" | "cmd" | "workflow" | "adaptater";
 type ToolType = "task" | "agent" | "action" | "cmd" | "workflow";
@@ -92,7 +91,6 @@ type FeatureExecutor<I = any, O = any> = (params: I, options: Record<string, any
 
 export {
     InputMode,
-    VerbosityMode,
     OutputMode,
     RunMode,
     FormatMode,

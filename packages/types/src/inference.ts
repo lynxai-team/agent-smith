@@ -4,6 +4,7 @@ import type { InferenceStats } from "./stats.js";
 import type { ToolCallSpec } from "./tools.js";
 import type { AgentCallbacks, AllCallbacks, InferenceCallbacks } from "./callbacks.js";
 import type { McpServerSpec } from "./core.js";
+import type { VerbosityOptions } from "./verbosity.js";
 
 /**
  * Describes the parameters for making an inference request.
@@ -97,6 +98,7 @@ interface InferenceOptions {
     assistant?: string;
     isToolsRouter?: boolean;
     params?: InferenceParams;
+    verbosity?: VerbosityOptions;
 }
 
 interface ClientInferenceOptions extends InferenceOptions, InferenceCallbacks { }

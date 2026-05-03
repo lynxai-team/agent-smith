@@ -80,7 +80,6 @@ import {
 } from "./agent.js";
 import {
     InputMode,
-    VerbosityMode,
     OutputMode,
     RunMode,
     FormatMode,
@@ -104,6 +103,7 @@ import {
     UserCmdDef,
     FeatureType,
 } from "./core.js";
+import { VerbosityOptions } from "./verbosity.js";
 
 export {
     ConfInferenceBackend,
@@ -164,7 +164,6 @@ export {
     TemplateSpec,
     TaskDef,
     InputMode,
-    VerbosityMode,
     OutputMode,
     RunMode,
     FormatMode,
@@ -188,4 +187,5 @@ export {
     WorkflowStep,
     UserCmdDef,
     ClientFeaturesOptions,
+    VerbosityOptions,
 }
