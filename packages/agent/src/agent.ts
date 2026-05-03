@@ -1,14 +1,14 @@
 import type { AgentInferenceOptions } from "@agent-smith/types/dist/inference.js";
 import { Lm } from "./client.js";
-import type { InferenceParams, ToolSpec, HistoryTurn, InferenceOptions, InferenceResult, ToolTurn, AgentParams, ToolCallSpec, InferenceCallbacks, AgentCallbacks } from "@agent-smith/types";
+import type { InferenceParams, ToolSpec, HistoryTurn, InferenceOptions, InferenceResult, ToolTurn, AgentParams, ToolCallSpec, InferenceCallbacks, AgentCallbacks, VerbosityOptions } from "@agent-smith/types";
 
 class Agent {
     name: string = "unamed";
     lm: Lm;
     tools: Record<string, ToolSpec> = {};
     history: Array<HistoryTurn> = [];
-    onToolCall?: (tc: ToolCallSpec) => void;
-    onToolCallEnd?: (tc: ToolCallSpec, tr: any) => void;
+    onToolCall?: (tc: ToolCallSpec, name: string) => void;
+    onToolCallEnd?: (tc: ToolCallSpec, tr: any, name: string) => void;
     onToolsTurnStart?: (tc: Array<ToolCallSpec>) => void;
     onToolsTurnEnd?: (tt: Array<ToolTurn>) => void;
     onTurnEnd?: (ht: HistoryTurn) => void;
@@ -77,6 +77,7 @@ class Agent {
         prompt: string,
         options: AgentInferenceOptions = {},
     ) {
+        const verbosity: VerbosityOptions = options?.verbosity ?? { events: true };
         //console.log("(AGENT) options:", options);
         const clientEvents: InferenceCallbacks = {
             onStartThinking: options?.onStartThinking,
@@ -98,8 +99,8 @@ class Agent {
             onThink: options?.onThink ?? this.onThink,
         }
         const baseOpts = {
-            debug: options?.debug,
-            verbose: options?.verbose,
+            //debug: options?.debug,
+            //verbose: options?.verbose,
             model: options?.model,
             tools: options?.tools,
             history: options?.history,
@@ -108,6 +109,7 @@ class Agent {
             isToolsRouter: options?.isToolsRouter,
             params: options?.params,
         }
+        //console.log("AGENT OPTS", baseOpts);
         const clientOpts = { ...baseOpts, ...clientEvents };
         options.history = this.history;
         const res = await this.lm.infer(prompt, clientOpts);
@@ -145,18 +147,19 @@ class Agent {
                 }
                 if (canRun) {
                     if (events?.onToolCall) {
-                        events.onToolCall(tc);
+                        //console.log("TCA", this.name);
+                        events.onToolCall(tc, this.name);
                     }
                     const toolCallResult = await tool.execute(tc.arguments);
-                    if (options?.debug || options?.verbose) {
+                    if (verbosity?.toolResults) {
                         console.log("[x] Executed tool", tool.name + ":", toolCallResult);
                     }
                     toolsResults.push({ call: tc, response: JSON.stringify(toolCallResult) });
                     if (events?.onToolCallEnd) {
-                        events.onToolCallEnd(tc, toolCallResult);
+                        events.onToolCallEnd(tc, toolCallResult, this.name);
                     }
                 } else {
-                    if (options?.debug || options?.verbose) {
+                    if (verbosity?.events) {
                         console.log("[-] Tool", tool.name, "execution refused");
                     }
                 }

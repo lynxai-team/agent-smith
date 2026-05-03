@@ -1,6 +1,5 @@
 import type {
     InferenceCallbacks,
-    InferenceParams,
     InferenceResult,
     InferenceStats,
     IngestionStats,
@@ -9,7 +8,8 @@ import type {
     ModelInfo,
     OnLoadProgress,
     ToolCallSpec,
-    ToolSpec
+    ToolSpec,
+    VerbosityOptions
 } from "@agent-smith/types";
 import type { ClientInferenceOptions } from "@agent-smith/types/dist/inference.js";
 import { createParser } from 'eventsource-parser';
@@ -179,6 +179,7 @@ class Lm implements LmProvider {
         };
         //console.log("EVENTS", events);
         //console.log("CLI OPTS", options);
+        const verbosity: VerbosityOptions = options?.verbosity ?? { events: true };
         this.abortController = new AbortController();
         const params = options?.params ?? {};
         const inferenceParams: Record<string, any> = Object.assign({}, params);
@@ -189,7 +190,7 @@ class Lm implements LmProvider {
         if (options?.model) {
             this.model = options.model;
         }
-        if (options?.debug) {
+        if (verbosity?.options) {
             console.log("Options", options);
         }
         inferenceParams.stream = params?.stream ?? true;
@@ -287,20 +288,13 @@ class Lm implements LmProvider {
             }
             delete inferenceParams.extra;
         }
-        if (options?.debug || options?.verbose) {
-            const tn = Object.keys(this.tools);
-            console.log(tn.length, "available tools:", tn);
-        }
-        /*if (options?.debug) {
-            console.dir(tools, { depth: 6 })
-        }*/
-        if (options?.debug || options?.verbose) {
+        if (verbosity?.history) {
             console.log("Messages ----------\n");
             console.dir(msgs, { depth: 6 });
             console.log("-------------------");
-            if (options?.tools) {
+            if (this?.tools && verbosity?.tools) {
                 console.log("Tools ----------\n");
-                console.dir(options.tools, { depth: 6 });
+                console.dir(this.tools, { depth: 6 });
                 console.log("-------------------");
             }
         }
@@ -315,7 +309,7 @@ class Lm implements LmProvider {
                 parallel_tool_calls: true,
                 ...inferenceParams,
             };
-            if (options?.debug || options?.verbose) {
+            if (verbosity?.inferenceParams) {
                 console.log("Inference parameters:");
                 console.dir(inferenceParams, { depth: 4 });
             }
@@ -364,7 +358,7 @@ class Lm implements LmProvider {
                 ...inferenceParams,
                 stream: true,
             };
-            if (options?.debug || options?.verbose) {
+            if (verbosity?.inferenceParams) {
                 console.log("Inference parameters:");
                 console.dir(inferenceParams, { depth: 4 });
             }
@@ -381,11 +375,11 @@ class Lm implements LmProvider {
             }
             const _url = `${this.serverUrl}/chat/completions`;
             const body = JSON.stringify(ip);
-            /*if (options?.debug) {
+            if (verbosity?.request) {
                 console.log("Agent: request body -------------");
                 console.log(ip);
                 console.log("-----------------------------------");
-            }*/
+            }
             //console.log("IP", JSON.stringify(ip, null, 2));
             const response = await fetch(_url, {
                 method: 'POST',
@@ -476,6 +470,12 @@ class Lm implements LmProvider {
                                             name: toolCallDelta.function?.name,
                                             arguments: {},
                                         };
+                                        if (isThinking) {
+                                            isThinking = false;
+                                            if (events.onEndThinking) {
+                                                events.onEndThinking()
+                                            }
+                                        }
                                         if (events.onToolCallInProgress) {
                                             events.onToolCallInProgress(toolsCallsInProgress);
                                         }
@@ -506,7 +506,7 @@ class Lm implements LmProvider {
                                             name: toolCall.function.name,
                                             arguments: new Array<string>()
                                         };
-                                        if (options?.debug || options?.verbose) {
+                                        if (verbosity?.tools) {
                                             console.log("* Initiating tool call", toolCall.function.name)
                                         }
                                     }
@@ -592,7 +592,7 @@ class Lm implements LmProvider {
         };
         if (toolCalls.length > 0) {
             ir.toolCalls = toolCalls;
-            if (options?.debug) {
+            if (verbosity?.toolResults) {
                 console.log("=> Tools calls:");
                 console.dir(toolCalls, { depth: 6 })
             }
