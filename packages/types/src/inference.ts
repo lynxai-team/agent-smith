@@ -1,9 +1,7 @@
-import type { ToolSpec } from "./tools.js";
-import type { HistoryTurn, ToolTurn } from "./history.js";
+import type { AllCallbacks, InferenceCallbacks } from "./callbacks.js";
+import type { HistoryTurn } from "./history.js";
 import type { InferenceStats } from "./stats.js";
-import type { ToolCallSpec } from "./tools.js";
-import type { AgentCallbacks, AllCallbacks, InferenceCallbacks } from "./callbacks.js";
-import type { McpServerSpec } from "./core.js";
+import type { ToolCallSpec, ToolSpec } from "./tools.js";
 import type { VerbosityOptions } from "./verbosity.js";
 
 /**
@@ -101,7 +99,9 @@ interface InferenceOptions {
     verbosity?: VerbosityOptions;
 }
 
-interface ClientInferenceOptions extends InferenceOptions, InferenceCallbacks { }
+interface ClientInferenceOptions extends InferenceOptions, InferenceCallbacks {
+    agentName?: string;
+}
 
 interface AgentInferenceOptions extends InferenceOptions, AllCallbacks {
     baseDir?: string;
@@ -150,9 +150,6 @@ interface InferenceResult {
 }
 
 export {
-    InferenceParams,
-    InferenceOptions,
-    ClientInferenceOptions,
-    AgentInferenceOptions,
-    InferenceResult,
-}
+    AgentInferenceOptions, ClientInferenceOptions, InferenceOptions, InferenceParams, InferenceResult
+};
+
