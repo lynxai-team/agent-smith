@@ -1,6 +1,6 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { ToolSpec, type ToolCallSpec } from "@agent-smith/types";
+import type { ToolSpec, ToolCallSpec } from "@agent-smith/types";
 //import { confirmToolUsage } from "./tools.js";
 
 class McpClient {

@@ -80,6 +80,7 @@ import {
     updateConfCmd,
     updateFeaturesCmd,
 } from "./updateconf.js";
+import { useTaskExecutor } from "./tasks/usetask.js";
 
 const db = {
     init: initDb,
@@ -174,5 +175,6 @@ export {
     extractToolDoc,
     McpClient,
     openTaskSpec,
+    useTaskExecutor,
 };
 
