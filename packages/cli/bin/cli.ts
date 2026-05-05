@@ -11,10 +11,10 @@ async function query(program: Command) {
     //console.log("QUERY", q);
     const args = q.split(" ")
     await program.parseAsync(args, { from: "user" });
-    if (isChatMode.value) {
+    /*if (isChatMode.value) {
         const agent = new Agent({ lm: state.backend.value!, name: "chat" })
-        await chat(program, {}, agent, [])
-    }
+        await chat({}, agent, [])
+    }*/
     await query(program)
 }
 

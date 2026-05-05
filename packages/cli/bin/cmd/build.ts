@@ -1,5 +1,5 @@
 import { input } from "@inquirer/prompts";
-import type { InferenceOptions } from "@agent-smith/types";
+import type { AgentInferenceOptions, InferenceOptions } from "@agent-smith/types";
 import { Command } from "commander";
 import { query } from "../cli.js";
 import { db, type McpClient } from "@agent-smith/core";
@@ -11,8 +11,8 @@ import { initUserCmds } from "./cmds.js";
 
 const program = new Command();
 
-async function chat(program: Command, options: InferenceOptions, agent: Agent, mcpServers: Array<McpClient>) {
-    //console.log("CHAT OPTS", options);
+async function chat(options: AgentInferenceOptions, agent: Agent, mcpServers: Array<McpClient>) {
+    //console.log("CHAT AGENT", agent);
     const data = { message: '>', default: "" };
     const prompt = await input(data);
     if (prompt == "/q") {
@@ -30,7 +30,7 @@ async function chat(program: Command, options: InferenceOptions, agent: Agent, m
     options.params = chatInferenceParams;
     await agent.run(prompt, options);
     console.log();
-    await chat(program, options, agent, mcpServers);
+    await chat(options, agent, mcpServers);
 }
 
 async function buildCmds(): Promise<Command> {

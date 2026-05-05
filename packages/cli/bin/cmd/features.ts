@@ -1,7 +1,8 @@
-import { executeAction, executeTask, executeWorkflow, getTaskPrompt, getInputFromOptions } from "@agent-smith/core";
+import { executeAction, executeTask, executeWorkflow, getTaskPrompt, getInputFromOptions, useTaskExecutor } from "@agent-smith/core";
 import { confirmToolUsage, parseCommandArgs } from "../utils.js";
 import type { InferenceResult } from "@agent-smith/types";
 import { useInferenceCallbacks } from "./callbacks.js";
+import { chat } from "./build.js";
 
 async function executeWorkflowCmd(name: string, wargs: Array<any>): Promise<any> {
     //console.log("WF INITIAL ARGS", typeof wargs, wargs.slice(0, -1));
@@ -17,11 +18,15 @@ async function executeTaskCmd(
 ): Promise<InferenceResult> {
     const ca = parseCommandArgs(targs);
     //console.log("ARGS", ca);
-    const inferenceCallbacks = useInferenceCallbacks(ca.options);
+    const inferenceCallbacks = useInferenceCallbacks(name, ca.options);
     const options = { ...ca.options, ...inferenceCallbacks };
     const prompt = await getTaskPrompt(name, ca.args, options);
-    const tr = await executeTask(name, { prompt: prompt }, ca.options)
+    const tsk = await useTaskExecutor(name, { prompt: prompt }, ca.options);
+    const tr = await executeTask(name, { prompt: prompt }, ca.options);
     //console.log("TR", tr);
+    if (ca?.options.chat) {
+        await chat(options, tsk.agent, tsk.mcpServers);
+    }
     return tr
 }
 
@@ -49,11 +54,15 @@ async function executeAgentCmd(
     const ca = parseCommandArgs(targs);
     ca.options.isAgent = true;
     ca.options.confirmToolUsage = confirmToolUsage;
-    const inferenceCallbacks = useInferenceCallbacks(ca.options);
+    const inferenceCallbacks = useInferenceCallbacks(name, ca.options);
     const options = { ...ca.options, ...inferenceCallbacks };
     const prompt = await getTaskPrompt(name, ca.args, options);
-    const res = await executeTask(name, { prompt: prompt }, options)
-    return res
+    const tsk = await useTaskExecutor(name, { prompt: prompt }, ca.options);
+    const tr = await executeTask(name, { prompt: prompt }, ca.options);
+    if (ca?.options.chat) {
+        await chat(options, tsk.agent, tsk.mcpServers);
+    }
+    return tr
 }
 
 export {
