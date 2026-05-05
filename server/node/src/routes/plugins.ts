@@ -1,6 +1,6 @@
 import type Router from '@koa/router';
 import type { Context, Next } from 'koa';
-import { execute, conf as c, state } from '@agent-smith/core';
+import { utils, conf as c, state } from '@agent-smith/core';
 import { getConfig } from '../utils.js';
 
 function installPluginRoute(r: Router) {
@@ -9,7 +9,7 @@ function installPluginRoute(r: Router) {
         console.log("P", payload);
         for (const p of payload) {
             console.log("Installing", p, "plugin");
-            const res = await execute("npm", ["i", "-g", p]);
+            const res = await utils.execute("npm", ["i", "-g", p]);
             console.log(p, res)
         }
         await state.init();
