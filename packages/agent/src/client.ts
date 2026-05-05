@@ -29,14 +29,14 @@ import { convertToolCallSpec, generateId } from './tools.js';
 class Lm implements LmProvider {
     name: string;
     api: ReturnType<typeof useApi>;
-    onToken?: (t: string) => void;
-    onThinkingToken?: (t: string) => void;
-    onStartThinking?: () => void;
-    onEndThinking?: () => void;
-    onStartEmit?: (data: IngestionStats) => void;
-    onEndEmit?: (result: InferenceResult) => void;
-    onError?: (err: any) => void;
-    onToolCallInProgress?: (tc: Array<ToolCallSpec>) => void;
+    onToken?: (t: string, from: string) => void;
+    onThinkingToken?: (t: string, from: string) => void;
+    onStartThinking?: (from: string) => void;
+    onEndThinking?: (from: string) => void;
+    onStartEmit?: (data: IngestionStats, from: string) => void;
+    onEndEmit?: (result: InferenceResult, from: string) => void;
+    onError?: (err: any, from: string) => void;
+    onToolCallInProgress?: (tc: Array<ToolCallSpec>, from: string) => void;
     // state
     model = "";
     models = new Array<ModelInfo>();
@@ -391,7 +391,7 @@ class Lm implements LmProvider {
                 const jerr = await response.json();
                 const err = jerr?.error ?? await response.text();
                 if (this?.onError) {
-                    this.onError(err);
+                    this.onError(err, options?.agentName ?? "");
                     return {} as InferenceResult;
                 } else {
                     throw new Error(`Inference server error: ${JSON.stringify(err, null, 2)}`)
@@ -399,7 +399,7 @@ class Lm implements LmProvider {
             }
             if (!response.body) {
                 if (this?.onError) {
-                    this.onError(new Error("No response body"));
+                    this.onError(new Error("No response body"), options?.agentName ?? "");
                 };
                 throw new Error("No response body")
             }
@@ -424,7 +424,7 @@ class Lm implements LmProvider {
                         if (i == 1) {
                             const ins = stats.inferenceStarts();
                             if (events.onStartEmit) {
-                                events.onStartEmit(ins)
+                                events.onStartEmit(ins, this.name)
                             }
                         }
                         if (events.onToken) {
@@ -473,11 +473,11 @@ class Lm implements LmProvider {
                                         if (isThinking) {
                                             isThinking = false;
                                             if (events.onEndThinking) {
-                                                events.onEndThinking()
+                                                events.onEndThinking(options?.agentName ?? "")
                                             }
                                         }
                                         if (events.onToolCallInProgress) {
-                                            events.onToolCallInProgress(toolsCallsInProgress);
+                                            events.onToolCallInProgress(toolsCallsInProgress, options?.agentName ?? "");
                                         }
                                     } else {
                                         // Update existing tool call with new information
@@ -519,12 +519,12 @@ class Lm implements LmProvider {
                                 if (!isThinking) {
                                     isThinking = true;
                                     if (events.onStartThinking) {
-                                        events.onStartThinking()
+                                        events.onStartThinking(options?.agentName ?? "")
                                     }
                                 }
                                 thinkingText += delta.reasoning_content;
                                 if (events.onThinkingToken) {
-                                    events.onThinkingToken(delta.reasoning_content);
+                                    events.onThinkingToken(delta.reasoning_content, options?.agentName ?? "");
                                 }
                             } else {
                                 const t = delta?.content;
@@ -532,11 +532,11 @@ class Lm implements LmProvider {
                                     if (isThinking) {
                                         isThinking = false;
                                         if (events.onEndThinking) {
-                                            events.onEndThinking()
+                                            events.onEndThinking(options?.agentName ?? "")
                                         }
                                     }
                                     if (events.onToken) {
-                                        events.onToken(t);
+                                        events.onToken(t, options?.agentName ?? "");
                                     }
                                     buf.push(t);
 
@@ -551,7 +551,7 @@ class Lm implements LmProvider {
                                     args = JSON.parse(v.arguments.join(""));
                                 } catch (e) {
                                     if (events.onError) {
-                                        events.onError(`${e}`)
+                                        events.onError(`${e}`, options?.agentName ?? "")
                                     } else {
                                         throw new Error(`parsing tool call args:\n${v.arguments}\nMRTC:\n${typeof modelRawToolCalls} ${JSON.stringify(modelRawToolCalls, null, 2)}`)
                                     }
@@ -598,7 +598,7 @@ class Lm implements LmProvider {
             }
         }
         if (events.onEndEmit) {
-            events.onEndEmit(ir)
+            events.onEndEmit(ir, options?.agentName ?? "")
         }
         return ir
     }

@@ -1,19 +1,19 @@
+import type { AgentCallbacks, AgentParams, HistoryTurn, InferenceCallbacks, InferenceResult, ToolCallSpec, ToolSpec, ToolTurn, VerbosityOptions } from "@agent-smith/types";
 import type { AgentInferenceOptions } from "@agent-smith/types/dist/inference.js";
 import { Lm } from "./client.js";
-import type { InferenceParams, ToolSpec, HistoryTurn, InferenceOptions, InferenceResult, ToolTurn, AgentParams, ToolCallSpec, InferenceCallbacks, AgentCallbacks, VerbosityOptions } from "@agent-smith/types";
 
 class Agent {
     name: string = "unamed";
     lm: Lm;
     tools: Record<string, ToolSpec> = {};
     history: Array<HistoryTurn> = [];
-    onToolCall?: (tc: ToolCallSpec, name: string) => void;
-    onToolCallEnd?: (tc: ToolCallSpec, tr: any, name: string) => void;
-    onToolsTurnStart?: (tc: Array<ToolCallSpec>) => void;
-    onToolsTurnEnd?: (tt: Array<ToolTurn>) => void;
-    onTurnEnd?: (ht: HistoryTurn) => void;
-    onAssistant?: (txt: string) => void;
-    onThink?: (txt: string) => void;
+    onToolCall?: (tc: ToolCallSpec, from: string) => void;
+    onToolCallEnd?: (tc: ToolCallSpec, tr: any, from: string) => void;
+    onToolsTurnStart?: (tc: Array<ToolCallSpec>, from: string) => void;
+    onToolsTurnEnd?: (tt: Array<ToolTurn>, from: string) => void;
+    onTurnEnd?: (ht: HistoryTurn, from: string) => void;
+    onAssistant?: (txt: string, from: string) => void;
+    onThink?: (txt: string, from: string) => void;
 
     constructor(params: AgentParams) {
         this.lm = params.lm;
@@ -110,7 +110,7 @@ class Agent {
             params: options?.params,
         }
         //console.log("AGENT OPTS", baseOpts);
-        const clientOpts = { ...baseOpts, ...clientEvents };
+        const clientOpts = { ...baseOpts, ...clientEvents, agentName: this.name };
         options.history = this.history;
         const res = await this.lm.infer(prompt, clientOpts);
         //console.log("(AGENT) RUN RES:");
@@ -122,17 +122,17 @@ class Agent {
         //console.log("RES", res);
         if (_res.thinkingText.length > 0) {
             if (events.onThink) {
-                events.onThink(_res.thinkingText)
+                events.onThink(_res.thinkingText, this.name)
             }
         }
         if (_res.text.length > 0) {
             if (events.onAssistant) {
-                events.onAssistant(_res.text)
+                events.onAssistant(_res.text, this.name)
             }
         }
         if (res?.toolCalls) {
             if (events.onToolsTurnStart) {
-                events.onToolsTurnStart(res.toolCalls);
+                events.onToolsTurnStart(res.toolCalls, this.name);
             }
             const toolsResults = new Array<ToolTurn>();
             const toolNames = Object.keys(this.tools);
@@ -165,7 +165,7 @@ class Agent {
                 }
             }
             if (events?.onToolsTurnEnd) {
-                events.onToolsTurnEnd(toolsResults);
+                events.onToolsTurnEnd(toolsResults, this.name);
             }
             this.history.push({ tools: toolsResults });
             if (options?.isToolsRouter) {
@@ -189,13 +189,13 @@ class Agent {
                 options.tools = Object.values(this.tools);
             }
             if (events?.onTurnEnd) {
-                events.onTurnEnd(this.history[this.history.length - 1])
+                events.onTurnEnd(this.history[this.history.length - 1], this.name)
             }
             _res = await this.runAgent(nit, "", options);
         } else {
             this.history.push({ assistant: res.text });
             if (events?.onTurnEnd) {
-                events.onTurnEnd(this.history[this.history.length - 1])
+                events.onTurnEnd(this.history[this.history.length - 1], this.name)
             }
         }
         return _res
@@ -203,6 +203,6 @@ class Agent {
 }
 
 export {
-    Agent,
-}
+    Agent
+};
 
