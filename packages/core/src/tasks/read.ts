@@ -13,7 +13,7 @@ import { openTaskSpec } from "../utils/io.js";
 //import { confirmToolUsage } from "../tools.js";
 
 async function readTask(
-    name: string, payload: Record<string, any>, options: AgentInferenceOptions, agent: Agent
+    name: string, payload: Record<string, any>, options: AgentInferenceOptions & Record<string, any>, agent: Agent
 ): Promise<{
     task: NodeTask;
     vars: Record<string, any>;
@@ -41,7 +41,11 @@ async function readTask(
     if (taskDef?.variables?.optional) {
         for (const k of Object.keys(taskDef.variables.optional)) {
             if (k in payload) {
-                vars[k] = payload[k]
+                vars[k] = payload[k];
+            } else if (k in options) {
+                // remove var from options
+                vars[k] = options.k
+                delete options.k
             }
         }
     }
@@ -50,6 +54,10 @@ async function readTask(
             //console.log("TASK V required:", Object.keys(taskDef.variables.required), "/", k in options, "/", k in payload);
             if (k in payload) {
                 vars[k] = payload[k]
+            } else if (k in options) {
+                // remove var from options
+                vars[k] = options.k
+                delete options.k
             }
         }
     }

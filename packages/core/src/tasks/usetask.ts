@@ -9,7 +9,7 @@ import { processOutput } from "../utils/io.js";
 import { usePerfTimer } from "../utils/perf.js";
 import { runtimeDataError, runtimeError, runtimeWarning } from "../utils/user_msgs.js";
 
-const useTaskExecutor = async (name: string, payload: Record<string, any>, options: AgentInferenceOptions) => {
+const useTaskExecutor = async (name: string, payload: Record<string, any>, options: AgentInferenceOptions & Record<string, any>) => {
     if (!backend.value) {
         throw new Error("no backend set")
     }
@@ -19,6 +19,7 @@ const useTaskExecutor = async (name: string, payload: Record<string, any>, optio
     });
 
     const { task, vars, mcpServers, taskDir } = await readTask(name, payload, options, agent);
+    options.variables = vars;
     let settings: TaskSettings = {};
 
     const execute = async (): Promise<InferenceResult> => {
