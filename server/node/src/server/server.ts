@@ -87,6 +87,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
           if (!(msg.payload.id in confirmToolCalls)) {
             const rsm: WsRawServerMsg = {
               type: "error",
+              from: "server",
               msg: `can not confirm tool call: unknown tool id ${msg.payload.id}`,
             }
             ctx.websocket.send(JSON.stringify(rsm));
@@ -106,59 +107,67 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
         if (!msg?.payload) {
           const rsm: WsRawServerMsg = {
             type: "error",
+            from: "server",
             msg: "provide a payload",
           }
           ctx.websocket.send(JSON.stringify(rsm));
           return
         }
         if (msg.feature == "task") {
-          msg.options.onThinkingToken = (t: string) => {
+          msg.options.onThinkingToken = (t: string, from: string) => {
             const rsm: WsRawServerMsg = {
               type: "thinkingtoken",
+              from: from,
               msg: t,
             }
             ctx.websocket.send(JSON.stringify(rsm));
             process.stdout.write(`\x1b[2m${t}\x1b[0m`);
           };
-          msg.options.onToken = (t: string) => {
+          msg.options.onToken = (t: string, from: string) => {
             const rsm2: WsRawServerMsg = {
               type: "token",
+              from: from,
               msg: t,
             }
             ctx.websocket.send(JSON.stringify(rsm2));
             process.stdout.write(t);
           };
-          msg.options.onStartThinking = () => {
+          msg.options.onStartThinking = (from: string) => {
             const rsm: WsRawServerMsg = {
               type: "thinkingstart",
+              from: from,
               msg: "",
             }
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onEndThinking = () => {
+          msg.options.onEndThinking = (from: string) => {
             const rsm: WsRawServerMsg = {
               type: "thinkingend",
+              from: from,
               msg: "",
             }
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onTurnEnd = (ht: Record<string, any>) => {
+          msg.options.onTurnEnd = (ht: Record<string, any>, from: string) => {
             const rsm: WsRawServerMsg = {
               type: "turnend",
+              from: from,
               msg: JSON.stringify(ht),
             }
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onAssistant = (txt: string) => {
+          msg.options.onAssistant = (txt: string, from: string) => {
             const rsm: WsRawServerMsg = {
               type: "assistant",
+              from: from,
               msg: txt,
             }
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onThink = (txt: string) => {
+          msg.options.onThink = (txt: string, from: string) => {
             const rsm: WsRawServerMsg = {
               type: "think",
+              from: from,
               msg: txt,
             }
             ctx.websocket.send(JSON.stringify(rsm));
@@ -170,103 +179,116 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             let r: HistoryTurn = { assistant: res.text };
             const rsm: WsRawServerMsg = {
               type: "finalresult",
+              from: "server",
               msg: JSON.stringify(r),
             }
             ctx.websocket.send(JSON.stringify(rsm));
           } catch (e) {
             const rsm: WsRawServerMsg = {
               type: "error",
+              from: "server",
               msg: `${e}`,
             }
             ctx.websocket.send(JSON.stringify(rsm));
           }
         } else if (msg.feature == "agent") {
-          msg.options.onThinkingToken = (t: string) => {
+          msg.options.onThinkingToken = (t: string, from: string) => {
             const rsm: WsRawServerMsg = {
+              from: from,
               type: "thinkingtoken",
               msg: t,
             }
             ctx.websocket.send(JSON.stringify(rsm));
             process.stdout.write(`\x1b[2m${t}\x1b[0m`);
           };
-          msg.options.onToken = (t: string) => {
+          msg.options.onToken = (t: string, from: string) => {
             const rsm2: WsRawServerMsg = {
               type: "token",
+              from: from,
               msg: t,
             }
             ctx.websocket.send(JSON.stringify(rsm2));
             process.stdout.write(t);
           };
-          msg.options.onStartThinking = () => {
+          msg.options.onStartThinking = (from: string) => {
             const rsm: WsRawServerMsg = {
               type: "thinkingstart",
+              from: from,
               msg: "",
             }
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onEndThinking = () => {
+          msg.options.onEndThinking = (from: string) => {
             const rsm: WsRawServerMsg = {
               type: "thinkingend",
+              from: from,
               msg: "",
             }
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onToolCallInProgress = (tcs: Array<any>) => {
+          msg.options.onToolCallInProgress = (tcs: Array<any>, from: string) => {
             const rsm: WsRawServerMsg = {
               type: "toolcallinprogress",
+              from: from,
               msg: JSON.stringify(tcs),
             }
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onToolsTurnStart = (tcs: Record<string, any>) => {
+          msg.options.onToolsTurnStart = (tcs: Record<string, any>, from: string) => {
             const rsm: WsRawServerMsg = {
               type: "toolsturnstart",
+              from: from,
               msg: JSON.stringify(tcs),
             }
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onToolsTurnEnd = (tr: Record<string, any>) => {
+          msg.options.onToolsTurnEnd = (tr: Record<string, any>, from: string) => {
             const rsm: WsRawServerMsg = {
               type: "toolsturnend",
+              from: from,
               msg: JSON.stringify(tr),
             }
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onTurnEnd = (ht: Record<string, any>) => {
+          msg.options.onTurnEnd = (ht: Record<string, any>, from: string) => {
             const rsm: WsRawServerMsg = {
               type: "turnend",
+              from: from,
               msg: JSON.stringify(ht),
             }
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onAssistant = (txt: string) => {
+          msg.options.onAssistant = (txt: string, from: string) => {
             const rsm: WsRawServerMsg = {
               type: "assistant",
+              from: from,
               msg: txt,
             }
             //console.log("SRV ON ASSISTANT", txt);
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onThink = (txt: string) => {
+          msg.options.onThink = (txt: string, from: string) => {
             const rsm: WsRawServerMsg = {
               type: "think",
+              from: from,
               msg: txt,
             }
             //console.log("SRV ON THINK", txt);
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onToolCall = (tc: Record<string, any>) => {
+          msg.options.onToolCall = (tc: Record<string, any>, from: string) => {
             if (!tc?.id) {
               tc.id = crypto.randomUUID()
             }
             const rsm: WsRawServerMsg = {
               type: "toolcall",
+              from: from,
               msg: JSON.stringify(tc),
             }
             ctx.websocket.send(JSON.stringify(rsm));
             console.log("\n⚒️ ", color.bold(msg.command), "=>", `${color.yellowBright(tc.name)}`, tc.arguments);
           };
-          msg.options.onToolCallEnd = (tc: any, tr: any) => {
+          msg.options.onToolCallEnd = (tc: any, tr: any, from: string) => {
             let toolResData: any;
             if (typeof tr == 'object') {
               if (tr?.text) {
@@ -280,17 +302,19 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             }
             const rsm: WsRawServerMsg = {
               type: "toolcallend",
+              from: from,
               msg: `${JSON.stringify(tc)}<|xtool_call_id|>` + toolResData,
             };
             //console.log("TOOL CALL END", toolResData);
             ctx.websocket.send(JSON.stringify(rsm));
           }
-          msg.options.confirmToolUsage = async (tc: Record<string, any>) => {
+          msg.options.confirmToolUsage = async (tc: Record<string, any>, from: string) => {
             if (!tc?.id) {
               tc.id = crypto.randomUUID()
             }
             const rsm: WsRawServerMsg = {
               type: "toolcallconfirm",
+              from: from,
               msg: JSON.stringify(tc),
             }
             const { promise, resolve } = createAwaiter<boolean>();
@@ -319,12 +343,14 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             //console.log("FINAL MSG", ht)
             const rsm: WsRawServerMsg = {
               type: "finalresult",
+              from: "server",
               msg: ht,
             }
             ctx.websocket.send(JSON.stringify(rsm));
           } catch (e) {
             const rsm: WsRawServerMsg = {
               type: "error",
+              from: "server",
               msg: `${e}`
             }
             ctx.websocket.send(JSON.stringify(rsm));
@@ -334,12 +360,14 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             const res = await executeWorkflow(msg.command, msg.payload, msg.options);
             const rsm: WsRawServerMsg = {
               type: "finalresult",
+              from: "server",
               msg: res,
             }
             ctx.websocket.send(JSON.stringify(rsm));
           } catch (e) {
             const rsm: WsRawServerMsg = {
               type: "error",
+              from: "server",
               msg: `${e}`
             }
             ctx.websocket.send(JSON.stringify(rsm));
@@ -356,6 +384,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
         else {
           const rsm: WsRawServerMsg = {
             type: "error",
+            from: "server",
             msg: "command type " + msg.feature + " not supported"
           }
           ctx.websocket.send(JSON.stringify(rsm));
