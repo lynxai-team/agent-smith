@@ -21,8 +21,8 @@ async function executeTaskCmd(
     const inferenceCallbacks = useInferenceCallbacks(name, ca.options);
     const options = { ...ca.options, ...inferenceCallbacks };
     const prompt = await getTaskPrompt(name, ca.args, options);
-    const tsk = await useTaskExecutor(name, { prompt: prompt }, ca.options);
-    const tr = await executeTask(name, { prompt: prompt }, ca.options);
+    const tsk = await useTaskExecutor(name, { prompt: prompt }, options);
+    const tr = await tsk.execute();
     //console.log("TR", tr);
     if (ca?.options.chat) {
         await chat(options, tsk.agent, tsk.mcpServers);
@@ -57,8 +57,10 @@ async function executeAgentCmd(
     const inferenceCallbacks = useInferenceCallbacks(name, ca.options);
     const options = { ...ca.options, ...inferenceCallbacks };
     const prompt = await getTaskPrompt(name, ca.args, options);
-    const tsk = await useTaskExecutor(name, { prompt: prompt }, ca.options);
-    const tr = await executeTask(name, { prompt: prompt }, ca.options);
+    const tsk = await useTaskExecutor(name, { prompt: prompt }, options);
+    //console.log("CA", ca);
+    const tr = await tsk.execute();
+    //console.dir(tsk.agent.history, { depth: 6 });
     if (ca?.options.chat) {
         await chat(options, tsk.agent, tsk.mcpServers);
     }
