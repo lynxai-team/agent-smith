@@ -78,7 +78,7 @@ class Agent {
         options: AgentInferenceOptions = {},
     ) {
         const verbosity: VerbosityOptions = options?.verbosity ?? { events: true };
-        //console.log("(AGENT) options:", options);
+        //console.log("START RUN AGENT", this.name);
         const clientEvents: InferenceCallbacks = {
             onStartThinking: options?.onStartThinking,
             onEndThinking: options?.onEndThinking,
@@ -110,7 +110,8 @@ class Agent {
             params: options?.params,
         }
         //console.log("AGENT OPTS", baseOpts);
-        const clientOpts = { ...baseOpts, ...clientEvents, agentName: this.name };
+        const clientOpts = { ...baseOpts, ...clientEvents, ...events, agentName: this.name };
+        //console.log("AGENT CLIENT OPS", clientOpts);
         options.history = this.history;
         const res = await this.lm.infer(prompt, clientOpts);
         //console.log("(AGENT) RUN RES:");
@@ -131,6 +132,7 @@ class Agent {
             }
         }
         if (res?.toolCalls) {
+            //console.log("TTS", this.name);
             if (events.onToolsTurnStart) {
                 events.onToolsTurnStart(res.toolCalls, this.name);
             }
@@ -146,35 +148,43 @@ class Agent {
                     canRun = await tool.canRun(tc);
                 }
                 if (canRun) {
+                    //console.log("TCS", this.name);
                     if (events?.onToolCall) {
-                        //console.log("TCA", this.name);
                         events.onToolCall(tc, this.name);
                     }
                     const toolCallResult = await tool.execute(tc.arguments);
                     if (verbosity?.toolResults) {
                         console.log("[x] Executed tool", tool.name + ":", toolCallResult);
                     }
-                    toolsResults.push({ call: tc, response: JSON.stringify(toolCallResult) });
+                    toolsResults.push({ call: tc, response: toolCallResult });
                     if (events?.onToolCallEnd) {
                         events.onToolCallEnd(tc, toolCallResult, this.name);
                     }
+                    //console.log("TCE", this.name, JSON.stringify(toolCallResult));
                 } else {
                     if (verbosity?.events) {
                         console.log("[-] Tool", tool.name, "execution refused");
                     }
                 }
             }
+            //console.log("TTE", this.name);
             if (events?.onToolsTurnEnd) {
                 events.onToolsTurnEnd(toolsResults, this.name);
             }
             this.history.push({ tools: toolsResults });
+            //console.log("HIST", this.name + ":");
+            //console.dir(this.history, { depth: 6 });
             if (options?.isToolsRouter) {
                 const fres: InferenceResult = {
                     text: JSON.stringify(toolsResults.map(tr => tr.response)),
-                    thinkingText: "",
+                    thinkingText: res.thinkingText ?? "",
                     stats: res.stats,
                     serverStats: res.serverStats,
                     toolCalls: res.toolCalls,
+                }
+                //console.log("TURN END ROUTING", this.name);
+                if (events?.onTurnEnd) {
+                    events.onTurnEnd(this.history[this.history.length - 1], this.name)
                 }
                 return fres
             }
@@ -188,12 +198,17 @@ class Agent {
             if (options?.tools) {
                 options.tools = Object.values(this.tools);
             }
+            //console.log("TURN END Tc", this.name);
             if (events?.onTurnEnd) {
                 events.onTurnEnd(this.history[this.history.length - 1], this.name)
             }
+            //console.log("RUN AGENT TC", this.name);
             _res = await this.runAgent(nit, "", options);
+            //console.log("END RUN AGENT TC", this.name);
         } else {
+            //console.log("END RUN AGENT NO TC", this.name);
             this.history.push({ assistant: res.text });
+            //console.log("TURN END NO TC", this.name);
             if (events?.onTurnEnd) {
                 events.onTurnEnd(this.history[this.history.length - 1], this.name)
             }
