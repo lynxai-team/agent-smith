@@ -59,6 +59,7 @@ interface WsRawClientMsg {
  */
 interface WsRawServerMsg {
     type: WsServerMsgType;
+    from: string;
     msg: string;
 }
 
