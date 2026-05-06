@@ -20,12 +20,12 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
     //console.log("IP", inferOptions.params, "P", params?.defaultInferenceParams);
     //console.log("IPDF", defaultInferenceParams);
     const _old = ws.onToken;
-    ws.onToken = (t: string) => {
+    ws.onToken = (t: string, from: string) => {
         if (_old) {
-            _old(t);
+            _old(t, from);
         }
         if (params?.onToken) {
-            params.onToken(t);
+            params.onToken(t, from);
         }
     }
 
@@ -105,9 +105,9 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         if (isSync) {
             let oir = params?.onTurnEnd;
             initAwaiter();
-            params.onTurnEnd = (r) => {
+            params.onTurnEnd = (r, from) => {
                 if (oir) {
-                    oir(r);
+                    oir(r, from);
                 };
                 unblock(true);
             }
@@ -174,9 +174,9 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         if (isSync) {
             let oir = params?.onTurnEnd;
             initAwaiter();
-            params.onTurnEnd = (r) => {
+            params.onTurnEnd = (r, from) => {
                 if (oir) {
-                    oir(r);
+                    oir(r, from);
                 };
                 unblock(true);
             }

@@ -37,6 +37,7 @@ const useWsServer = (params: ServerParams) => {
             throw new Error(`can not parse data: ${e}\nMSG: ${event.data}`)
         }
         const type = data.type;
+        const from = data.from;
         const msg = data.msg;
         /*const s = event.data.split(sep);
         const type = s[0];
@@ -47,64 +48,64 @@ const useWsServer = (params: ServerParams) => {
         switch (type) {
             case "error":
                 if (onError) {
-                    onError(msg)
+                    onError(msg, from)
                 } else {
                     console.error(msg)
                 }
                 break;
             case "token":
                 if (onToken) {
-                    onToken(msg);
+                    onToken(msg, from);
                 }
                 break
             case "thinkingtoken":
                 if (onThinkingToken) {
-                    onThinkingToken(msg);
+                    onThinkingToken(msg, from);
                 }
                 break
             case "turnend":
                 if (onTurnEnd) {
-                    onTurnEnd(JSON.parse(msg))
+                    onTurnEnd(JSON.parse(msg), from)
                 }
                 break
             case "assistant":
                 if (onAssistant) {
-                    onAssistant(msg)
+                    onAssistant(msg, from)
                 }
                 break
             case "think":
                 if (onThink) {
-                    onThink(msg)
+                    onThink(msg, from)
                 }
                 break
             case "thinkingstart":
                 if (onStartThinking) {
-                    onStartThinking()
+                    onStartThinking(from)
                 }
                 break
             case "thinkingend":
                 if (onEndThinking) {
-                    onEndThinking()
+                    onEndThinking(from)
                 }
                 break
             case "toolcallinprogress":
                 if (onToolCallInProgress) {
-                    onToolCallInProgress(JSON.parse(msg))
+                    onToolCallInProgress(JSON.parse(msg), from)
                 }
                 break
             case "toolsturnstart":
                 if (onToolsTurnStart) {
-                    onToolsTurnStart(JSON.parse(msg))
+                    onToolsTurnStart(JSON.parse(msg), from)
                 }
                 break
             case "toolsturnend":
                 if (onToolsTurnEnd) {
-                    onToolsTurnEnd(JSON.parse(msg))
+                    onToolsTurnEnd(JSON.parse(msg), from)
                 }
                 break
             case "toolcall":
                 if (onToolCall) {
-                    onToolCall(JSON.parse(msg))
+                    onToolCall(JSON.parse(msg), from)
                 }
                 break
             case "toolcallend":
@@ -114,7 +115,7 @@ const useWsServer = (params: ServerParams) => {
                     const tc = JSON.parse(m[0]);
                     const content = m[1];
                     //console.log("WS TCP", tc);
-                    onToolCallEnd(tc, content)
+                    onToolCallEnd(tc, content, from)
                 }
                 break
             case "toolcallconfirm":
@@ -135,7 +136,7 @@ const useWsServer = (params: ServerParams) => {
                 const history = JSON.parse(msg) as HistoryTurn;
                 //console.log("HIST", history);
                 if (params?.onTurnEnd) {
-                    params.onTurnEnd(history)
+                    params.onTurnEnd(history, from)
                 }
                 break
             default:
