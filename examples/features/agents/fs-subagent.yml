@@ -1,0 +1,12 @@
+# requires plugin @agent-smith/feat-fs
+description: An agent with a filesystem routing subagent
+prompt: |-
+    {prompt}
+model: qwen4b
+inferParams:
+  top_p: 0.95
+  top_k: 20
+  min_p: 0
+  temperature: 0.6
+toolsList:
+    - fs-light-routing-agent

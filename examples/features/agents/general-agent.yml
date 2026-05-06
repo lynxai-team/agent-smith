@@ -1,0 +1,21 @@
+description: "General agent: sandboxed shell access and filesystem write, web search subagents"
+category: system
+prompt: |-
+    {prompt}
+template:
+    afterSystem: "Important: to write or edit files you always use your python tool."
+ctx: 32768
+model: qwen4b
+inferParams:
+    min_p: 0
+    top_k: 20
+    top_p: 0.95
+    temperature: 0.4
+variables:
+  required:
+    path:
+      description: The local directory path where to operate
+toolsList:
+  - shellbox
+  - pythonbox
+  - searchweb

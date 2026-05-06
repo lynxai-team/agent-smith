@@ -1,5 +1,5 @@
 # needs the plugin @agent-smith/feat-fs
-# the fsreadagent will just dispatch the tool calls and send back the raw result
+# the fs-light-routing-agent will just dispatch the tool calls and send back the raw result
 # this is to keep the context of the main agent clean
 description: An example agent using a tools routing subagent
 prompt: |-
