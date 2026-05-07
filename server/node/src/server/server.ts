@@ -276,21 +276,23 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             //console.log("SRV ON THINK", txt);
             ctx.websocket.send(JSON.stringify(rsm));
           };
-          msg.options.onToolCall = (tc: Record<string, any>, from: string) => {
+          msg.options.onToolCall = (tc: Record<string, any>, type: string, from: string) => {
             if (!tc?.id) {
               tc.id = crypto.randomUUID()
             }
+            const payload = { tc: tc, type: type, from: from };
             const rsm: WsRawServerMsg = {
               type: "toolcall",
               from: from,
-              msg: JSON.stringify(tc),
+              msg: JSON.stringify(payload),
             }
             ctx.websocket.send(JSON.stringify(rsm));
             console.log("\n⚒️ ", color.bold(msg.command), "=>", `${color.yellowBright(tc.name)}`, tc.arguments);
           };
-          msg.options.onToolCallEnd = (tc: any, tr: any, from: string) => {
+          msg.options.onToolCallEnd = (tc: any, tr: any, type: string, from: string) => {
             let toolResData: any;
             if (typeof tr == 'object') {
+              tr.type = type;
               if (tr?.text) {
                 // comes from an inference task
                 toolResData = tr.text
@@ -300,10 +302,11 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             } else {
               toolResData = tr.toString();
             }
+            const payload = { tc: tc, type: type, from: from };
             const rsm: WsRawServerMsg = {
               type: "toolcallend",
               from: from,
-              msg: `${JSON.stringify(tc)}<|xtool_call_id|>` + toolResData,
+              msg: `${JSON.stringify(payload)}<|xtool_call_id|>` + toolResData,
             };
             //console.log("TOOL CALL END", toolResData);
             ctx.websocket.send(JSON.stringify(rsm));

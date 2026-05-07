@@ -125,7 +125,7 @@ async function readTask(
                 autoRunTool = false;
                 toolName = rawToolName.slice(0, -1);
             }
-            const { found, tool, type } = readTool(toolName);
+            const { found, tool } = readTool(toolName);
             if (!found) {
                 throw new Error(`tool ${toolName} not found for task ${taskDef.name}`);
             }
@@ -135,7 +135,7 @@ async function readTask(
                 ...tool,
                 execute: async (params) => {
                     //console.log("EXEC TOOL:", type, toolName, params);
-                    switch (type) {
+                    switch (tool.type) {
                         case "action":
                             const res = await executeAction(toolName, params as Record<string, any>, options, quiet);
                             return res
@@ -163,7 +163,7 @@ async function readTask(
                             options.isToolCall = false;
                             return wres
                         default:
-                            throw new Error(`unknown tool execution function type: ${type} for ${toolName}`)
+                            throw new Error(`unknown tool execution function type: ${tool.type} for ${toolName}`)
                     }
                 }
             }

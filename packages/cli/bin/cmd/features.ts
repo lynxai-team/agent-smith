@@ -30,6 +30,27 @@ async function executeTaskCmd(
     return tr
 }
 
+async function executeAgentCmd(
+    name: string,
+    targs: Array<any> = []
+): Promise<InferenceResult> {
+    //console.log("EXEC AGENT", name);
+    const ca = parseCommandArgs(targs);
+    ca.options.isAgent = true;
+    ca.options.confirmToolUsage = confirmToolUsage;
+    const inferenceCallbacks = useInferenceCallbacks(name, ca.options);
+    const options = { ...ca.options, ...inferenceCallbacks };
+    const prompt = await getTaskPrompt(name, ca.args, options);
+    const tsk = await useTaskExecutor(name, { prompt: prompt }, options);
+    //console.log("CA", ca);
+    const tr = await tsk.execute();
+    //console.dir(tsk.agent.history, { depth: 6 });
+    if (ca?.options.chat) {
+        await chat(options, tsk.agent, tsk.mcpServers);
+    }
+    return tr
+}
+
 async function executeActionCmd(
     name: string, aargs: Array<any>, quiet = false
 ): Promise<any> {
@@ -45,26 +66,6 @@ async function executeActionCmd(
         console.log("Action", name, "params", params);
     }
     return await executeAction(name, params, options, quiet)
-}
-
-async function executeAgentCmd(
-    name: string,
-    targs: Array<any> = []
-): Promise<InferenceResult> {
-    const ca = parseCommandArgs(targs);
-    ca.options.isAgent = true;
-    ca.options.confirmToolUsage = confirmToolUsage;
-    const inferenceCallbacks = useInferenceCallbacks(name, ca.options);
-    const options = { ...ca.options, ...inferenceCallbacks };
-    const prompt = await getTaskPrompt(name, ca.args, options);
-    const tsk = await useTaskExecutor(name, { prompt: prompt }, options);
-    //console.log("CA", ca);
-    const tr = await tsk.execute();
-    //console.dir(tsk.agent.history, { depth: 6 });
-    if (ca?.options.chat) {
-        await chat(options, tsk.agent, tsk.mcpServers);
-    }
-    return tr
 }
 
 export {

@@ -143,6 +143,7 @@ function extractToolDoc(name: string, ext: FeatureExtension, dirPath: string): {
             ts = _parseToolDoc(doc, name);
         }
         spec = JSON.stringify(ts, null, "  ");
+        //console.log("PARSE TOOL", name, spec);
     } else {
         return { found: false, toolDoc: "" }
     }

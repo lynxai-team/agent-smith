@@ -74,8 +74,8 @@ interface InferenceCallbacks {
  * };
  */
 interface AgentCallbacks {
-    onToolCall?: (tc: ToolCallSpec, from: string) => void;
-    onToolCallEnd?: (tc: ToolCallSpec, tr: any, from: string) => void;
+    onToolCall?: (tc: ToolCallSpec, type: string, from: string) => void;
+    onToolCallEnd?: (tc: ToolCallSpec, tr: any, type: string, from: string) => void;
     onToolsTurnStart?: (tc: Array<ToolCallSpec>, from: string) => void;
     onToolsTurnEnd?: (tt: Array<ToolTurn>, from: string) => void;
     onTurnEnd?: (ht: HistoryTurn, from: string) => void;

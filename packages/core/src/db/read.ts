@@ -95,19 +95,19 @@ function readFeature(name: string, type: FeatureType): { found: boolean, feature
     return { found: false, feature: {} as FeatureSpec }
 }
 
-function readTool(name: string): { found: boolean, tool: ToolSpec, type: ToolType } {
+function readTool(name: string): { found: boolean, tool: ToolSpec } {
     const q = `SELECT id, name, type, spec FROM tool WHERE name='${name}'`;
     const stmt = db.prepare(q);
     const result = stmt.get() as Record<string, string>;
     if (result?.id) {
         const tool = JSON.parse(result.spec);
+        tool.type = result.type;
         return {
             found: true,
             tool: tool as ToolSpec,
-            type: result.type as ToolType,
         }
     }
-    return { found: false, tool: {} as ToolSpec, type: "action" }
+    return { found: false, tool: {} as ToolSpec }
 }
 
 function readFilePaths(): Array<{ name: string, path: string }> {

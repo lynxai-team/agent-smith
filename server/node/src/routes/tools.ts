@@ -9,7 +9,7 @@ function getToolsRoute(r: Router) {
         const tools = new Array<{ def: ToolDefSpec, type: ToolType }>();
         let nf = false;
         for (const tn of payload) {
-            const { found, tool, type } = db.readTool(tn);
+            const { found, tool } = db.readTool(tn);
             if (!found) {
                 ctx.status = 400;
                 ctx.body = `Tool ${tn} not found`;
@@ -21,7 +21,7 @@ function getToolsRoute(r: Router) {
                 description: tool.description,
                 arguments: tool.arguments,
             }
-            tools.push({ def: ts, type: type })
+            tools.push({ def: ts, type: tool.type as ToolType })
         }
         if (!nf) {
             ctx.body = tools;

@@ -121,7 +121,11 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         } else {
             for (const name of Object.keys(variables.values.required)) {
                 if (variables.values.required[name] == "") {
-                    throw new Error(`missing var ${name}, opts:\n${JSON.stringify(opts)}`)
+                    const msg = `Error: missing required variable: ${name} \n\nCurrent options:\n${JSON.stringify(opts)}`;
+                    if (params?.onError) {
+                        params.onError(msg, stateLocal.currentFeature.name)
+                    }
+                    throw new Error()
                 };
                 taskvars[name] = variables.values.required[name];
             };

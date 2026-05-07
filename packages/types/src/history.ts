@@ -44,7 +44,6 @@ interface HistoryTurn {
  * @example
  * const uiHistoryTurn: UiHistoryTurn = {
  *   from: 'qwen4b',
- *   assistant: "response here",
  *   state: {
  *     showThinking: true,
  *     showToolResponses: ['tool1'],
@@ -81,6 +80,9 @@ interface UiHistoryTurn extends HistoryTurn {
 interface ToolTurn {
     call: ToolCallSpec;
     response: any;
+    from: string;
+    type: string;
+    think?: string;
 }
 
 /**

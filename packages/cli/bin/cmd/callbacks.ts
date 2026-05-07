@@ -1,4 +1,4 @@
-import type { AgentInferenceOptions, ToolCallSpec } from "@agent-smith/types";
+import type { AgentInferenceOptions, AgentCallbacks, ToolCallSpec, InferenceCallbacks } from "@agent-smith/types";
 import ora from "ora";
 import { printToken } from "../utils.js";
 import { default as color } from "ansi-colors";
@@ -14,11 +14,11 @@ const useInferenceCallbacks = (
     let isToolCallRunning = false;
     const perfTimer = utils.usePerfTimer();
     const spinner = ora({ discardStdin: false, color: "green" });
-    const thinkIcon = "  ";
-    const talkIcon = "🏁";
+    //const thinkIcon = "  ";
+    //const talkIcon = "🏁";
     const toolIcon = "⚒️";
 
-    const onToken = (t: string, from: string) => {
+    const onToken: InferenceCallbacks["onToken"] = (t: string, from: string) => {
         if (emittedTokens == 0) {
             perfTimer.start();
             //console.log(talkIcon, from);
@@ -29,14 +29,14 @@ const useInferenceCallbacks = (
         //}
     };
 
-    const onStartThinking = (from: string) => {
+    const onStartThinking: InferenceCallbacks["onStartThinking"] = (from: string) => {
         //console.log("START THINKING");  
         if (!options?.debug && !options?.verbose) {
             spinner.start(`${from} is thinking ...`);
         }
     }
 
-    const onEndThinking = (from: string) => {
+    const onEndThinking: InferenceCallbacks["onEndThinking"] = (from: string) => {
         //console.log("END THINKING");
         if (!options?.debug && !options?.verbose) {
             spinner.stop();
@@ -49,7 +49,7 @@ const useInferenceCallbacks = (
         emittedThinkingTokens = 0;
     }
 
-    const onThinkingToken = (t: string, from: string) => {
+    const onThinkingToken: InferenceCallbacks["onThinkingToken"] = (t: string, from: string) => {
         if (options?.debug || options?.verbose) {
             printToken(t, options?.showTokens, options?.showTokens ? false : true)
         } else {
@@ -62,7 +62,7 @@ const useInferenceCallbacks = (
         emittedThinkingTokens++
     };
 
-    const onToolCallInProgress = (tc: Array<ToolCallSpec>, from: string) => {
+    const onToolCallInProgress: InferenceCallbacks["onToolCallInProgress"] = (tc: Array<ToolCallSpec>, from: string) => {
         const txt = color.dim("Preparing tool call") + ` ${from} ${color.yellowBright(tc[tc.length - 1].name)} ...`;
         if (!isToolCallInProgress) {
             spinner.start(txt)
@@ -72,19 +72,19 @@ const useInferenceCallbacks = (
         }
     }
 
-    const onToolCall = (tc: ToolCallSpec, from: string) => {
+    const onToolCall: AgentCallbacks["onToolCall"] = (tc: ToolCallSpec, type: string, from: string) => {
         isToolCallInProgress = false;
         isToolCallRunning = true;
         spinner.stop();
-        //console.log("TC START");        
+        //console.log("TC START", type, "agent", agentName, "/", from);
         const icon = agentName == from ? toolIcon + " " : "   " + toolIcon + " ";
-        console.log(icon, color.bold(from), "=>", `${color.yellowBright(tc.name)}`, tc.arguments);
+        console.log(icon, color.bold(from), "=>", type, `${color.yellowBright(tc.name)}`, tc.arguments);
     };
 
-    const onToolCallEnd = (tc: ToolCallSpec, tr: any, from: string) => {
+    const onToolCallEnd: AgentCallbacks["onToolCallEnd"] = (tc: ToolCallSpec, tr: any, type: string, from: string) => {
         isToolCallRunning = false;
         if (options?.debug) {
-            console.log(tc.name, "from", from + ":\n", tr)
+            console.log(tc.name, type, "from", from + ":\n", tr)
         }
     }
 

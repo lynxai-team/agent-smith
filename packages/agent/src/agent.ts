@@ -7,8 +7,8 @@ class Agent {
     lm: Lm;
     tools: Record<string, ToolSpec> = {};
     history: Array<HistoryTurn> = [];
-    onToolCall?: (tc: ToolCallSpec, from: string) => void;
-    onToolCallEnd?: (tc: ToolCallSpec, tr: any, from: string) => void;
+    onToolCall?: (tc: ToolCallSpec, type: string, from: string) => void;
+    onToolCallEnd?: (tc: ToolCallSpec, tr: any, type: string, from: string) => void;
     onToolsTurnStart?: (tc: Array<ToolCallSpec>, from: string) => void;
     onToolsTurnEnd?: (tt: Array<ToolTurn>, from: string) => void;
     onTurnEnd?: (ht: HistoryTurn, from: string) => void;
@@ -61,7 +61,7 @@ class Agent {
         }
         if (options?.history) {
             this.history = options.history;
-            options.history = undefined;
+            //options.history = undefined;
         }
         this.tools = {};
         if (options?.tools) {
@@ -69,13 +69,13 @@ class Agent {
                 this.tools[t.name] = t;
             });
         }
-        return await this.runAgent(1, prompt, options)
+        return await this._runAgent(1, prompt, options)
     }
 
-    async runAgent(
+    private async _runAgent(
         it: number,
         prompt: string,
-        options: AgentInferenceOptions = {},
+        options: AgentInferenceOptions,
     ) {
         const verbosity: VerbosityOptions = options?.verbosity ?? { events: true };
         //console.log("START RUN AGENT", this.name);
@@ -102,8 +102,8 @@ class Agent {
             //debug: options?.debug,
             //verbose: options?.verbose,
             model: options?.model,
-            tools: options?.tools,
-            history: options?.history,
+            tools: Object.values(this.tools),
+            history: this.history,
             system: options?.system,
             assistant: options?.assistant,
             isToolsRouter: options?.isToolsRouter,
@@ -112,7 +112,7 @@ class Agent {
         //console.log("AGENT OPTS", baseOpts);
         const clientOpts = { ...baseOpts, ...clientEvents, ...events, agentName: this.name };
         //console.log("AGENT CLIENT OPS", clientOpts);
-        options.history = this.history;
+        //options.history = this.history;
         const res = await this.lm.infer(prompt, clientOpts);
         //console.log("(AGENT) RUN RES:");
         //console.dir(res, {depth: 8})
@@ -121,10 +121,11 @@ class Agent {
         }
         let _res = res;
         //console.log("RES", res);
+        const toolsResults = new Array<ToolTurn>();
         if (_res.thinkingText.length > 0) {
             if (events.onThink) {
                 events.onThink(_res.thinkingText, this.name)
-            }
+            };
         }
         if (_res.text.length > 0) {
             if (events.onAssistant) {
@@ -132,11 +133,20 @@ class Agent {
             }
         }
         if (res?.toolCalls) {
+            if (res.thinkingText.length > 0) {
+                // interleaved thinking
+                /*toolsResults.push({
+                    from: this.name,
+                    call: {} as ToolCallSpec,
+                    response: "",
+                    type: "",
+                    think: _res.thinkingText
+                });*/
+            }
             //console.log("TTS", this.name);
             if (events.onToolsTurnStart) {
                 events.onToolsTurnStart(res.toolCalls, this.name);
             }
-            const toolsResults = new Array<ToolTurn>();
             const toolNames = Object.keys(this.tools);
             for (const tc of res.toolCalls) {
                 if (!toolNames.includes(tc.name)) {
@@ -150,15 +160,18 @@ class Agent {
                 if (canRun) {
                     //console.log("TCS", this.name);
                     if (events?.onToolCall) {
-                        events.onToolCall(tc, this.name);
+                        //console.log("TCT", this.tools[tc.name]);
+                        const type = this.tools[tc.name].type;
+                        events.onToolCall(tc, type, this.name);
                     }
                     const toolCallResult = await tool.execute(tc.arguments);
                     if (verbosity?.toolResults) {
                         console.log("[x] Executed tool", tool.name + ":", toolCallResult);
                     }
-                    toolsResults.push({ call: tc, response: toolCallResult });
+                    toolsResults.push({ call: tc, response: toolCallResult, from: this.name, type: tool.type });
                     if (events?.onToolCallEnd) {
-                        events.onToolCallEnd(tc, toolCallResult, this.name);
+                        const type = this.tools[tc.name].type;
+                        events.onToolCallEnd(tc, toolCallResult, type, this.name);
                     }
                     //console.log("TCE", this.name, JSON.stringify(toolCallResult));
                 } else {
@@ -171,7 +184,11 @@ class Agent {
             if (events?.onToolsTurnEnd) {
                 events.onToolsTurnEnd(toolsResults, this.name);
             }
-            this.history.push({ tools: toolsResults });
+            const ht: HistoryTurn = { tools: toolsResults };
+            /*if (res.thinkingText) {
+                ht.think = res.thinkingText
+            }*/
+            this.history.push(ht);
             //console.log("HIST", this.name + ":");
             //console.dir(this.history, { depth: 6 });
             if (options?.isToolsRouter) {
@@ -203,7 +220,7 @@ class Agent {
                 events.onTurnEnd(this.history[this.history.length - 1], this.name)
             }
             //console.log("RUN AGENT TC", this.name);
-            _res = await this.runAgent(nit, "", options);
+            _res = await this._runAgent(nit, "", options);
             //console.log("END RUN AGENT TC", this.name);
         } else {
             //console.log("END RUN AGENT NO TC", this.name);

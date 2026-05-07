@@ -105,17 +105,18 @@ const useWsServer = (params: ServerParams) => {
                 break
             case "toolcall":
                 if (onToolCall) {
-                    onToolCall(JSON.parse(msg), from)
+                    const payload = JSON.parse(msg);
+                    onToolCall(payload.tc, payload.type, payload.from)
                 }
                 break
             case "toolcallend":
                 if (onToolCallEnd) {
                     //console.log("WS TCE", msg);
                     const m = msg.split("<|xtool_call_id|>");
-                    const tc = JSON.parse(m[0]);
+                    const payload = JSON.parse(m[0]);
                     const content = m[1];
                     //console.log("WS TCP", tc);
-                    onToolCallEnd(tc, content, from)
+                    onToolCallEnd(payload.tc, content, payload.type, payload.from)
                 }
                 break
             case "toolcallconfirm":
@@ -149,6 +150,9 @@ const useWsServer = (params: ServerParams) => {
     };
 
     ws.onerror = function(error) {
+        if (params?.onError) {
+            params.onError(error, "websockets server")
+        }
         console.error('WebSocket error:', error);
     };
 

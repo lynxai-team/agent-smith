@@ -95,6 +95,7 @@ class McpClient {
                 return res
             }
             const t: ToolSpec = {
+                type: "mcp",
                 name: tool.name,
                 description: tool.description ?? "",
                 arguments: defargs,
