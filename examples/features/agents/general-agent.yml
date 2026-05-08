@@ -3,8 +3,8 @@ category: system
 prompt: |-
     {prompt}
 template:
-    afterSystem: "Important: to write or edit files you always use your python tool."
-ctx: 32768
+    system: |-
+      To write or edit files you always use your python tool.
 model: qwen4b
 inferParams:
     min_p: 0
@@ -16,6 +16,6 @@ variables:
     path:
       description: The local directory path where to operate
 toolsList:
-  - shellbox
-  - pythonbox
+  - shell
+  - python
   - searchweb

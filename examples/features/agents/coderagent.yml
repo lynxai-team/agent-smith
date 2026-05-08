@@ -3,10 +3,9 @@
 description: An example code agent
 prompt: |-
     {prompt}
-ctx: 32768
-model: glmflash
+model: qwen35b
 template:
-  afterSystem: |-
+  system: |-
     
     You are a coding assistant. You always follow those guidelines:
 
@@ -16,7 +15,7 @@ inferParams:
   top_p: 0.8 
   min_p: 0.05
   temperature: 0.3
-  repeat_penalty: 1.1
+  repeat_penalty: 1
 mcp:
   filesystem:
     command: npx

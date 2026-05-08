@@ -4,9 +4,8 @@
 description: An example agent using a tools routing subagent
 prompt: |-
     {prompt}
-ctx: 16384
 template:
-  afterSystem: |-
+  system: |-
     Use your tools if they can help to fullfill the user request
 model: qwen4b
 inferParams:

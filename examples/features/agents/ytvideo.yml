@@ -1,7 +1,6 @@
 description: Chat with a Youtube video
 prompt: |-
     {prompt}
-ctx: 32768
 model: qwen4b
 inferParams:
     top_k: 20
