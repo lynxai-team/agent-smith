@@ -167,7 +167,7 @@ const useTaskExecutor = async (name: string, payload: Record<string, any>, optio
             agent.history = options.history;
         }
         let out: InferenceResult;
-        //console.log("CLI EXEC TASK", payload.prompt, "\nVARS:", vars, "\nOPTS", tconf)
+        //console.log("CLI EXEC TASK", payload.prompt, "\nVARS:", vars, "\nOPTS", options)
         try {
             out = await task.run({ prompt: payload.prompt, ...vars }, agentOptions);
         } catch (e: any) {
@@ -175,33 +175,54 @@ const useTaskExecutor = async (name: string, payload: Record<string, any>, optio
             const errMsg = `${e}`;
             if (errMsg.includes("502 Bad Gateway")) {
                 clearInterval(abortTicker);
-                runtimeError("The server answered with a 502 Bad Gateway error. It might be down or misconfigured. Check your inference server.")
-                if (options?.nocli) {
-                    throw new Error(errMsg)
+                const msg = "The server answered with a 502 Bad Gateway error. It might be down or misconfigured. Check your inference server.";
+                const err = msg + "\n" + errMsg;
+                if ((options?.onError)) {
+                    options.onError(err, name);
+                } else {
+                    runtimeError(msg)
+                    if (options?.nocli) {
+                        throw new Error(err)
+                    }
                 }
-                //@ts-ignore
-                return
+                return {} as InferenceResult
             } else if (errMsg.includes("404 Not Found")) {
                 clearInterval(abortTicker);
-                runtimeError("The server answered with a 404 Not Found error. That might mean that the model you are requesting does not exist on the server.")
-                if (options?.nocli) {
-                    throw new Error(errMsg)
+                const msg = "The server answered with a 404 Not Found error. That might mean that the model you are requesting does not exist on the server.";
+                const err = msg + "\n" + errMsg;
+                if ((options?.onError)) {
+                    options.onError(err, name);
+                } else {
+                    runtimeError(msg)
+                    if (options?.nocli) {
+                        throw new Error(err)
+                    }
                 }
-                //@ts-ignore
-                return
+                return {} as InferenceResult
             } else if (errMsg.includes("400 Bad Request")) {
                 clearInterval(abortTicker);
-                runtimeError("The server answered with a 400 Bad Request error. That might mean that:\n- The model you are requesting does not exist on the server\n- A parameter is wrong or missing in your request\n- The request size exceeds the available context window size")
-                if (options?.nocli) {
-                    throw new Error(errMsg)
+                const msg = "The server answered with a 400 Bad Request error. That might mean that:\n- The model you are requesting does not exist on the server\n- A parameter is wrong or missing in your request\n- The request size exceeds the available context window size";
+                const err = msg + "\n" + errMsg;
+                if ((options?.onError)) {
+                    options.onError(err, name);
+                } else {
+                    runtimeError()
+                    if (options?.nocli) {
+                        throw new Error(err)
+                    }
                 }
-                //@ts-ignore
-                return
+                return {} as InferenceResult
             } else if (errMsg.includes("fetch failed")) {
                 clearInterval(abortTicker);
-                runtimeError("The server is not responding. Check if your inference backend is running.")
-                if (options?.nocli) {
-                    throw new Error(errMsg)
+                const msg = "The server is not responding. Check if your inference backend is running.";
+                const err = msg + "\n" + errMsg;
+                if ((options?.onError)) {
+                    options.onError(err, name);
+                } else {
+                    runtimeError(msg)
+                    if (options?.nocli) {
+                        throw new Error(err)
+                    }
                 }
                 //@ts-ignore
                 return
@@ -210,7 +231,11 @@ const useTaskExecutor = async (name: string, payload: Record<string, any>, optio
                     console.warn("\n*** The request was canceled by the user ***");
                 }
                 clearInterval(abortTicker);
+                /*if ((options?.onError)) {
+                    options.onError(errMsg, name);
+                } else {*/
                 return {} as InferenceResult
+                // }
             }
             else {
                 throw new Error(errMsg)
