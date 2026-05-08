@@ -203,6 +203,7 @@ class Lm implements LmProvider {
         if (options?.system) {
             msgs = [{ role: "system", content: options.system }];
         }
+        //console.log("CLIENT HIST IN", options?.history);
         if (options?.history) {
             options.history.forEach(
                 // @ts-ignore
@@ -236,12 +237,12 @@ class Lm implements LmProvider {
                             toolResponses.push({
                                 role: "tool",
                                 tool_call_id: tt.call.id,
-                                content: tt.response,
+                                content: JSON.stringify(tt.response),
                             })
                         });
                         msgs.push({
                             role: "assistant",
-                            content: null,
+                            //content: null,
                             tool_calls: toolCalls,
                         })
                         for (const tr of toolResponses) {
@@ -251,12 +252,15 @@ class Lm implements LmProvider {
                 }
             );
         }
+        //console.log("CLIENT HIST OUT", msgs);
         //console.log("AGENT IP", inferenceParams);
         if (inferenceParams?.images) {
             const usermsgs = new Array<ChatCompletionContentPart>();
-            usermsgs.push(
-                { type: "text", text: prompt }
-            );
+            if (prompt.length > 0) {
+                usermsgs.push(
+                    { type: "text", text: prompt }
+                );
+            }
             (inferenceParams.images as Array<string>).forEach(imgStr => {
                 usermsgs.push(
                     { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imgStr}`, detail: "auto" } }
@@ -264,7 +268,8 @@ class Lm implements LmProvider {
             });
             delete inferenceParams.images;
             msgs.push({ role: "user", content: usermsgs })
-        } else {
+        } else if (prompt.length > 0) {
+            //console.log("CLIENT PUSH USER TURN", { role: "user", content: prompt });
             msgs.push({ role: "user", content: prompt });
         }
         let tools: Array<ChatCompletionTool> = [];
@@ -380,7 +385,7 @@ class Lm implements LmProvider {
                 console.log(ip);
                 console.log("-----------------------------------");
             }
-            //console.log("IP", JSON.stringify(ip, null, 2));
+            //console.log("CLIENT POST", JSON.stringify(ip, null, 2));
             const response = await fetch(_url, {
                 method: 'POST',
                 headers: headers,
