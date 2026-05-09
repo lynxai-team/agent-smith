@@ -136,7 +136,8 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
             };
         }
         //console.log("SRV OPTS VARS", taskvars);
-        const payload = { prompt: prompt, ...taskvars }
+        const payload = { prompt: prompt };
+        opts = { ...opts, ...taskvars };
         /*const _options: Record<string, any> = { model: task.value.model ?? opts.model };
         if (opts?.backend) {
             _options.backend = opts.backend;
