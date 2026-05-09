@@ -157,9 +157,23 @@ class Agent {
                     }
                     const f = async () => {
                         //console.log("EXEC TOOL", tc.name);
-                        const toolCallResult = await tool.execute(tc.arguments);
+                        let toolCallResult: any;
+                        let ok = false;
+                        try {
+                            toolCallResult = await tool.execute(tc.arguments);
+                            ok = true;
+                        } catch (e) {
+                            toolCallResult = `running tool call ${e},\n ${JSON.stringify(tc, null, 2)}`;
+                            if (verbosity?.events) {
+                                console.log("[X] Tool", tool.name, "execution error:", toolCallResult);
+                            }
+                            if (options?.onError) {
+                                options?.onError(toolCallResult, this.name);
+                            }
+                            //throw new Error(m)
+                        }
                         //console.log("END EXEC TOOL", tc.name, toolCallResult);
-                        if (verbosity?.toolResults) {
+                        if (verbosity?.toolResults && ok) {
                             console.log("[x] Executed tool", tool.name + ":\n", toolCallResult);
                         }
                         toolsResults.push({ call: tc, response: toolCallResult, from: this.name, type: tool.type });
@@ -179,6 +193,7 @@ class Agent {
             // execute tools in parallel
             if (execTools.length > 0) {
                 await Promise.allSettled(execTools.map(f => f()));
+                //console.log("PR EXEC RES", res);
             }
             if (events?.onToolsTurnEnd) {
                 events.onToolsTurnEnd(toolsResults, this.name);
