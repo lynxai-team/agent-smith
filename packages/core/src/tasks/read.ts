@@ -13,37 +13,28 @@ import { openTaskSpec } from "../utils/io.js";
 //import { confirmToolUsage } from "../tools.js";
 
 async function readTask(
-    name: string, payload: Record<string, any>, options: AgentInferenceOptions & Record<string, any>, agent: Agent
+    name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions & Record<string, any>, agent: Agent
 ): Promise<{
     task: NodeTask;
     vars: Record<string, any>;
     mcpServers: Array<McpClient>;
     taskDir: string;
 }> {
-    if (options?.debug) {
-        console.log("Task", name);
-        console.log("Payload:", payload);
-        console.log("Task options:", options);
-    }
+    /*console.log("Read Task", name);
+    console.log("Payload:", payload);
+    console.log("Options:", options);*/
     const { taskDef, taskPath } = openTaskSpec(name, options?.isAgent);
+    //console.log("Task vars:", taskDef?.variables);
     const taskDir = path.dirname(taskPath);
-    // merge passed options from payload
-    //const opts = payload?.inferParams ? { ...options, ...payload.inferParams } : options;
-    //const conf = parseTaskConfigOptions(options);
-    /*if (options?.debug) {
-        console.log("Task conf:", conf);
-        conf.debug = true;
-    }*/
     options.params = mergeInferParams(options.params ?? {}, taskDef.inferParams ?? {});
-    //const model = options?.model ? options.model : taskDef.model;
     // vars
     let vars: Record<string, any> = {};
     if (taskDef?.variables?.optional) {
         for (const k of Object.keys(taskDef.variables.optional)) {
             if (k in payload) {
                 vars[k] = payload[k];
+                delete payload.k
             } else if (k in options) {
-                // remove var from options
                 vars[k] = options.k
                 delete options.k
             }
@@ -54,13 +45,14 @@ async function readTask(
             //console.log("TASK V required:", Object.keys(taskDef.variables.required), "/", k in options, "/", k in payload);
             if (k in payload) {
                 vars[k] = payload[k]
+                delete payload[k]
             } else if (k in options) {
-                // remove var from options
-                vars[k] = options.k
-                delete options.k
+                vars[k] = options[k]
+                delete options[k]
             }
         }
     }
+    //console.log("END VARS", vars);
     const mcpServers = new Array<McpClient>();
     if (!taskDef?.tools) {
         taskDef.tools = []
@@ -137,19 +129,19 @@ async function readTask(
                     //console.log("EXEC TOOL:", type, toolName, params);
                     switch (tool.type) {
                         case "action":
-                            const res = await executeAction(toolName, params as Record<string, any>, options, quiet);
+                            const res = await executeAction(toolName, params as { prompt: string & Record<string, any> }, options, quiet);
                             return res
                         case "task":
                             options.isToolCall = true;
                             options.isAgent = false;
-                            const tres = await executeTask(toolName, params as Record<string, any>, options);
+                            const tres = await executeTask(toolName, params as { prompt: string & Record<string, any> }, options);
                             options.isToolCall = false;
                             //console.log("WFTRESP", tres.answer.text);
                             return tres.text
                         case "agent":
                             options.isToolCall = true;
                             options.isAgent = true;
-                            const agres = await executeTask(toolName, params as Record<string, any>, options);
+                            const agres = await executeTask(toolName, params as { prompt: string & Record<string, any> }, options);
                             options.isAgent = false;
                             options.isToolCall = false;
                             //console.log("WFTRESP", tres.answer.text);

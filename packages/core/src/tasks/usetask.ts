@@ -9,7 +9,7 @@ import { processOutput } from "../utils/io.js";
 import { usePerfTimer } from "../utils/perf.js";
 import { runtimeDataError, runtimeError, runtimeWarning } from "../utils/user_msgs.js";
 
-const useTaskExecutor = async (name: string, payload: Record<string, any>, options: AgentInferenceOptions & Record<string, any>) => {
+const useTaskExecutor = async (name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions & Record<string, any>) => {
     if (!backend.value) {
         throw new Error("no backend set")
     }
@@ -19,7 +19,8 @@ const useTaskExecutor = async (name: string, payload: Record<string, any>, optio
     });
 
     const { task, vars, mcpServers, taskDir } = await readTask(name, payload, options, agent);
-    options.variables = vars;
+    const taskPayload = { ...payload, ...vars };
+    //console.log("PAY", taskPayload);
     let settings: TaskSettings = {};
 
     const execute = async (): Promise<InferenceResult> => {
@@ -167,9 +168,9 @@ const useTaskExecutor = async (name: string, payload: Record<string, any>, optio
             agent.history = options.history;
         }
         let out: InferenceResult;
-        //console.log("CLI EXEC TASK", payload.prompt, "\nVARS:", vars, "\nOPTS", options)
+        //console.log("CLI EXEC TASK", taskPayload.prompt, "\nVARS:", vars, "\nOPTS", options)
         try {
-            out = await task.run({ prompt: payload.prompt, ...vars }, agentOptions);
+            out = await task.run({ prompt: taskPayload.prompt, ...vars }, agentOptions);
         } catch (e: any) {
             //console.log("ERR CATCH", e);
             const errMsg = `${e}`;

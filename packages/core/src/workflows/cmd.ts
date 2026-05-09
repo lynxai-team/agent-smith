@@ -9,7 +9,7 @@ import { getInputFromOptions, getTaskPrompt } from "../utils/io.js";
 import { runtimeError } from "../utils/user_msgs.js";
 import { readWorkflow } from "./read.js";
 
-async function executeWorkflow(wname: string, args: any, options: AgentInferenceOptions): Promise<any> {
+async function executeWorkflow(wname: string, args: any, options: AgentInferenceOptions & Record<string, any>): Promise<any> {
     const { workflow, found } = await readWorkflow(wname);
     if (!found) {
         throw new Error(`Workflow ${wname} not found`)
@@ -32,7 +32,7 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
         switch (step.type) {
             case "task":
                 try {
-                    let tdata: Record<string, any> = taskRes;
+                    let tdata: { prompt: string } & Record<string, any> = { prompt: "", ...taskRes };
                     if (i == 0) {
                         tdata.prompt = await getTaskPrompt(step.name, taskRes.cmdArgs, options);
                     } else {
@@ -60,7 +60,7 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
                 break;
             case "agent":
                 try {
-                    let tdata: Record<string, any> = taskRes;
+                    let tdata: { prompt: string } & Record<string, any> = { prompt: "", ...taskRes };
                     if (i == 0) {
                         tdata.prompt = await getTaskPrompt(step.name, taskRes.cmdArgs, options);
                     } else {
