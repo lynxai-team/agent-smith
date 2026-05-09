@@ -18,12 +18,16 @@ async function initUserCmds(cmdFeats: Record<string, FeatureSpec>, program: Comm
         const hasVariables = feat?.variables ? true : false;
         const vars = hasVariables ? feat.variables as Record<string, any> : {};
         let desc = "";
+        let fullName = "";
         if (hasVariables) {
             desc = vars.description;
+            fullName = vars.name;
+        } else {
+            throw new Error(`user command ${feat.name}: provide a name and description`)
         }
         //console.log("F", feat);
         // @ts-ignore
-        const cmd = program.command(feat.name)
+        const cmd = program.command(fullName)
             .description(desc)
             .action(async (...args: Array<any>) => {
                 const ca = parseCommandArgs(args);
