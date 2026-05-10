@@ -99,6 +99,7 @@ class McpClient {
                 name: tool.name,
                 description: tool.description ?? "",
                 arguments: defargs,
+                parallelCalls: true,
                 execute: exec
             }
             if (this.askUserTools) {
