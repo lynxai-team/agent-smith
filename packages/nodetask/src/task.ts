@@ -10,12 +10,12 @@ class NodeTask extends Task {
     }
 
     async run(
-        payload: { prompt: string } & Record<string, any>,
+        prompt: string,
         options?: AgentInferenceOptions
     ): Promise<InferenceResult> {
         //console.log("NODE TASK AGENT OPTS", options);
         this.def = applyFilePlaceholders(this.def, options?.baseDir);
-        return super.run(payload, options);
+        return super.run(prompt, options);
     }
 }
 
