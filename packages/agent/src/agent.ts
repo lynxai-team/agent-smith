@@ -99,16 +99,10 @@ class Agent {
             onThink: options?.onThink ?? this.onThink,
         }
         const baseOpts = {
-            //debug: options?.debug,
-            //verbose: options?.verbose,
-            model: options?.model,
-            tools: Object.values(this.tools),
-            history: this.history,
-            system: options?.system,
-            assistant: options?.assistant,
-            isToolsRouter: options?.isToolsRouter,
-            params: options?.params,
-        }
+            ...options,
+        };
+        baseOpts.tools = Object.values(this.tools);
+        baseOpts.history = this.history;
         //console.log("AGENT OPTS", baseOpts);
         const clientOpts = { ...baseOpts, ...clientEvents, ...events, agentName: this.name };
         //console.log("AGENT CLIENT OPS", clientOpts);
@@ -139,12 +133,14 @@ class Agent {
                 events.onToolsTurnStart(res.toolCalls, this.name);
             }
             const toolNames = Object.keys(this.tools);
-            const execTools = new Array<() => Promise<void>>();
+            const syncTools = new Array<() => Promise<void>>();
+            const parallelTools = new Array<() => Promise<void>>();
             for (const tc of res.toolCalls) {
                 if (!toolNames.includes(tc.name)) {
                     throw new Error(`Inexistant tool ${tc.name} called (available tools: ${toolNames})`)
                 }
                 const tool = this.tools[tc.name];
+                //console.log("AGENT TOOL", tool);
                 let canRun = true;
                 if (tool?.canRun) {
                     canRun = await tool.canRun(tc);
@@ -163,10 +159,10 @@ class Agent {
                             toolCallResult = await tool.execute(tc.arguments);
                             ok = true;
                         } catch (e) {
-                            toolCallResult = `running tool call ${e},\n ${JSON.stringify(tc, null, 2)}`;
-                            if (verbosity?.events) {
-                                console.log("[X] Tool", tool.name, "execution error:", toolCallResult);
-                            }
+                            toolCallResult = `[Error] running tool call ${e},\n ${JSON.stringify(tc, null, 2)}`;
+                            //if (verbosity?.events) {
+                            console.log("[X] Tool", tool.name, "execution error:", toolCallResult);
+                            //}
                             if (options?.onError) {
                                 options?.onError(toolCallResult, this.name);
                             }
@@ -183,17 +179,24 @@ class Agent {
                         }
                         //console.log("TCE", this.name, JSON.stringify(toolCallResult));                    
                     };
-                    execTools.push(f);
+                    if (tool.parallelCalls) {
+                        parallelTools.push(f)
+                    } else {
+                        syncTools.push(f);
+                    }
                 } else {
                     if (verbosity?.events) {
                         console.log("[-] Tool", tool.name, "execution refused");
                     }
                 }
             }
-            // execute tools in parallel
-            if (execTools.length > 0) {
-                await Promise.allSettled(execTools.map(f => f()));
-                //console.log("PR EXEC RES", res);
+            if (parallelTools.length > 0) {
+                await Promise.allSettled(parallelTools.map(f => f()));
+            }
+            if (syncTools.length > 0) {
+                for (const f of syncTools) {
+                    await f()
+                }
             }
             if (events?.onToolsTurnEnd) {
                 events.onToolsTurnEnd(toolsResults, this.name);
