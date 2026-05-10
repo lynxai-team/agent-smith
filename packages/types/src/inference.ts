@@ -111,6 +111,7 @@ interface AgentInferenceOptions extends InferenceOptions, AllCallbacks {
     showTokens?: boolean;
     nocli?: boolean;
     backend?: string;
+    variables?: Record<string, any>;
     mcpArgs?: Array<string>;
     confirmToolUsage?: (tool: ToolCallSpec, from: string) => Promise<boolean>;
     abort?: AbortController;
