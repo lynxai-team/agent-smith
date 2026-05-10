@@ -150,9 +150,9 @@ const useWsServer = (params: ServerParams) => {
     };
 
     ws.onerror = function(error) {
-        if (params?.onError) {
+        /*if (params?.onError) {
             params.onError(error, "websockets server")
-        }
+        }*/
         console.error('WebSocket error:', error);
     };
 

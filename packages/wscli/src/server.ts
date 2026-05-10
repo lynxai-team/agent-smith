@@ -119,9 +119,10 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         if (opts?.variables) {
             taskvars = Object.assign({}, opts.variables);
         } else {
+            //console.log("WSCLI VARS", variables.values);
             for (const name of Object.keys(variables.values.required)) {
                 if (variables.values.required[name] == "") {
-                    const msg = `Error: missing required variable: ${name} \n\nCurrent options:\n${JSON.stringify(opts)}`;
+                    const msg = `[Error]: missing required variable: ${name} \n\nCurrent options:\n${JSON.stringify(opts)}`;
                     if (params?.onError) {
                         params.onError(msg, stateLocal.currentFeature.name)
                     }
@@ -137,7 +138,8 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         }
         //console.log("SRV OPTS VARS", taskvars);
         const payload = { prompt: prompt };
-        opts = { ...opts, ...taskvars };
+        opts = { ...opts, variables: taskvars };
+        //console.log("WSCLI OPTS", opts);
         /*const _options: Record<string, any> = { model: task.value.model ?? opts.model };
         if (opts?.backend) {
             _options.backend = opts.backend;
