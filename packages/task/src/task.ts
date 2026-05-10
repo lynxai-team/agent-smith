@@ -19,11 +19,11 @@ class Task {
     }
 
     async run(
-        params: { prompt: string } & Record<string, any>, options: AgentInferenceOptions = {}
+        prompt: string, options: AgentInferenceOptions = {}
     ): Promise<InferenceResult> {
-        if (!params?.prompt) {
+        /*if (prompt) {
             throw new Error(`Task ${this.def.name}: no prompt parameter provided. Parameters: ${JSON.stringify(params, null, 2)}`);
-        }
+        }*/
         let model = this.def.model;
         if (options?.model) {
             model = options.model;
@@ -39,7 +39,9 @@ class Task {
                 }
             }
         }
-        applyVariables(this.def, params);
+        //console.log("TASK PARAMS", params);
+        //console.log("TASK OPTS", options);
+        applyVariables(this.def, options);
         //tpl = formatTaskTemplate(this.def, model?.template ? model.template : undefined);
         this.def.inferParams = formatInferParams(this.def.inferParams ?? {}, options ?? {});
         //finalPrompt = params.prompt;
@@ -47,7 +49,7 @@ class Task {
         console.log("DEF", this.def);
         console.log("-------------------------");*/
         //console.log("P", params.prompt);
-        const finalPrompt = this.def.prompt.replace("{prompt}", params.prompt);
+        const finalPrompt = this.def.prompt.replace("{prompt}", prompt);
         //console.log("FP", finalPrompt);        
         let answer: InferenceResult;
         /*if (options?.debug) {
@@ -85,7 +87,7 @@ class Task {
             console.log("----------------------------------------------")
             //options.debug = true
         }
-        //console.log("RUN AGENT (TASK) params:", this.def.inferParams);        
+        //console.log("RUN AGENT (TASK) params:", this.def.inferParams);      
         const agentOpts: AgentInferenceOptions = {
             ...options,
             params: this.def.inferParams,
