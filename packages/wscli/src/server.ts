@@ -1,7 +1,8 @@
 import type {
     ClientFeaturesOptions, ClientFeaturesService, ModelInfo, ToolDefSpec,
     ConfigFile, TaskState, UserTaskVariables, ServerParams,
-    TaskDef
+    TaskDef,
+    Workspace
 } from "@agent-smith/types";
 import { reactive, ref, toRaw } from "@vue/reactivity";
 import { api } from "./api.js";
@@ -261,6 +262,14 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         return res.data
     }
 
+    const loadWorkspaces = async () => {
+        const res = await api.get<Array<Workspace>>("/workspace");
+        if (!res.ok) {
+            throw new Error("can not load workspaces")
+        }
+        return res.data
+    }
+
     const setBackend = async (name: string) => {
         const res = await api.get<boolean>("/backend/" + name);
         if (!res.ok) {
@@ -308,6 +317,7 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         loadWorkflow,
         loadBackends,
         setBackend,
+        loadWorkspaces,
     }
 };
 
