@@ -113,6 +113,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
           ctx.websocket.send(JSON.stringify(rsm));
           return
         }
+        // ---------- task -------------
         if (msg.feature == "task") {
           msg.options.onThinkingToken = (t: string, from: string) => {
             const rsm: WsRawServerMsg = {
@@ -191,7 +192,9 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             }
             ctx.websocket.send(JSON.stringify(rsm));
           }
-        } else if (msg.feature == "agent") {
+        }
+        // ---------- agent -------------
+        else if (msg.feature == "agent") {
           msg.options.onThinkingToken = (t: string, from: string) => {
             const rsm: WsRawServerMsg = {
               from: from,
@@ -338,6 +341,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
               ctx.websocket.send(JSON.stringify(rsm));
               buf = "";
             }, sendTokensInterval);*/
+            console.log("AGENT SRV EXEC", msg);
             const res = await executeTask(msg.command, msg.payload, msg.options);
             //setTimeout(() => {
             //clearInterval(it);

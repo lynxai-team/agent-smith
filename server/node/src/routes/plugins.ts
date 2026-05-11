@@ -6,7 +6,7 @@ import { getConfig } from '../utils.js';
 function installPluginRoute(r: Router) {
     r.post('/plugins/install', async (ctx: Context, next: Next) => {
         const payload = ctx.request.body as Array<string>;
-        console.log("P", payload);
+        //console.log("P", payload);
         for (const p of payload) {
             console.log("Installing", p, "plugin");
             const res = await utils.execute("npm", ["i", "-g", p]);

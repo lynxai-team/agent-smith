@@ -11,6 +11,7 @@ import { addFolderRoute } from "./folders.js";
 import { getWorkflowRoute, getWorkflowsRoute } from "./workflows.js";
 import { getBackendsRoute, setBackendRoute } from "./backends.js";
 import { getOrCreateAppConfigFileRoute, updateAppConfigFileRoute } from "./apps.js";
+import { getWorkspaceRoute, updateDefaultWorkspaceRoute, upsertWorkspaceRoute } from "./workspace.js";
 
 const baseRoutes = new Array<((r: Router) => void)>(
     getConfRoute,
@@ -32,6 +33,9 @@ const baseRoutes = new Array<((r: Router) => void)>(
     setBackendRoute,
     getOrCreateAppConfigFileRoute,
     updateAppConfigFileRoute,
+    getWorkspaceRoute,
+    upsertWorkspaceRoute,
+    updateDefaultWorkspaceRoute,
 );
 
 export { baseRoutes }
