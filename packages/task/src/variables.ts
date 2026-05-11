@@ -10,7 +10,7 @@ function applyVariables(taskDef: TaskDef, options: AgentInferenceOptions): TaskD
         if (taskDef.variables?.required) {
             for (const name of Object.keys(taskDef.variables.required)) {
                 if (!(name in options.variables)) {
-                    throw new Error(`The variable ${name} is required to run this task: variables: ${JSON.stringify(taskDef.variables, null, 2)}`)
+                    throw new Error(`The variable ${name} is required to run this task: variables: \n${JSON.stringify(taskDef.variables, null, 2)}\nProvided: ${JSON.stringify(options.variables, null, 2)}`)
                 }
             }
         }
