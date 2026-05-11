@@ -6,6 +6,7 @@ import type { AgentInferenceOptions, InferenceParams } from "./inference.js";
 import type { ModelInfo } from "./model.js";
 import type { ToolDefSpec, ToolSpec } from "./tools.js";
 import type { McpServerSpec } from "./core.js";
+import type { Workspace } from "./workspace.js";
 
 /**
  * Settings for a task configuration.
@@ -186,6 +187,7 @@ interface ClientFeaturesService {
     cancel: () => Promise<void>;
     getTools: (tools: Array<string>) => Promise<Array<{ def: ToolDefSpec, type: string }>>;
     checkState: () => Promise<{ found: boolean, config: ConfigFile }>;
+    loadWorkspaces: () => Promise<Array<Workspace>>;
 }
 
 /**
@@ -223,6 +225,8 @@ interface TaskState {
     tasksSettings: Record<string, Record<string, any>>,
     backends: Record<string, Record<string, any>>,
     currentFeature: { name: string, type: string },
+    currentWorkspace: Workspace;
+    workspaces: Record<string, Workspace>;
 }
 
 /**

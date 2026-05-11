@@ -105,7 +105,12 @@ import {
 } from "./core.js";
 import { VerbosityOptions } from "./verbosity.js";
 
+import {
+    Workspace
+} from "./workspace.js";
+
 export {
+    Workspace,
     ConfInferenceBackend,
     BackendEntries,
     ConfigFile,
