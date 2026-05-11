@@ -25,6 +25,7 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
     let taskRes: Record<string, any> = { cmdArgs: args as Array<string> };
     //console.log("WPARAMS", taskRes);
     let prevStepType: "cmd" | "agent" | "task" | "adaptater" | "action" | null = null;
+    //console.log("WF OPTS", options);
     for (const step of workflow) {
         if (isDebug || isVerbose) {
             console.log(i + 1, step.name, colors.dim(step.type))

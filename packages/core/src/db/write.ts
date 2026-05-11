@@ -1,5 +1,5 @@
 import { extractTaskToolDocAndVariables, extractToolDoc } from "../tools.js";
-import { AliasType, FeatureSpec, FeatureType, Features, InferenceBackend, TaskSettings } from "@agent-smith/types";
+import { AliasType, FeatureSpec, FeatureType, Features, InferenceBackend, TaskSettings, type Workspace } from "@agent-smith/types";
 import { db } from "./db.js";
 
 function updatePromptfilePath(pf: string) {
@@ -14,6 +14,13 @@ function updateDataDirPath(dd: string) {
     deleteStmt.run("datadir");
     const stmt = db.prepare("INSERT INTO filepath (name, path) VALUES (?, ?)");
     stmt.run("datadir", dd);
+}
+
+function updateWorkspacePath(dd: string) {
+    const deleteStmt = db.prepare("DELETE FROM filepath WHERE name = ?");
+    deleteStmt.run("workspace");
+    const stmt = db.prepare("INSERT INTO filepath (name, path) VALUES (?, ?)");
+    stmt.run("workspace", dd);
 }
 
 function setDefaultBackend(name: string) {
@@ -259,6 +266,43 @@ function updateFeatures(feats: Features) {
     feats.cmd.forEach(c => updateUserCmd(c))
 }
 
+function upsertWorkspace(workspace: Workspace): boolean {
+    const selectStmt = db.prepare("SELECT * FROM workspace WHERE name = ?");
+    const result = selectStmt.get(workspace.name) as Record<string, any>;
+    const def = workspace.isDefault ? 1 : 0;
+    if (result?.id) {
+        // If the filepath exists, update it
+        const q = `UPDATE workspace SET path = ?, props = ?, is_default = ? WHERE name = ?`;
+        const stmt = db.prepare(q);
+
+        const updateResult = stmt.run(workspace.path, JSON.stringify(workspace.props), def, workspace.name);
+        return updateResult.changes > 0;
+    } else {
+        // If the filepath does not exist, insert it
+        const insertStmt = db.prepare("INSERT INTO workspace (name, path, props, is_default) VALUES (?, ?, ?, ?)");
+        insertStmt.run(workspace.name, workspace.path, JSON.stringify(workspace.props), def);
+        return true;
+    }
+}
+
+function updateDefaultWorkspace(name: string) {
+    const stmtw = db.prepare("SELECT * FROM workspace ORDER BY name");
+    const data = stmtw.all() as Array<Record<string, any>>;
+    for (const ws of data) {
+        if (ws.name == name) {
+            const q = `UPDATE workspace SET is_default = ? WHERE name = ?`;
+            const stmt = db.prepare(q);
+            stmt.run(1, name);
+        }
+        // cleanup old default
+        if (ws.is_default == 1) {
+            const q = `UPDATE workspace SET is_default = ? WHERE name = ?`;
+            const stmt = db.prepare(q);
+            stmt.run(0, name);
+        }
+    }
+}
+
 function upsertFilePath(name: string, newPath: string): boolean {
     const selectStmt = db.prepare("SELECT * FROM filepath WHERE name = ?");
     const result = selectStmt.get(name) as Record<string, any>;
@@ -382,6 +426,11 @@ function upsertTaskSettings(taskName: string, settings: TaskSettings): boolean {
     }
 }
 
+function deleteWorkspace(name: string) {
+    const deleteStmt = db.prepare("DELETE FROM workspace WHERE name = ?");
+    deleteStmt.run(name);
+}
+
 function deleteTaskSettings(settings: Array<string>) {
     settings.forEach(s => {
         const deleteStmt = db.prepare("DELETE FROM tasksettings WHERE name = ?");
@@ -396,8 +445,11 @@ function deleteTaskSetting(name: string) {
 
 export {
     updatePromptfilePath,
+    updateWorkspacePath,
     updateDataDirPath,
     upsertBackends,
+    upsertWorkspace,
+    updateDefaultWorkspace,
     setDefaultBackend,
     insertFeaturesPathIfNotExists,
     insertPluginIfNotExists,
@@ -408,4 +460,5 @@ export {
     upsertTaskSettings,
     deleteTaskSettings,
     deleteTaskSetting,
+    deleteWorkspace,
 }

@@ -1,4 +1,4 @@
-import { ToolSpec, TaskVariables, AliasType, FeatureExtension, FeatureSpec, FeatureType, ToolType, InferenceBackend } from "@agent-smith/types";
+import { ToolSpec, TaskVariables, AliasType, FeatureExtension, FeatureSpec, FeatureType, ToolType, InferenceBackend, type Workspace } from "@agent-smith/types";
 import { db } from "./db.js";
 
 function readFeaturePaths(): Array<string> {
@@ -146,6 +146,14 @@ function readTaskSetting(name: string): { found: boolean, settings: Record<strin
     return { found: false, settings: {} }
 }
 
+function readWorkspaces(): Array<Workspace> {
+    const stmt1 = db.prepare("SELECT * FROM workspace ORDER BY name");
+    const data = stmt1.all() as Array<Record<string, any>>;
+    const wss = new Array<Workspace>();
+    data.forEach(row => wss.push({ name: row.name, path: row.path, props: row.props, isDefault: row.is_default == 1 }));
+    return wss
+}
+
 export {
     readFeatures,
     readFeaturePaths,
@@ -159,4 +167,5 @@ export {
     readBackends,
     readTaskSettings,
     readTaskSetting,
+    readWorkspaces,
 }

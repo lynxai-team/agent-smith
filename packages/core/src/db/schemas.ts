@@ -105,6 +105,14 @@ const tasksSettings = `CREATE TABLE IF NOT EXISTS tasksettings (
     backend TEXT
 );`;
 
+const workspace = `CREATE TABLE IF NOT EXISTS workspace (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    path TEXT NOT NULL,
+    is_default INTEGER NOT NULL,
+    props TEXT
+);`;
+
 const schemas = [
     filepath,
     featurespath,
@@ -119,6 +127,7 @@ const schemas = [
     backend,
     tasksSettings,
     agents,
+    workspace,
 ];
 
 export { schemas }

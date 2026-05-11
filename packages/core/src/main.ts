@@ -18,6 +18,7 @@ import { getFeatureSpec } from "./state/features.js";
 import {
     updatePromptfilePath,
     updateDataDirPath,
+    updateWorkspacePath,
     upsertBackends,
     setDefaultBackend,
     insertFeaturesPathIfNotExists,
@@ -29,6 +30,9 @@ import {
     upsertTaskSettings,
     deleteTaskSettings,
     deleteTaskSetting,
+    deleteWorkspace,
+    upsertWorkspace,
+    updateDefaultWorkspace,
 } from "./db/write.js";
 import {
     readFeatures,
@@ -43,6 +47,7 @@ import {
     readBackends,
     readTaskSettings,
     readTaskSetting,
+    readWorkspaces,
 } from "./db/read.js";
 import {
     dataDirPath,
@@ -110,6 +115,10 @@ const db = {
     readBackends,
     readTaskSettings,
     readTaskSetting,
+    deleteWorkspace,
+    upsertWorkspace,
+    readWorkspaces,
+    updateDefaultWorkspace,
 };
 
 const fs = {

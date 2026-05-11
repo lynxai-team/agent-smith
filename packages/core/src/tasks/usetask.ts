@@ -24,6 +24,7 @@ const useTaskExecutor = async (name: string, payload: { prompt: string } & Recor
     let settings: TaskSettings = {};
 
     const execute = async (): Promise<InferenceResult> => {
+        //console.log("EXEC AGENT OPTS", options);
         if (!isTaskSettingsInitialized.value) {
             initTaskSettings()
         }
@@ -147,22 +148,6 @@ const useTaskExecutor = async (name: string, payload: { prompt: string } & Recor
             ++emittedTokens;
         };
         options.params.stream = true;
-        /*const agentOptions: AgentInferenceOptions & Record<string, any> = {
-            baseDir: taskDir,
-            onToken: options?.onToken ? options?.onToken : processToken,
-            onToolCall: options?.onToolCall,
-            onToolCallEnd: options?.onToolCallEnd,
-            onToolsTurnStart: options?.onToolsTurnStart,
-            onToolsTurnEnd: options?.onToolsTurnEnd,
-            onTurnEnd: options?.onTurnEnd,
-            onAssistant: options?.onAssistant,
-            onThink: options?.onThink,
-            onThinkingToken: options?.onThinkingToken,
-            onStartThinking: options?.onStartThinking,
-            onEndThinking: options?.onEndThinking,
-            onToolCallInProgress: options?.onToolCallInProgress,
-            ...options,
-        }*/
         if (!options?.onToken) {
             options.onToken = processToken;
         }
@@ -171,7 +156,8 @@ const useTaskExecutor = async (name: string, payload: { prompt: string } & Recor
         if (options?.history) {
             agent.history = options.history;
         }
-        options = { ...options, variables: vars };
+        options.variables = vars;
+        //console.log("OPT VARS", options.variables);
         let out: InferenceResult;
         //console.log("CLI EXEC TASK", payload.prompt, "\nOPTS", options)
         try {
