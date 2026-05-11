@@ -186,7 +186,11 @@ class Agent {
                     }
                 } else {
                     if (verbosity?.events) {
-                        console.log("[-] Tool", tool.name, "execution refused");
+                        const m = `[-] Tool", ${tool.name}, "execution refused`;
+                        if (events?.onToolCallEnd) {
+                            events.onToolCallEnd(tc, m, this.tools[tc.name].type, this.name)
+                        }
+                        console.log(m);
                     }
                 }
             }
