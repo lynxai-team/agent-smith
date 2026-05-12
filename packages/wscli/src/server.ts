@@ -270,6 +270,14 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         return res.data
     }
 
+    const loadSettings = async (): Promise<Record<string, any>> => {
+        const res = await api.get<Record<string, any>>("/settings");
+        if (!res.ok) {
+            throw new Error("can not load settings")
+        }
+        return res.data
+    }
+
     const setBackend = async (name: string) => {
         const res = await api.get<boolean>("/backend/" + name);
         if (!res.ok) {
@@ -318,6 +326,7 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         loadBackends,
         setBackend,
         loadWorkspaces,
+        loadSettings,
     }
 };
 
