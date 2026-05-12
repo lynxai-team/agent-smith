@@ -188,6 +188,7 @@ interface ClientFeaturesService {
     getTools: (tools: Array<string>) => Promise<Array<{ def: ToolDefSpec, type: string }>>;
     checkState: () => Promise<{ found: boolean, config: ConfigFile }>;
     loadWorkspaces: () => Promise<Array<Workspace>>;
+    loadSettings: () => Promise<Record<string, any>>;
 }
 
 /**
@@ -227,6 +228,7 @@ interface TaskState {
     currentFeature: { name: string, type: string },
     currentWorkspace: Workspace;
     workspaces: Record<string, Workspace>;
+    settings: Record<string, any>;
 }
 
 /**
