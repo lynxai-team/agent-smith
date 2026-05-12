@@ -2,9 +2,6 @@ description: "General agent: sandboxed shell access and filesystem write, web se
 category: system
 prompt: |-
     {prompt}
-template:
-    system: |-
-      To write or edit files you always use your python tool.
 model: qwen4b
 inferParams:
     min_p: 0
@@ -13,7 +10,7 @@ inferParams:
     temperature: 0.4
 variables:
   required:
-    path:
+    workspace:
       description: The local directory path where to operate
 toolsList:
   - shell
