@@ -32,7 +32,7 @@ import {
     deleteTaskSetting,
     deleteWorkspace,
     upsertWorkspace,
-    updateDefaultWorkspace,
+    upsertSetting,
 } from "./db/write.js";
 import {
     readFeatures,
@@ -48,6 +48,8 @@ import {
     readTaskSettings,
     readTaskSetting,
     readWorkspaces,
+    readSetting,
+    readSettings,
 } from "./db/read.js";
 import {
     dataDirPath,
@@ -118,7 +120,9 @@ const db = {
     deleteWorkspace,
     upsertWorkspace,
     readWorkspaces,
-    updateDefaultWorkspace,
+    readSetting,
+    readSettings,
+    upsertSetting,
 };
 
 const fs = {

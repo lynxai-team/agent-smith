@@ -33,14 +33,11 @@ async function readTask(
         for (const k of Object.keys(taskDef.variables.optional)) {
             if (k in payload) {
                 vars[k] = payload[k];
-                if (!options?.variables) {
-                    options.variables = {}
-                }
-                options.variables[k] = payload[k];
+                vars[k] = payload[k];
                 delete payload[k]
             } else if (options?.variables) {
                 if (k in options.variables) {
-                    vars[k] = options.variables.k
+                    vars[k] = options.variables[k]
                 }
             } else {
                 // workflow takes variables in options
@@ -56,14 +53,11 @@ async function readTask(
             //console.log("TASK V required:", Object.keys(taskDef.variables.required), "/", k in options, "/", k in payload);
             if (k in payload) {
                 vars[k] = payload[k];
-                if (!options?.variables) {
-                    options.variables = {}
-                }
-                options.variables[k] = payload[k];
+                vars[k] = payload[k];
                 delete payload[k]
             } else if (options?.variables) {
                 if (k in options.variables) {
-                    vars[k] = options.variables.k
+                    vars[k] = options.variables[k]
                 }
             } else {
                 // workflow takes variables in options

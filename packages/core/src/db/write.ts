@@ -266,40 +266,38 @@ function updateFeatures(feats: Features) {
     feats.cmd.forEach(c => updateUserCmd(c))
 }
 
-function upsertWorkspace(workspace: Workspace): boolean {
-    const selectStmt = db.prepare("SELECT * FROM workspace WHERE name = ?");
-    const result = selectStmt.get(workspace.name) as Record<string, any>;
-    const def = workspace.isDefault ? 1 : 0;
+function upsertSetting(name: string, value: any) {
+    const selectStmt = db.prepare("SELECT * FROM setting WHERE name = ?");
+    const result = selectStmt.get(name) as Record<string, any>;
     if (result?.id) {
-        // If the filepath exists, update it
-        const q = `UPDATE workspace SET path = ?, props = ?, is_default = ? WHERE name = ?`;
+        // If the exists, update 
+        const q = `UPDATE setting SET value = ? WHERE name = ?`;
         const stmt = db.prepare(q);
-
-        const updateResult = stmt.run(workspace.path, JSON.stringify(workspace.props), def, workspace.name);
+        const updateResult = stmt.run(value, name);
         return updateResult.changes > 0;
     } else {
-        // If the filepath does not exist, insert it
-        const insertStmt = db.prepare("INSERT INTO workspace (name, path, props, is_default) VALUES (?, ?, ?, ?)");
-        insertStmt.run(workspace.name, workspace.path, JSON.stringify(workspace.props), def);
+        // If not exists, insert it
+        const insertStmt = db.prepare("INSERT INTO setting (name, value) VALUES (?, ?)");
+        insertStmt.run(name, value);
         return true;
     }
 }
 
-function updateDefaultWorkspace(name: string) {
-    const stmtw = db.prepare("SELECT * FROM workspace ORDER BY name");
-    const data = stmtw.all() as Array<Record<string, any>>;
-    for (const ws of data) {
-        if (ws.name == name) {
-            const q = `UPDATE workspace SET is_default = ? WHERE name = ?`;
-            const stmt = db.prepare(q);
-            stmt.run(1, name);
-        }
-        // cleanup old default
-        if (ws.is_default == 1) {
-            const q = `UPDATE workspace SET is_default = ? WHERE name = ?`;
-            const stmt = db.prepare(q);
-            stmt.run(0, name);
-        }
+function upsertWorkspace(workspace: Workspace): boolean {
+    const selectStmt = db.prepare("SELECT * FROM workspace WHERE name = ?");
+    const result = selectStmt.get(workspace.name) as Record<string, any>;
+    if (result?.id) {
+        // If the filepath exists, update it
+        const q = `UPDATE workspace SET path = ?, props = ? WHERE name = ?`;
+        const stmt = db.prepare(q);
+
+        const updateResult = stmt.run(workspace.path, JSON.stringify(workspace.props), workspace.name);
+        return updateResult.changes > 0;
+    } else {
+        // If the filepath does not exist, insert it
+        const insertStmt = db.prepare("INSERT INTO workspace (name, path, props) VALUES (?, ?, ?)");
+        insertStmt.run(workspace.name, workspace.path, JSON.stringify(workspace.props));
+        return true;
     }
 }
 
@@ -448,8 +446,8 @@ export {
     updateWorkspacePath,
     updateDataDirPath,
     upsertBackends,
+    upsertSetting,
     upsertWorkspace,
-    updateDefaultWorkspace,
     setDefaultBackend,
     insertFeaturesPathIfNotExists,
     insertPluginIfNotExists,

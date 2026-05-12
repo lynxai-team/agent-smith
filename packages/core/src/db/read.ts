@@ -150,8 +150,27 @@ function readWorkspaces(): Array<Workspace> {
     const stmt1 = db.prepare("SELECT * FROM workspace ORDER BY name");
     const data = stmt1.all() as Array<Record<string, any>>;
     const wss = new Array<Workspace>();
-    data.forEach(row => wss.push({ name: row.name, path: row.path, props: row.props, isDefault: row.is_default == 1 }));
+    data.forEach(row => wss.push({ name: row.name, path: row.path, props: row.props }));
     return wss
+}
+
+function readSetting(name: string): { found: boolean, setting: string } {
+    const q = "SELECT * FROM setting WHERE name= ?";
+    const stmt = db.prepare(q);
+    const result = stmt.get(name);
+    if (result?.id) {
+        return { found: true, setting: result }
+    }
+    return { found: false, setting: "" }
+}
+
+function readSettings(): Record<string, any> {
+    const q = "SELECT name, value FROM setting";
+    const stmt = db.prepare(q);
+    const result: Array<Record<string, any>> = stmt.all();
+    const st: Record<string, any> = {};
+    result.forEach(row => st[row.name] = row.value)
+    return st
 }
 
 export {
@@ -168,4 +187,6 @@ export {
     readTaskSettings,
     readTaskSetting,
     readWorkspaces,
+    readSetting,
+    readSettings,
 }

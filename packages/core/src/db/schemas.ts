@@ -109,8 +109,13 @@ const workspace = `CREATE TABLE IF NOT EXISTS workspace (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
     path TEXT NOT NULL,
-    is_default INTEGER NOT NULL,
     props TEXT
+);`;
+
+const setting = `CREATE TABLE IF NOT EXISTS setting (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    value TEXT NOT NULL
 );`;
 
 const schemas = [
@@ -128,6 +133,7 @@ const schemas = [
     tasksSettings,
     agents,
     workspace,
+    setting,
 ];
 
 export { schemas }
