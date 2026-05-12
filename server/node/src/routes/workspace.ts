@@ -37,10 +37,10 @@ function upsertWorkspaceRoute(r: Router) {
 }
 
 function updateDefaultWorkspaceRoute(r: Router) {
-    r.post('/workspace', async (ctx: Context, next: Next) => {
+    r.post('/workspace/update', async (ctx: Context, next: Next) => {
         const payload = ctx.request.body as Workspace;
         try {
-            db.updateDefaultWorkspace(payload.name);
+            db.upsertSetting("workspace", payload.name);
             ctx.status = 204;
         } catch (e) {
             const err = `error updating default workspace:\n ${e}`;

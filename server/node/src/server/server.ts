@@ -341,7 +341,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
               ctx.websocket.send(JSON.stringify(rsm));
               buf = "";
             }, sendTokensInterval);*/
-            console.log("AGENT SRV EXEC", msg);
+            //console.log("AGENT SRV EXEC", msg);
             const res = await executeTask(msg.command, msg.payload, msg.options);
             //setTimeout(() => {
             //clearInterval(it);
