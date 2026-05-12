@@ -1,5 +1,4 @@
-import type { InferenceParams } from "./inference.js";
-import type { TaskDef, TaskVariables } from "./task.js";
+import type { TaskVariables } from "./task.js";
 
 
 interface FeatureSpec {
@@ -22,6 +21,7 @@ interface Features {
     action: Array<{ name: string, path: string, ext: ActionExtension }>;
     workflow: Array<{ name: string, path: string, ext: WorkflowExtension }>;
     adaptater: Array<{ name: string, path: string, ext: AdaptaterExtension }>;
+    skill: Array<{ name: string, path: string, ext: SkillExtension, variables?: Record<string, any> }>;
 }
 
 interface UserCmdDef {
@@ -76,7 +76,7 @@ type OutputMode = "txt" | "clipboard";
 type RunMode = "cli" | "cmd";
 type FormatMode = "text" | "markdown";
 
-type FeatureType = "task" | "agent" | "action" | "cmd" | "workflow" | "adaptater";
+type FeatureType = "task" | "agent" | "action" | "cmd" | "workflow" | "adaptater" | "skill";
 type ToolType = "task" | "agent" | "action" | "cmd" | "workflow";
 type ActionExtension = "js" | "mjs" | "py" | "yml";
 type TaskExtension = "yml";
@@ -84,33 +84,14 @@ type AgentExtension = "yml";
 type AdaptaterExtension = "js";
 type WorkflowExtension = "yml";
 type CmdExtension = "js";
-type FeatureExtension = TaskExtension | AgentExtension | CmdExtension | ActionExtension | WorkflowExtension;
+type SkillExtension = "md";
+type FeatureExtension = TaskExtension | AgentExtension | CmdExtension | ActionExtension | WorkflowExtension | SkillExtension;
 type AliasType = "task" | "agent" | "action" | "workflow";
 
 type FeatureExecutor<I = any, O = any> = (params: I, options: Record<string, any>) => Promise<O>;
 
 export {
-    InputMode,
-    OutputMode,
-    RunMode,
-    FormatMode,
-    ActionExtension,
-    TaskExtension,
-    AgentExtension,
-    WorkflowExtension,
-    AdaptaterExtension,
-    CmdExtension,
-    FeatureSpec,
-    Features,
-    FeatureExtension,
-    AliasType,
-    ToolType,
-    Settings,
-    DbModelDef,
-    McpServerSpec,
-    McpServerTool,
-    FeatureExecutor,
-    WorkflowStep,
-    UserCmdDef,
-    FeatureType,
-}
+    ActionExtension, AdaptaterExtension, AgentExtension, AliasType, CmdExtension, DbModelDef, FeatureExecutor, FeatureExtension, Features, FeatureSpec, FeatureType, FormatMode, InputMode, McpServerSpec,
+    McpServerTool, OutputMode,
+    RunMode, Settings, SkillExtension, TaskExtension, ToolType, UserCmdDef, WorkflowExtension, WorkflowStep
+};

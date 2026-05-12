@@ -247,7 +247,6 @@ interface TaskState {
  */
 interface TemplateSpec {
     system?: string;
-    afterSystem?: string;
     stop?: Array<string>;
     assistant?: string;
 }
@@ -284,7 +283,6 @@ interface TaskDef {
     prompt: string;
     description: string;
     model: string;
-    ctx: number;
     template?: TemplateSpec;
     inferParams?: InferenceParams;
     models?: Array<string>;
@@ -295,6 +293,7 @@ interface TaskDef {
     type?: string;
     category?: string;
     mcp?: McpServerSpec;
+    skills?: Array<string>;
 }
 
 export {
