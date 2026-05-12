@@ -1,6 +1,9 @@
-import { ActionExtension, AdaptaterExtension, CmdExtension, Features, TaskExtension, WorkflowExtension, type AgentExtension } from "@agent-smith/types";
+import { ActionExtension, AdaptaterExtension, CmdExtension, Features, TaskExtension, WorkflowExtension, type AgentExtension, type SkillExtension } from "@agent-smith/types";
 import { default as fs } from "fs";
 import { default as path } from "path";
+import { default as fm } from "front-matter";
+import { readFile } from "./read.js";
+import { runtimeDataError } from "../user_msgs.js";
 
 function _readDir(dir: string, ext: Array<string>): Array<string> {
     const fileNames = new Array<string>;
@@ -17,6 +20,28 @@ function _readDir(dir: string, ext: Array<string>): Array<string> {
     return fileNames
 }
 
+function _readSkills(dir: string): Array<{ name: string, path: string, info: { name: string, description: string } }> {
+    const dirs = new Array<{ name: string, path: string, info: { name: string, description: string } }>();
+    fs.readdirSync(dir).forEach((p) => {
+        const isDir = fs.statSync(path.join(dir, p)).isDirectory();
+        const skp = path.join(dir, p, "SKILL.md");
+        const fc = readFile(skp);
+        const data = fm<Record<string, any>>(fc);
+        //console.log("FM DATA", data);
+        if (!data.attributes?.name) {
+            runtimeDataError(`error in skill ${p}: missing name`)
+        }
+        if (!data.attributes?.description) {
+            runtimeDataError(`error in skill ${p}: missing description`)
+        }
+        //console.log("SKP", skp);
+        if (isDir) {
+            dirs.push({ name: p, path: skp, info: { name: data.attributes.name, description: data.attributes.description } })
+        }
+    });
+    return dirs
+}
+
 function readFeaturesDir(dir: string): Features {
     const feats: Features = {
         task: [],
@@ -25,6 +50,7 @@ function readFeaturesDir(dir: string): Features {
         workflow: [],
         adaptater: [],
         agent: [],
+        skill: [],
     }
     let dirpath = path.join(dir, "tasks");
     if (fs.existsSync(dirpath)) {
@@ -107,6 +133,18 @@ function readFeaturesDir(dir: string): Features {
                 name: name,
                 path: path.join(dirpath),
                 ext: ext as CmdExtension,
+            })
+        });
+    }
+    dirpath = path.join(dir, "skills");
+    if (fs.existsSync(dirpath)) {
+        const data = _readSkills(dirpath);
+        data.forEach((s) => {
+            feats.skill.push({
+                name: s.name,
+                path: s.path,
+                ext: "md",
+                variables: s.info,
             })
         });
     }

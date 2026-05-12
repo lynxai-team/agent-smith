@@ -48,6 +48,9 @@ async function updateAllFeatures(paths: Array<string>, userFeats?: Features) {
     if (userFeats?.workflow) {
         feats.workflow.push(...userFeats.workflow)
     }
+    if (userFeats?.skill) {
+        feats.skill.push(...userFeats.skill)
+    }
     updateFeatures(feats);
     updateAliases(feats);
     const deleted = cleanupFeaturePaths(paths);
@@ -85,7 +88,7 @@ async function updateConfCmd(args: Array<string>): Promise<any> {
         }
     }
     const { paths, pf, dd } = await processConfPath(confPath);
-    console.log("Using", confPath, "to update features at", paths);
+    console.log("Using", confPath, "to update features");
     if (pf.length > 0) {
         updatePromptfilePath(pf);
         promptfilePath.value = pf;

@@ -55,9 +55,28 @@ function readFeaturesType(type: FeatureType): Record<string, FeatureSpec> {
     return res
 }
 
+function readSkillsFromList(names: Array<string>): Record<string, FeatureSpec> {
+    if (names.length === 0) return {};
+    const placeholders = names.map(() => '?').join(',');
+    const q = `SELECT name, path, ext, variables FROM skill WHERE name IN (${placeholders})`;
+    const stmt = db.prepare(q);
+    const data = stmt.all(...names) as Array<Record<string, any>>;
+    const res: Record<string, FeatureSpec> = {};
+    data.forEach((row) => {
+        const vars = row?.variables ? JSON.parse(row.variables) as Record<string, any> : {};
+        res[row.name] = {
+            name: row.name,
+            path: row.path,
+            ext: row.ext,
+            variables: vars,
+        };
+    });
+    return res;
+}
+
 function readFeatures(): Record<FeatureType, Record<string, FeatureSpec>> {
     const feats: Record<FeatureType, Record<string, FeatureSpec>> = {
-        task: {}, action: {}, cmd: {}, workflow: {}, adaptater: {}, agent: {}
+        task: {}, action: {}, cmd: {}, workflow: {}, adaptater: {}, agent: {}, skill: {}
     };
     feats.agent = readFeaturesType("agent");
     feats.task = readFeaturesType("task");
@@ -65,6 +84,7 @@ function readFeatures(): Record<FeatureType, Record<string, FeatureSpec>> {
     feats.cmd = readFeaturesType("cmd");
     feats.workflow = readFeaturesType("workflow");
     feats.adaptater = readFeaturesType("adaptater");
+    feats.skill = readFeaturesType("skill");
     return feats
 }
 
@@ -79,7 +99,7 @@ function readAliases(): Array<{ name: string, type: AliasType }> {
 }
 
 function readFeature(name: string, type: FeatureType): { found: boolean, feature: FeatureSpec } {
-    const q = `SELECT id, name, path, ext FROM ${type} WHERE name='${name}'`;
+    const q = `SELECT id, name, path, ext, variables FROM ${type} WHERE name='${name}'`;
     const stmt = db.prepare(q);
     const result = stmt.get() as Record<string, string>;
     if (result?.id) {
@@ -89,6 +109,7 @@ function readFeature(name: string, type: FeatureType): { found: boolean, feature
                 name: result.name,
                 path: result.path,
                 ext: result.ext as FeatureExtension,
+                variables: result.variables ? JSON.parse(result.variables) : undefined,
             }
         }
     }
@@ -153,7 +174,6 @@ function readWorkspaces(): Array<Workspace> {
     data.forEach(row => wss.push({ name: row.name, path: row.path, props: row.props }));
     return wss
 }
-
 function readSetting(name: string): { found: boolean, setting: string } {
     const q = "SELECT * FROM setting WHERE name= ?";
     const stmt = db.prepare(q);
@@ -189,4 +209,5 @@ export {
     readWorkspaces,
     readSetting,
     readSettings,
+    readSkillsFromList,
 }

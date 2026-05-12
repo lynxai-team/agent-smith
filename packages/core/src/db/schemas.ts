@@ -40,7 +40,9 @@ const workflow = `CREATE TABLE IF NOT EXISTS workflow (
     name TEXT UNIQUE NOT NULL,
     path TEXT NOT NULL,
     variables TEXT,
-    ext TEXT NOT NULL CHECK ( ext IN ('yml') )
+    ext TEXT NOT NULL CHECK ( ext IN ('yml') ),
+    type TEXT,
+    category TEXT
 );`;
 
 const action = `CREATE TABLE IF NOT EXISTS action (
@@ -57,6 +59,14 @@ const adaptater = `CREATE TABLE IF NOT EXISTS adaptater (
     path TEXT NOT NULL,
     variables TEXT,
     ext TEXT NOT NULL CHECK ( ext IN ('yml', 'js', 'py') )
+);`;
+
+const skill = `CREATE TABLE IF NOT EXISTS skill (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    path TEXT NOT NULL,
+    variables TEXT,
+    ext TEXT NOT NULL CHECK ( ext IN ('md') )
 );`;
 
 const cmd = `CREATE TABLE IF NOT EXISTS cmd (
@@ -134,6 +144,7 @@ const schemas = [
     agents,
     workspace,
     setting,
+    skill,
 ];
 
 export { schemas }

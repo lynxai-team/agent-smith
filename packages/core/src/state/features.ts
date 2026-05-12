@@ -11,6 +11,7 @@ function readFeaturesDirs(featuresPaths: Array<string>, isverbose = false): Feat
         workflow: [],
         adaptater: [],
         agent: [],
+        skill: [],
     };
     featuresPaths.forEach((dir: string) => {
         if (isverbose) {
@@ -23,17 +24,18 @@ function readFeaturesDirs(featuresPaths: Array<string>, isverbose = false): Feat
         _f.cmd.forEach((item) => feats.cmd.push(item));
         _f.workflow.forEach((item) => feats.workflow.push(item));
         _f.adaptater.forEach((item) => feats.adaptater.push(item));
+        _f.skill.forEach((item) => feats.skill.push(item));
     });
     return feats
 }
 
-function getFeatureSpec(name: string, type: FeatureType): { found: boolean, path: string, ext: FeatureExtension } {
+function getFeatureSpec(name: string, type: FeatureType): { found: boolean, path: string, ext: FeatureExtension, variables?: Record<string, any> } {
     const { found, feature } = readFeature(name, type);
     if (!found) {
-        return { found: false, path: "", ext: "yml" }
+        return { found: false, path: "", ext: "yml", variables: {} }
     }
     const f = path.join(feature.path, name + "." + feature.ext);
-    return { found: true, path: f, ext: feature.ext }
+    return { found: true, path: f, ext: feature.ext, variables: feature?.variables }
 }
 
 export {

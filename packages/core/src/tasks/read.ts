@@ -3,13 +3,15 @@ import { Agent } from "@agent-smith/agent";
 import { NodeTask } from "@agent-smith/nodetask";
 import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
 import type { ToolSpec, ToolCallSpec, AgentInferenceOptions } from "@agent-smith/types";
-import { readTool } from "../db/read.js";
+import { readFeature, readSkillsFromList, readTool } from "../db/read.js";
 import { executeAction } from "../actions/cmd.js";
 import { McpClient } from "../mcp.js";
 import { executeWorkflow } from "../workflows/cmd.js";
 import { executeTask } from "./cmd.js";
 import { mergeInferParams } from "./conf.js";
 import { openTaskSpec } from "../utils/io.js";
+import { default as fm } from "front-matter";
+import { readFile } from "../utils/sys/read.js";
 //import { confirmToolUsage } from "../tools.js";
 
 async function readTask(
@@ -125,6 +127,56 @@ async function readTask(
     }
     // tools
     //console.log("Task tools list:", taskDef.toolsList);
+    if (taskDef?.skills) {
+        //console.log(taskDef.name, taskDef.skills);
+        // skills text
+        const sks = readSkillsFromList(taskDef.skills);
+        const skLines = new Array<string>();
+        for (const s of Object.values(sks)) {
+            if (!s?.variables) {
+                throw new Error(`no variables in skill feature ${s.name}`)
+            }
+            const vars = s.variables as Record<string, any>;
+            skLines.push("- **" + vars.name + "**: " + vars.description);
+        }
+        const skt = skLines.join("\n");
+        if (taskDef.prompt.includes("{skills}")) {
+            taskDef.prompt = taskDef.prompt.replace("{skills}", skt);
+        }
+        if (taskDef?.template?.system) {
+            if (taskDef.template.system.includes("{skills}")) {
+                taskDef.template.system = taskDef.template.system.replace("{skills}", skt);
+            }
+        }
+        // tool
+        const ex: ToolSpec["execute"] = async (args) => {
+            let sb = "";
+            if (taskDef?.skills) {
+                if (!args?.name) {
+                    throw new Error(`loading skill: provide a skill name`)
+                }
+                const { found, feature } = readFeature(args.name, "skill");
+                if (!found) {
+                    throw new Error(`skill ${args.name} not found`)
+                }
+                const fc = readFile(feature.path);
+                const data = fm<Record<string, any>>(fc);
+                sb = data.body;
+            } else {
+                throw new Error(`loading skill: no skills defined in task`)
+            }
+            return sb as any
+        }
+        const lmTool: ToolSpec = {
+            name: "load-skill",
+            description: "load a skill",
+            arguments: { name: { description: "the name of the skill to load", required: true } },
+            type: "skill",
+            execute: ex,
+            parallelCalls: true,
+        };
+        taskDef.tools.push(lmTool)
+    }
     if (taskDef.toolsList) {
         for (const rawToolName of taskDef.toolsList) {
             let toolName = rawToolName;

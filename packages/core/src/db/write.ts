@@ -173,6 +173,13 @@ function upsertAndCleanFeatures(feats: Array<FeatureSpec>, type: FeatureType): A
             }
             console.log("+", "[" + type + "]", feat.name, feat.path);
             newFeatures.push(feat)
+        } else {
+            //console.log("FFF", feat);
+            if (type == "skill") {
+                const updateStmt = db.prepare(`UPDATE ${type} SET variables = ? WHERE name = ?`);
+                //console.log("Update skill", feat.name, feat.variables)
+                updateStmt.run(JSON.stringify(feat.variables), feat.name);
+            }
         }
     });
     return newFeatures
@@ -263,6 +270,7 @@ function updateFeatures(feats: Features) {
     });
     upsertAndCleanFeatures(feats.adaptater, "adaptater");
     upsertAndCleanFeatures(feats.cmd, "cmd");
+    upsertAndCleanFeatures(feats.skill, "skill");
     feats.cmd.forEach(c => updateUserCmd(c))
 }
 
