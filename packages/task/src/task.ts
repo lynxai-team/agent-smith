@@ -24,6 +24,8 @@ class Task {
         /*if (prompt) {
             throw new Error(`Task ${this.def.name}: no prompt parameter provided. Parameters: ${JSON.stringify(params, null, 2)}`);
         }*/
+        //console.log("RUN TASK opts", options);
+        //console.log("RUN TASK def", this.def);
         let model = this.def.model;
         if (options?.model) {
             model = options.model;
@@ -33,9 +35,12 @@ class Task {
             if (!options?.tools) {
                 options.tools = []
             }
-            if (this.def?.tools.length > 0) {
+            if (this.def.tools.length > 0) {
+                console.log("t of")
                 for (const t of this.def.tools) {
+                    //console.log("push t", t)
                     options.tools.push(t);
+                    //console.log("push ok")
                 }
             }
         }
@@ -66,13 +71,6 @@ class Task {
         if (this.def.template?.system) {
             options.system = this.def.template.system;
         }
-        if (this.def.template?.afterSystem) {
-            if (options?.system) {
-                options.system = options.system + this.def.template.afterSystem;
-            } else {
-                options.system = this.def.template.afterSystem;
-            }
-        }
         if (this.def?.shots) {
             options.history = options?.history ? [...this.def.shots, ...options.history] : this.def.shots;
         }
@@ -87,12 +85,11 @@ class Task {
             console.log("----------------------------------------------")
             //options.debug = true
         }
-        //console.log("RUN AGENT (TASK) params:", this.def.inferParams);      
         const agentOpts: AgentInferenceOptions = {
             ...options,
             params: this.def.inferParams,
         }
-        //console.log("RUN AGENT (TASK) options:", agentOpts);
+        //console.log("TASK RUN agent options:", agentOpts);
         answer = await this.agent.run(finalPrompt, agentOpts);
 
         // remove task tools from the agent

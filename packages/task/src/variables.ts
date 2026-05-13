@@ -37,16 +37,12 @@ function applyVariables(taskDef: TaskDef, options: AgentInferenceOptions): TaskD
                 }
             }
         }
-
         // apply variables
         for (const [k, v] of Object.entries(options.variables)) {
             //console.log("APPLY", k, v);
             taskDef.prompt = taskDef.prompt.replaceAll(`{${k}}`, v);
             if (taskDef.template?.system) {
                 taskDef.template.system = taskDef.template.system.replaceAll(`{${k}}`, v);
-            }
-            if (taskDef.template?.afterSystem) {
-                taskDef.template.afterSystem = taskDef.template.afterSystem.replaceAll(`{${k}}`, v);
             }
             if (taskDef?.shots) {
                 const nshots = new Array<HistoryTurn>();
