@@ -18,10 +18,10 @@ async function initBackends() {
         let name = bk.name;
         let apiKey = "";
         if (bk?.apiKey) {
-            if (bk.apiKey == "$OPENROUTER_API_KEY") {
-                const apk = process.env.OPENROUTER_API_KEY;
+            if (bk.apiKey.startsWith("$")) {
+                const apk = process.env[bk.apiKey.slice(1)];
                 if (apk === undefined) {
-                    runtimeDataError("No $OPENROUTER_API_KEY environment variable found, required for ", name)
+                    runtimeDataError(`No ${bk.apiKey} environment variable found, required for `, name)
                     return
                 }
                 apiKey = apk

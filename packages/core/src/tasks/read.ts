@@ -21,6 +21,7 @@ async function readTask(
     vars: Record<string, any>;
     mcpServers: Array<McpClient>;
     taskDir: string;
+    tools: Array<ToolSpec>;
 }> {
     /*console.log("Read Task", name);
     console.log("Payload:", payload);
@@ -177,7 +178,7 @@ async function readTask(
         };
         taskDef.tools.push(lmTool)
     }
-    if (taskDef.toolsList) {
+    if (taskDef?.toolsList) {
         for (const rawToolName of taskDef.toolsList) {
             let toolName = rawToolName;
             let autoRunTool = true;
@@ -253,7 +254,9 @@ async function readTask(
         console.log("Task model:", model);
         //console.log("Task vars:", vars);
     }*/
-    return { task, vars, mcpServers, taskDir }
+    const tools = taskDef.tools;
+    taskDef.tools = [];
+    return { task, vars, mcpServers, taskDir, tools: tools }
 }
 
 export {
