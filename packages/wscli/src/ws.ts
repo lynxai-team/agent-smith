@@ -50,7 +50,7 @@ const useWsServer = (params: ServerParams) => {
                 if (onError) {
                     onError(msg, from)
                 } else {
-                    console.error(msg)
+                    console.error(from, msg)
                 }
                 break;
             case "token":
