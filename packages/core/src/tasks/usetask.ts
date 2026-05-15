@@ -274,13 +274,13 @@ const useTaskExecutor = async (name: string, payload: { prompt: string } & Recor
             setChatInferenceParams(initialInferParams);
             //await chat(program, localOptions, agent, mcpServers);
         }*/
-        if (localOptions?.verbosity?.stats) {
+        /*if (localOptions?.verbosity?.stats) {
             try {
                 console.log(emittedTokens.toString(), color.dim("tokens"), out.stats.tokensPerSecond, color.dim("tps"));
             } catch (e) {
                 runtimeWarning("Error formating stats:", `${e}`)
             }
-        }
+        }*/
         if (localOptions?.backend || settings?.backend) {
             //console.log("SET BACK AGENT BACKEND TO", backend.value);
             // set back the default backend
