@@ -30,39 +30,20 @@ interface HistoryTurn {
     tools?: Array<ToolTurn>;
 }
 
-/**
- * UI history turn with additional state information.
- *
- * @interface UiHistoryTurn
- * @param {HistoryTurn} - Extends HistoryTurn interface.
- * @param {string} from - The source of the turn
- * @param {Object} state - UI state for the turn.
- * @param {boolean} state.showThinking - Whether to show thinking process.
- * @param {Array<string>} state.showToolResponses - Tool responses to show.
- * @param {number | null} state.confirmRestartAtTurn - Turn number to restart at.
- * @param {Record<string, { resolve: (value: boolean) => void, reject: (reason?: any) => void }>} state.confirmToolCalls - Tool call confirmations.
- * @example
- * const uiHistoryTurn: UiHistoryTurn = {
- *   from: 'qwen4b',
- *   state: {
- *     showThinking: true,
- *     showToolResponses: ['tool1'],
- *     confirmRestartAtTurn: null,
- *     confirmToolCalls: {}
- *   }
- * };
- */
+interface UiHistoryTurnState {
+    showThinking: boolean;
+    showToolResponses: Array<string>;
+    confirmRestartAtTurn: number | null;
+    confirmToolCalls: Record<string, {
+        resolve: (value: boolean) => void,
+        reject: (reason?: any) => void
+    }>;
+}
+
 interface UiHistoryTurn extends HistoryTurn {
     from: string;
-    state: {
-        showThinking: boolean;
-        showToolResponses: Array<string>;
-        confirmRestartAtTurn: number | null;
-        confirmToolCalls: Record<string, {
-            resolve: (value: boolean) => void,
-            reject: (reason?: any) => void
-        }>;
-    }
+    type: UiHistoryTurnType;
+    state: UiHistoryTurnState;
 }
 
 /**
@@ -82,7 +63,6 @@ interface ToolTurn {
     response: any;
     from: string;
     type: string;
-    think?: string;
 }
 
 /**
@@ -102,9 +82,13 @@ interface ImgData {
     data: string;
 }
 
+type UiHistoryTurnType = "unknown" | "user" | "assistant" | "think" | "tools";
+
 export {
     HistoryTurn,
     UiHistoryTurn,
     ToolTurn,
     ImgData,
+    UiHistoryTurnState,
+    UiHistoryTurnType,
 }

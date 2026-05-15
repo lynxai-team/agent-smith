@@ -23,8 +23,7 @@
  */
 
 import type { HistoryTurn, ToolTurn } from "./history.js";
-import type { InferenceResult } from "./inference.js";
-import type { IngestionStats } from "./stats.js";
+import type { InferenceResult, PromptProcessingProgress } from "./inference.js";
 import type { ToolCallSpec } from "./tools.js";
 
 /**
@@ -50,10 +49,11 @@ interface InferenceCallbacks {
     onEndThinking?: (from: string) => void;
     onToken?: (t: string, from: string) => void;
     onThinkingToken?: (t: string, from: string) => void;
-    onStartEmit?: (data: IngestionStats, from: string) => void;
+    onStartEmit?: (data: PromptProcessingProgress, from: string) => void;
     onEndEmit?: (result: InferenceResult, from: string) => void;
     onError?: (err: any, from: string) => void;
     onToolCallInProgress?: (tc: Array<ToolCallSpec>, from: string) => void;
+    onPromptProcessingProgress?: (progress: PromptProcessingProgress, from: string) => void;
 }
 
 /**
@@ -78,6 +78,7 @@ interface AgentCallbacks {
     onToolCallEnd?: (tc: ToolCallSpec, tr: any, type: string, from: string) => void;
     onToolsTurnStart?: (tc: Array<ToolCallSpec>, from: string) => void;
     onToolsTurnEnd?: (tt: Array<ToolTurn>, from: string) => void;
+    onTurnStart?: (from: string) => void;
     onTurnEnd?: (ht: HistoryTurn, from: string) => void;
     onAssistant?: (txt: string, from: string) => void;
     onThink?: (txt: string, from: string) => void;

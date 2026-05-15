@@ -9,6 +9,8 @@ import {
     UiHistoryTurn,
     ToolTurn,
     ImgData,
+    UiHistoryTurnState,
+    UiHistoryTurnType,
 } from "./history.js";
 import {
     InferenceParams,
@@ -16,6 +18,8 @@ import {
     InferenceResult,
     AgentInferenceOptions,
     ClientInferenceOptions,
+    PromptProcessingProgress,
+    PerformanceMetrics,
 } from "./inference.js";
 import {
     OnLoadProgress,
@@ -39,10 +43,6 @@ import {
     ModelStatusLoading,
     ModelStatusUnloaded,
 } from "./model.js";
-import {
-    IngestionStats,
-    InferenceStats,
-} from "./stats.js";
 import {
     TaskSettings,
     TaskVariableDef,
@@ -140,8 +140,6 @@ export {
     ModelStatusLoaded,
     ModelStatusLoading,
     ModelStatusUnloaded,
-    IngestionStats,
-    InferenceStats,
     TaskSettings,
     TaskVariableDef,
     TaskOptionalVariableDef,
@@ -195,4 +193,8 @@ export {
     UserCmdDef,
     ClientFeaturesOptions,
     VerbosityOptions,
+    PromptProcessingProgress,
+    PerformanceMetrics,
+    UiHistoryTurnState,
+    UiHistoryTurnType,
 }
