@@ -1,15 +1,15 @@
 import type {
     InferenceCallbacks,
     InferenceResult,
-    InferenceStats,
-    IngestionStats,
     LmProvider,
     LmProviderParams,
     ModelInfo,
     OnLoadProgress,
     ToolCallSpec,
     ToolSpec,
-    VerbosityOptions
+    VerbosityOptions,
+    PromptProcessingProgress,
+    PerformanceMetrics,
 } from "@agent-smith/types";
 import type { ClientInferenceOptions } from "@agent-smith/types/dist/inference.js";
 import { createParser } from 'eventsource-parser';
@@ -23,7 +23,6 @@ import {
     type ChatCompletionTool
 } from "openai/resources/index.js";
 import { useApi } from "restmix";
-import { useStats } from "./stats.js";
 import { convertToolCallSpec, generateId } from './tools.js';
 
 class Lm implements LmProvider {
@@ -33,10 +32,11 @@ class Lm implements LmProvider {
     onThinkingToken?: (t: string, from: string) => void;
     onStartThinking?: (from: string) => void;
     onEndThinking?: (from: string) => void;
-    onStartEmit?: (data: IngestionStats, from: string) => void;
+    onStartEmit?: (data: PromptProcessingProgress, from: string) => void;
     onEndEmit?: (result: InferenceResult, from: string) => void;
     onError?: (err: any, from: string) => void;
     onToolCallInProgress?: (tc: Array<ToolCallSpec>, from: string) => void;
+    onPromptProcessingProgress?: (progress: PromptProcessingProgress, from: string) => void;
     // state
     model = "";
     models = new Array<ModelInfo>();
@@ -60,6 +60,7 @@ class Lm implements LmProvider {
         this.onEndThinking = params.onEndThinking;
         this.onError = params.onError;
         this.onToolCallInProgress = params.onToolCallInProgress;
+        this.onPromptProcessingProgress = params.onPromptProcessingProgress;
         this.apiKey = params.apiKey ?? "";
         this.serverUrl = params.serverUrl;
         this.api = useApi({
@@ -176,6 +177,7 @@ class Lm implements LmProvider {
             onEndEmit: options?.onEndEmit ?? this.onEndEmit,
             onError: options?.onEndEmit ?? this.onError,
             onToolCallInProgress: options?.onToolCallInProgress ?? this.onToolCallInProgress,
+            onPromptProcessingProgress: options?.onPromptProcessingProgress ?? this.onPromptProcessingProgress,
         };
         //console.log("EVENTS", events);
         //console.log("CLI OPTS", options);
@@ -195,10 +197,19 @@ class Lm implements LmProvider {
         }
         inferenceParams.stream = params?.stream ?? true;
         //console.log("STREAM", inferenceParams.stream, params?.stream)
-        const stats = useStats();
-        stats.start();
-        let finalStats = {} as InferenceStats;
-        let serverStats: Record<string, any> = {};
+        let serverStats: PerformanceMetrics = {
+            cache_n: 0,
+            prompt_n: 0,
+            prompt_ms: 0,
+            prompt_per_token_ms: 0,
+            prompt_per_second: 0,
+            predicted_n: 0,
+            predicted_ms: 0,
+            predicted_per_token_ms: 0,
+            predicted_per_second: 0,
+            draft_n: 0,
+            draft_n_accepted: 0
+        };
         let msgs: Array<ChatCompletionMessageParam> = [];
         if (options?.system) {
             msgs = [{ role: "system", content: options.system }];
@@ -262,8 +273,9 @@ class Lm implements LmProvider {
                 );
             }
             (inferenceParams.images as Array<string>).forEach(imgStr => {
+                const imgData = imgStr.startsWith("http") ? imgStr : `data:image/jpeg;base64,${imgStr}`;
                 usermsgs.push(
-                    { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imgStr}`, detail: "auto" } }
+                    { type: "image_url", image_url: { url: imgData, detail: "auto" } }
                 )
             });
             delete inferenceParams.images;
@@ -356,12 +368,13 @@ class Lm implements LmProvider {
                 });
             }
         } else {
-            const ip: ChatCompletionCreateParamsStreaming = {
+            const ip: ChatCompletionCreateParamsStreaming & { return_progress: boolean } = {
                 messages: msgs,
                 model: this.model,
                 parallel_tool_calls: true,
                 ...inferenceParams,
                 stream: true,
+                return_progress: true,
             };
             if (verbosity?.inferenceParams) {
                 console.log("Inference parameters:");
@@ -422,18 +435,30 @@ class Lm implements LmProvider {
             }> = [];
             let toolsCallsInProgress = new Array<ToolCallSpec>();
             let isThinking = false;
+            let promptProcessingStats: PromptProcessingProgress = {
+                "total": 0,
+                "cache": 0,
+                "processed": 0,
+                "time_ms": 0
+            };
             const parser = createParser({
                 onEvent: (event) => {
                     const done = event.data === '[DONE]';
                     if (!done) {
+                        const payload = JSON.parse(event.data);
+                        if (payload?.prompt_progress) {
+                            if (this.onPromptProcessingProgress) {
+                                this.onPromptProcessingProgress(payload.prompt_progress as PromptProcessingProgress, this.name);
+                            }
+                            //console.log(payload.prompt_progress.processed, "/", payload.prompt_progress.total);
+                            return
+                        }
                         if (i == 1) {
-                            const ins = stats.inferenceStarts();
                             if (events.onStartEmit) {
-                                events.onStartEmit(ins, this.name)
+                                events.onStartEmit(promptProcessingStats, this.name)
                             }
                         }
                         if (events.onToken) {
-                            const payload = JSON.parse(event.data);
                             const modelRawToolCalls: Record<string, { name: string, arguments: Array<string> }> = {};
 
                             const choice = payload.choices[0];
@@ -569,6 +594,9 @@ class Lm implements LmProvider {
                                 toolCalls.push(toolCall)
                             }
                         }
+                        if (payload?.timings) {
+                            serverStats = payload.timings
+                        }
                         ++i
                     } else {
                         reader.cancel();
@@ -585,15 +613,12 @@ class Lm implements LmProvider {
                 const chunk = new TextDecoder().decode(value);
                 parser.feed(chunk);
             }
-            //serverStats = completion?.timings ?? {};
             text = buf.join("");
         }
-        finalStats = stats.inferenceEnds(i);
         const ir: InferenceResult = {
             text: text,
             thinkingText: thinkingText,
-            stats: finalStats,
-            serverStats: serverStats,
+            stats: serverStats,
         };
         if (toolCalls.length > 0) {
             ir.toolCalls = toolCalls;

@@ -1,5 +1,5 @@
 import type { AgentCallbacks, AgentParams, HistoryTurn, InferenceCallbacks, InferenceResult, ToolCallSpec, ToolSpec, ToolTurn, VerbosityOptions } from "@agent-smith/types";
-import type { AgentInferenceOptions } from "@agent-smith/types/dist/inference.js";
+import type { AgentInferenceOptions, PerformanceMetrics } from "@agent-smith/types/dist/inference.js";
 import { Lm } from "./client.js";
 
 class Agent {
@@ -11,6 +11,7 @@ class Agent {
     onToolCallEnd?: (tc: ToolCallSpec, tr: any, type: string, from: string) => void;
     onToolsTurnStart?: (tc: Array<ToolCallSpec>, from: string) => void;
     onToolsTurnEnd?: (tt: Array<ToolTurn>, from: string) => void;
+    onTurnStart?: (from: string) => void;
     onTurnEnd?: (ht: HistoryTurn, from: string) => void;
     onAssistant?: (txt: string, from: string) => void;
     onThink?: (txt: string, from: string) => void;
@@ -43,6 +44,7 @@ class Agent {
         this.onToolCall = params?.onToolCall;
         this.onToolCallEnd = params?.onToolCallEnd;
         this.onToolsTurnStart = params?.onToolsTurnStart;
+        this.onTurnStart = params?.onTurnStart;
         this.onToolsTurnEnd = params?.onToolsTurnEnd;
         this.onTurnEnd = params?.onTurnEnd;
         this.onAssistant = params?.onAssistant;
@@ -77,6 +79,9 @@ class Agent {
         prompt: string,
         options: AgentInferenceOptions,
     ) {
+        if (this?.onTurnStart) {
+            this.onTurnStart(this.name)
+        }
         const verbosity: VerbosityOptions = options?.verbosity ?? { events: true };
         //console.log("START RUN AGENT", this.name);
         const clientEvents: InferenceCallbacks = {
@@ -88,6 +93,7 @@ class Agent {
             onEndEmit: options?.onEndEmit,
             onError: options?.onEndEmit,
             onToolCallInProgress: options?.onToolCallInProgress,
+            onPromptProcessingProgress: options?.onPromptProcessingProgress,
         };
         const events: AgentCallbacks = {
             onToolCall: options?.onToolCall ?? this.onToolCall,
@@ -119,12 +125,12 @@ class Agent {
         const toolsResults = new Array<ToolTurn>();
         if (_res.thinkingText.length > 0) {
             if (events.onThink) {
-                events.onThink(_res.thinkingText, this.name)
+                events.onThink(_res.thinkingText, this.name);
             };
         }
         if (_res.text.length > 0) {
             if (events.onAssistant) {
-                events.onAssistant(_res.text, this.name)
+                events.onAssistant(_res.text, this.name);
             }
         }
         if (res?.toolCalls) {
@@ -135,6 +141,7 @@ class Agent {
             const toolNames = Object.keys(this.tools);
             const syncTools = new Array<() => Promise<void>>();
             const parallelTools = new Array<() => Promise<void>>();
+            let isAbort = false;
             for (const tc of res.toolCalls) {
                 if (!toolNames.includes(tc.name)) {
                     throw new Error(`Inexistant tool ${tc.name} called (available tools: ${toolNames})`)
@@ -146,9 +153,9 @@ class Agent {
                     canRun = await tool.canRun(tc);
                 }
                 if (canRun) {
+                    const type = this.tools[tc.name].type;
                     if (events?.onToolCall) {
-                        //console.log("TCT", this.tools[tc.name]);
-                        const type = this.tools[tc.name].type;
+                        //console.log("TCT", this.tools[tc.name]);                        
                         events.onToolCall(tc, type, this.name);
                     }
                     const f = async () => {
@@ -173,6 +180,21 @@ class Agent {
                             console.log("[x] Executed tool", tool.name + ":\n", toolCallResult);
                         }
                         toolsResults.push({ call: tc, response: toolCallResult, from: this.name, type: tool.type });
+                        if (events?.onAssistant && tool.type == "agent") {
+                            if (typeof toolCallResult == "object") {
+                                const ln = Object.keys(toolCallResult).length;
+                                if ((toolCallResult?.type == "agent" && ln == 1) || ln == 0) {
+                                    console.log("Request aborted from subagent tool call", this.name), toolCallResult;
+                                    isAbort = true;
+                                    this.lm.abort();
+                                    return
+                                }
+                            }
+                            console.log("TOOL CALL RESP ASSISTANT", toolCallResult);
+                            if (toolCallResult?.assistant) {
+                                events?.onAssistant(toolCallResult.assistant, this.name)
+                            }
+                        }
                         if (events?.onToolCallEnd) {
                             const type = this.tools[tc.name].type;
                             events.onToolCallEnd(tc, toolCallResult, type, this.name);
@@ -202,6 +224,10 @@ class Agent {
                     await f()
                 }
             }
+            if (isAbort) {
+                const r: InferenceResult = { text: "", thinkingText: "", stats: {} as PerformanceMetrics };
+                return r
+            }
             if (events?.onToolsTurnEnd) {
                 events.onToolsTurnEnd(toolsResults, this.name);
             }
@@ -215,7 +241,6 @@ class Agent {
                     text: JSON.stringify(toolsResults.map(tr => tr.response)),
                     thinkingText: res.thinkingText ?? "",
                     stats: res.stats,
-                    serverStats: res.serverStats,
                     toolCalls: res.toolCalls,
                 }
                 //console.log("TURN END ROUTING", this.name);
