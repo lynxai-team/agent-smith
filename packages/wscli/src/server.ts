@@ -154,7 +154,8 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
                 pr = prompt;
             };
             stateLocal.history.push({
-                from: task.value.name,
+                type: "user",
+                from: "user",
                 user: pr,
                 state: {
                     showThinking: false,
