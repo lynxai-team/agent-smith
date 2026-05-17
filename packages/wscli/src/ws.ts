@@ -1,4 +1,4 @@
-import type { WsClientMsg, FeatureType, ToolCallSpec, WsRawServerMsg, ServerParams } from "@agent-smith/types";
+import type { WsClientMsg, FeatureType, ToolCallSpec, WsRawServerMsg, ServerParams, InferenceResult } from "@agent-smith/types";
 import type { HistoryTurn } from "@agent-smith/types";
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
@@ -9,20 +9,6 @@ const useWsServer = (params: ServerParams) => {
         url = params.url;
     }
     let ws = new ReconnectingWebSocket(url);
-    let onToken = params.onToken;
-    let onThinkingToken = params.onThinkingToken;
-    let onStartThinking = params.onStartThinking;
-    let onEndThinking = params.onEndThinking;
-    let onToolCallInProgress = params.onToolCallInProgress;
-    let onToolCall = params.onToolCall;
-    let onToolCallEnd = params.onToolCallEnd;
-    let onToolsTurnStart = params.onToolsTurnStart;
-    let onToolsTurnEnd = params.onToolsTurnEnd;
-    let onTurnEnd = params.onTurnEnd;
-    let onAssistant = params.onAssistant;
-    let onError = params.onError;
-    let onConfirmToolUsage = params.onConfirmToolUsage;
-    let onThink = params.onThink;
 
     ws.onopen = function(event) {
         console.log('Connected to WebSocket server');
@@ -47,82 +33,87 @@ const useWsServer = (params: ServerParams) => {
         }*/
         switch (type) {
             case "error":
-                if (onError) {
-                    onError(msg, from)
+                if (params?.onError) {
+                    params.onError(msg, from)
                 } else {
                     console.error(from, msg)
                 }
                 break;
             case "token":
-                if (onToken) {
-                    onToken(msg, from);
+                if (params?.onToken) {
+                    params.onToken(msg, from);
                 }
                 break
             case "thinkingtoken":
-                if (onThinkingToken) {
-                    onThinkingToken(msg, from);
+                if (params?.onThinkingToken) {
+                    params.onThinkingToken(msg, from);
+                }
+                break
+            case "turnstart":
+                if (params?.onTurnStart) {
+                    params.onTurnStart(from)
                 }
                 break
             case "turnend":
-                if (onTurnEnd) {
-                    onTurnEnd(JSON.parse(msg), from)
+                if (params?.onTurnEnd) {
+                    params.onTurnEnd(JSON.parse(msg), from)
                 }
                 break
             case "assistant":
-                if (onAssistant) {
-                    onAssistant(msg, from)
+                if (params?.onAssistant) {
+                    params.onAssistant(msg, from)
                 }
                 break
             case "think":
-                if (onThink) {
-                    onThink(msg, from)
+                if (params?.onThink) {
+                    params.onThink(msg, from)
                 }
                 break
             case "thinkingstart":
-                if (onStartThinking) {
-                    onStartThinking(from)
+                if (params?.onStartThinking) {
+                    params.onStartThinking(from)
                 }
                 break
             case "thinkingend":
-                if (onEndThinking) {
-                    onEndThinking(from)
+                if (params?.onEndThinking) {
+                    params.onEndThinking(from)
                 }
                 break
             case "toolcallinprogress":
-                if (onToolCallInProgress) {
-                    onToolCallInProgress(JSON.parse(msg), from)
+                if (params?.onToolCallInProgress) {
+                    params.onToolCallInProgress(JSON.parse(msg), from)
                 }
                 break
             case "toolsturnstart":
-                if (onToolsTurnStart) {
-                    onToolsTurnStart(JSON.parse(msg), from)
+                if (params?.onToolsTurnStart) {
+                    params.onToolsTurnStart(JSON.parse(msg), from)
                 }
                 break
             case "toolsturnend":
-                if (onToolsTurnEnd) {
-                    onToolsTurnEnd(JSON.parse(msg), from)
+                if (params?.onToolsTurnEnd) {
+                    params.onToolsTurnEnd(JSON.parse(msg), from)
                 }
                 break
             case "toolcall":
-                if (onToolCall) {
+                if (params?.onToolCall) {
                     const payload = JSON.parse(msg);
-                    onToolCall(payload.tc, payload.type, payload.from)
+                    params.onToolCall(payload.tc, payload.type, payload.from)
                 }
                 break
             case "toolcallend":
-                if (onToolCallEnd) {
+                if (params?.onToolCallEnd) {
                     //console.log("WS TCE", msg);
                     const m = msg.split("<|xtool_call_id|>");
                     const payload = JSON.parse(m[0]);
                     const content = m[1];
                     //console.log("WS TCP", tc);
-                    onToolCallEnd(payload.tc, content, payload.type, payload.from)
+                    params.onToolCallEnd(payload.tc, content, payload.type, payload.from)
                 }
                 break
             case "toolcallconfirm":
-                if (onConfirmToolUsage) {
+                if (params?.onConfirmToolUsage) {
                     const tm = JSON.parse(msg) as ToolCallSpec;
-                    onConfirmToolUsage(tm).then(c => {
+                    params.onConfirmToolUsage(tm).then(c => {
                         const m: WsClientMsg = {
                             type: "system",
                             command: "confirmtool",
@@ -130,6 +121,12 @@ const useWsServer = (params: ServerParams) => {
                         }
                         _sendMsg(JSON.stringify(m))
                     })
+                }
+                break
+            case "endemit":
+                if (params?.onEndEmit) {
+                    const m = JSON.parse(msg) as InferenceResult;
+                    params.onEndEmit(m, from)
                 }
                 break
             case "finalresult":
@@ -207,11 +204,11 @@ const useWsServer = (params: ServerParams) => {
         executeWorkflow,
         executeAgent,
         cancel,
-        onToken,
-        onToolCall,
-        onToolCallEnd,
-        onError,
-        onConfirmToolUsage,
+        onToken: params.onToken,
+        onToolCall: params.onToolCall,
+        onToolCallEnd: params.onToolCallEnd,
+        onError: params.onError,
+        onConfirmToolUsage: params.onConfirmToolUsage,
     }
 }
 

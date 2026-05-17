@@ -9,7 +9,7 @@ import { api } from "./api.js";
 import { useWsServer } from "./ws.js";
 import { createAwaiter } from "./utils.js";
 
-const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onToken: (t) => null }): ClientFeaturesService => {
+const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): ClientFeaturesService => {
     //console.log(from, ":", params);
     const ws = useWsServer(params);
     const isReady = ref<boolean>(false);
@@ -35,11 +35,6 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         if (!res.ok) {
             throw new Error(`${res.status} ${res.text}`)
         }
-        if (stateLocal?.currentFeature) {
-            // may not be used in external apps
-            stateLocal.currentFeature.type = "workflow";
-            stateLocal.currentFeature.name = name;
-        }
         return res.data
     }
 
@@ -49,23 +44,6 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         const type = isAgent ? "agent" : "task";
         const res = await api.get<TaskDef>(`/${type}/` + name);
         task.value = res.data;
-        // set stateLocal
-        if (stateLocal?.currentFeature) {
-            // may not be used in external apps
-            stateLocal.currentFeature.type = type;
-            stateLocal.currentFeature.name = name;
-        }
-        //console.log(res.data);
-        /*if (res.data?.inferParams) {
-            //inferOptions.params = res.data.inferParams;
-            for (const [k, v] of Object.entries(res.data.inferParams)) {
-                // @ts-ignore
-                inferOptions.params[k] = v
-            }
-        };*/
-        /*if (res.data.model?.template) {
-            inferOptions.params.template = res.data.model.template;
-        }*/
         if (res.data?.variables) {
             //console.log("VARS", res.data.variables);
             if (res.data.variables?.required) {
@@ -125,7 +103,7 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
                 if (variables.values.required[name] == "") {
                     const msg = `[Error]: missing required variable: ${name} \n\nCurrent options:\n${JSON.stringify(opts)}`;
                     if (params?.onError) {
-                        params.onError(msg, stateLocal.currentFeature.name)
+                        params.onError(msg, task.value.name)
                     }
                     throw new Error()
                 };
@@ -140,31 +118,6 @@ const useClientFeatures = (stateLocal: TaskState, params: ServerParams = { onTok
         //console.log("SRV OPTS VARS", taskvars);
         const payload = { prompt: prompt };
         opts = { ...opts, variables: taskvars };
-        //console.log("WSCLI OPTS", opts);
-        /*const _options: Record<string, any> = { model: task.value.model ?? opts.model };
-        if (opts?.backend) {
-            _options.backend = opts.backend;
-        }*/
-        if (!opts?.nohistory) {
-            //console.log("OPTIONS", options)
-            let pr = task.value.prompt.replace("{prompt}", prompt);
-            if (stateLocal.history.length > 0) {
-                //options.chatMode = true;
-                opts.history = toRaw(stateLocal.history);
-                pr = prompt;
-            };
-            stateLocal.history.push({
-                type: "user",
-                from: "user",
-                user: pr,
-                state: {
-                    showThinking: false,
-                    showToolResponses: [],
-                    confirmRestartAtTurn: null,
-                    confirmToolCalls: {},
-                }
-            });
-        }
         //console.log("==> OPTS", options);
         if (!isAgent) {
             ws.executeTask(task.value?.name, payload, opts);
