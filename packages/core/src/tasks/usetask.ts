@@ -154,7 +154,7 @@ const useTaskExecutor = async (name: string, payload: { prompt: string } & Recor
         }
         localOptions.baseDir = taskDir;
         //console.log("CORE AGENT OPTS", agentOptions);
-        if (localOptions?.history) {
+        if (localOptions?.history && !localOptions.isToolCall) {
             agent.history = localOptions.history;
         }
         localOptions.variables = vars;
