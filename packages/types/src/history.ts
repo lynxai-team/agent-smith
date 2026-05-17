@@ -1,4 +1,5 @@
 
+import type { InferenceStats } from "./stats.js";
 import type { ToolCallSpec } from "./tools.js";
 
 /**
@@ -44,6 +45,7 @@ interface UiHistoryTurn extends HistoryTurn {
     from: string;
     type: UiHistoryTurnType;
     state: UiHistoryTurnState;
+    stats?: InferenceStats;
 }
 
 /**

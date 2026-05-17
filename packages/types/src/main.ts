@@ -19,7 +19,6 @@ import {
     AgentInferenceOptions,
     ClientInferenceOptions,
     PromptProcessingProgress,
-    PerformanceMetrics,
 } from "./inference.js";
 import {
     OnLoadProgress,
@@ -109,8 +108,12 @@ import { VerbosityOptions } from "./verbosity.js";
 import {
     Workspace
 } from "./workspace.js";
+import {
+    InferenceStats,
+    PerformanceMetrics,
+} from "./stats.js";
 
-export {
+export type {
     Workspace,
     ConfInferenceBackend,
     BackendEntries,
@@ -197,4 +200,5 @@ export {
     PerformanceMetrics,
     UiHistoryTurnState,
     UiHistoryTurnType,
+    InferenceStats,
 }

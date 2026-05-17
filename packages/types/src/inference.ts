@@ -1,5 +1,6 @@
 import type { AllCallbacks, InferenceCallbacks } from "./callbacks.js";
 import type { HistoryTurn } from "./history.js";
+import type { PerformanceMetrics } from "./stats.js";
 import type { ToolCallSpec, ToolSpec } from "./tools.js";
 import type { VerbosityOptions } from "./verbosity.js";
 
@@ -156,20 +157,6 @@ interface PromptProcessingProgress {
     time_ms: number;
 }
 
-interface PerformanceMetrics {
-    cache_n: number;
-    prompt_n: number;
-    prompt_ms: number;
-    prompt_per_token_ms: number;
-    prompt_per_second: number;
-    predicted_n: number;
-    predicted_ms: number;
-    predicted_per_token_ms: number;
-    predicted_per_second: number;
-    draft_n: number;
-    draft_n_accepted: number;
-}
-
 export {
     AgentInferenceOptions,
     ClientInferenceOptions,
@@ -177,6 +164,5 @@ export {
     InferenceParams,
     InferenceResult,
     PromptProcessingProgress,
-    PerformanceMetrics,
 };
 
