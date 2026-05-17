@@ -18,9 +18,26 @@ function getConfig(): { found: boolean, conf: ConfigFile, path: string } {
     return { found: c.found, conf: c.data, path: confFilePath }
 }
 
+function createAwaiter<T>() {
+    let resolveFn: (value: T) => void;
+    let rejectFn: (reason?: any) => void;
+
+    const promise = new Promise<T>((resolve, reject) => {
+        resolveFn = resolve;
+        rejectFn = reject;
+    });
+
+    return {
+        promise,
+        resolve: resolveFn!,
+        reject: rejectFn!
+    };
+}
+
 const excludedTaskTypes = ["app", "workflow", "terminal"];
 
 export {
     getConfig,
+    createAwaiter,
     excludedTaskTypes,
 }
