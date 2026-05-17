@@ -24,6 +24,7 @@ import {
 } from "openai/resources/index.js";
 import { useApi } from "restmix";
 import { convertToolCallSpec, generateId } from './tools.js';
+import { buildHistory } from "./history.js";
 
 class Lm implements LmProvider {
     name: string;
@@ -210,58 +211,9 @@ class Lm implements LmProvider {
             draft_n: 0,
             draft_n_accepted: 0
         };
-        let msgs: Array<ChatCompletionMessageParam> = [];
-        if (options?.system) {
-            msgs = [{ role: "system", content: options.system }];
-        }
-        //console.log("CLIENT HIST IN", options?.history);
+        let msgs = new Array<ChatCompletionMessageParam | { role: "assistant", content?: string, reasoning_content?: string, tool_calls?: Array<ChatCompletionMessageToolCall> }>();
         if (options?.history) {
-            options.history.forEach(
-                // @ts-ignore
-                row => {
-                    if (row?.user) {
-                        msgs.push({
-                            role: "user",
-                            content: row.user,
-                        });
-                    }
-                    if (row?.assistant) {
-                        msgs.push({
-                            role: "assistant",
-                            content: row.assistant,
-                        });
-                    }
-                    if (row?.tools) {
-                        const toolCalls = new Array<ChatCompletionMessageToolCall>();
-                        const toolResponses = new Array<ChatCompletionMessageParam>();
-
-                        // @ts-ignore
-                        row.tools.forEach(tt => {
-                            toolCalls.push({
-                                id: tt.call.id ?? "",
-                                type: "function",
-                                "function": {
-                                    name: tt.call.name,
-                                    arguments: JSON.stringify(tt.call.arguments)
-                                }
-                            });
-                            toolResponses.push({
-                                role: "tool",
-                                tool_call_id: tt.call.id,
-                                content: JSON.stringify(tt.response),
-                            })
-                        });
-                        msgs.push({
-                            role: "assistant",
-                            //content: null,
-                            tool_calls: toolCalls,
-                        })
-                        for (const tr of toolResponses) {
-                            msgs.push(tr)
-                        }
-                    }
-                }
-            );
+            msgs = buildHistory(options.history, options);
         }
         //console.log("CLIENT HIST OUT", msgs);
         //console.log("AGENT IP", inferenceParams);
@@ -446,8 +398,8 @@ class Lm implements LmProvider {
                     const done = event.data === '[DONE]';
                     if (!done) {
                         const payload = JSON.parse(event.data);
-                        if (payload?.prompt_progress) {
-                            if (this.onPromptProcessingProgress) {
+                        if (this.onPromptProcessingProgress) {
+                            if (payload?.prompt_progress) {
                                 this.onPromptProcessingProgress(payload.prompt_progress as PromptProcessingProgress, this.name);
                             }
                             //console.log(payload.prompt_progress.processed, "/", payload.prompt_progress.total);

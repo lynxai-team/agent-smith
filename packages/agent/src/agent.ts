@@ -190,7 +190,7 @@ class Agent {
                                     return
                                 }
                             }
-                            console.log("TOOL CALL RESP ASSISTANT", toolCallResult);
+                            //console.log("TOOL CALL RESP ASSISTANT", toolCallResult);
                             if (toolCallResult?.assistant) {
                                 events?.onAssistant(toolCallResult.assistant, this.name)
                             }
