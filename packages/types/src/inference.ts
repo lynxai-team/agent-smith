@@ -57,6 +57,7 @@ interface InferenceParams {
     tsGrammar?: string;
     schema?: Record<string, any>;
     images?: Array<string>;
+    chat_template_kwargs?: Record<string, any>;
     extra?: Record<string, any>;
 }
 

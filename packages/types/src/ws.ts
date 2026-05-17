@@ -102,6 +102,7 @@ interface ServerParams extends AllCallbacks {
 type WsServerMsgType = 'error'
     | 'token'
     | 'thinkingtoken'
+    | 'turnstart'
     | 'turnend'
     | 'assistant'
     | 'thinkingstart'
@@ -113,7 +114,8 @@ type WsServerMsgType = 'error'
     | 'toolcallend'
     | 'toolcallconfirm'
     | 'finalresult'
-    | "think";
+    | "think"
+    | 'endemit';
 
 /**
  * WebSocket client message types.
