@@ -1,17 +1,15 @@
 #!/usr/bin/env node
-import { default as color } from "ansi-colors";
-import Koa, { type Next, type Context } from 'koa';
-import { Router } from "@koa/router";
-import bodyParser from "koa-bodyparser";
+import { executeAgent, executeWorkflow } from '@agent-smith/core';
+import type { WsClientMsg, WsRawServerMsg } from '@agent-smith/types';
 import cors from '@koa/cors';
-import { useRouter } from './router.js';
-import websockify from 'koa-websocket';
+import { Router } from "@koa/router";
+import Koa, { type Context, type Next } from 'koa';
+import bodyParser from "koa-bodyparser";
 import route from 'koa-route';
 import serve from "koa-static";
-import { executeTask, executeWorkflow, state } from '@agent-smith/core';
-import type { WsClientMsg, WsRawServerMsg, HistoryTurn } from '@agent-smith/types';
-import path from "node:path";
+import websockify from 'koa-websocket';
 import { buildCallbacks } from "../callbacks.js";
+import { useRouter } from './router.js';
 /* import { argv } from 'process';
 
 let env = "production";
@@ -99,31 +97,8 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
           return
         }
         // ---------- task -------------
-        if (msg.feature == "task") {
-          buildCallbacks(msg, ctx, false, confirmToolCalls);
-          try {
-            //console.log("SRVTASK OPTS", msg.options);
-            const res = await executeTask(msg.command, msg.payload, msg.options);
-            //console.dir(res, { depth: 3 });
-            /*const rsm: WsRawServerMsg = {
-              type: "finalresult",
-              from: "server",
-              msg: JSON.stringify(res),
-            }
-            ctx.websocket.send(JSON.stringify(rsm));*/
-          } catch (e) {
-            const rsm: WsRawServerMsg = {
-              type: "error",
-              from: "server",
-              msg: `${e}`,
-            }
-            ctx.websocket.send(JSON.stringify(rsm));
-          }
-        }
-        // ---------- agent -------------
-        else if (msg.feature == "agent") {
+        if (msg.feature == "agent") {
           buildCallbacks(msg, ctx, true, confirmToolCalls);
-          msg.options.isAgent = true;
           try {
             //let buf = "";            
             /*const it = setInterval(() => {
@@ -136,7 +111,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
               buf = "";
             }, sendTokensInterval);*/
             //console.log("AGENT SRV EXEC", msg);
-            const res = await executeTask(msg.command, msg.payload, msg.options);
+            await executeAgent(msg.command, msg.payload, msg.options);
             //setTimeout(() => {
             //clearInterval(it);
             //}, sendTokensInterval);
@@ -225,4 +200,5 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
   });
 }
 
-export { runserver }
+export { runserver };
+

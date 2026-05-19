@@ -1,10 +1,10 @@
-import { db } from '@agent-smith/core';
+import { db, state } from '@agent-smith/core';
 import type Router from '@koa/router';
 import type { Next, Context } from 'koa';
 
 function getTaskSettingsCmd(r: Router) {
     r.get('/tasks/settings', async (ctx: Context, next: Next) => {
-        const ts = db.getTaskSettings();
+        const ts = state.getAgentSettings();
         ctx.body = ts;
         ctx.status = 200;
     })
@@ -17,7 +17,6 @@ function updateTaskSettingsCmd(r: Router) {
         const name = data.name;
         const settings = data.settings;
         const ts = db.upsertTaskSettings(name, settings);
-        db.getTaskSettings(true);
         ctx.body = ts;
         ctx.status = 200;
     })
