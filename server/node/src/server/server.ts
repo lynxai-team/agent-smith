@@ -105,13 +105,12 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             //console.log("SRVTASK OPTS", msg.options);
             const res = await executeTask(msg.command, msg.payload, msg.options);
             //console.dir(res, { depth: 3 });
-            let r: HistoryTurn = { assistant: res.text };
-            const rsm: WsRawServerMsg = {
+            /*const rsm: WsRawServerMsg = {
               type: "finalresult",
               from: "server",
-              msg: JSON.stringify(r),
+              msg: JSON.stringify(res),
             }
-            ctx.websocket.send(JSON.stringify(rsm));
+            ctx.websocket.send(JSON.stringify(rsm));*/
           } catch (e) {
             const rsm: WsRawServerMsg = {
               type: "error",
@@ -141,14 +140,13 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
             //setTimeout(() => {
             //clearInterval(it);
             //}, sendTokensInterval);
-            const ht = JSON.stringify(res);
             //console.log("FINAL MSG", ht)
-            const rsm: WsRawServerMsg = {
+            /*const rsm: WsRawServerMsg = {
               type: "finalresult",
               from: "server",
-              msg: ht,
+              msg: JSON.stringify(res),
             }
-            ctx.websocket.send(JSON.stringify(rsm));
+            ctx.websocket.send(JSON.stringify(rsm));*/
           } catch (e) {
             const rsm: WsRawServerMsg = {
               type: "error",
@@ -160,12 +158,12 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
         } else if (msg.feature == "workflow") {
           try {
             const res = await executeWorkflow(msg.command, msg.payload, msg.options);
-            const rsm: WsRawServerMsg = {
+            /*const rsm: WsRawServerMsg = {
               type: "finalresult",
               from: "server",
               msg: res,
             }
-            ctx.websocket.send(JSON.stringify(rsm));
+            ctx.websocket.send(JSON.stringify(rsm));*/
           } catch (e) {
             const rsm: WsRawServerMsg = {
               type: "error",
