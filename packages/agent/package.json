@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "eventsource-parser": "^3.0.8",
-    "restmix": "^0.6.1"
+    "restmix": "^0.6.1",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
     "@agent-smith/types": "file:../types",

@@ -1,13 +1,17 @@
-import type { AgentCallbacks, AgentParams, HistoryTurn, InferenceCallbacks, InferenceResult, ToolCallSpec, ToolSpec, ToolTurn, VerbosityOptions } from "@agent-smith/types";
+import type { AgentCallbacks, AgentParams, AgentSpec, HistoryTurn, InferenceCallbacks, InferenceResult, ToolCallSpec, ToolSpec, ToolTurn, VerbosityOptions } from "@agent-smith/types";
 import type { AgentInferenceOptions, PerformanceMetrics } from "@agent-smith/types";
 import { Lm } from "./client.js";
 import { convertStats } from "./stats.js";
+import YAML from 'yaml';
+import { applyVariables } from "./variables.js";
+import { formatInferParams } from "./params.js";
 
 class Agent {
     name: string = "unamed";
     lm: Lm;
     tools: Record<string, ToolSpec> = {};
     history: Array<HistoryTurn> = [];
+    spec?: AgentSpec;
     onToolCall?: (tc: ToolCallSpec, type: string, from: string) => void;
     onToolCallEnd?: (tc: ToolCallSpec, tr: any, type: string, from: string) => void;
     onToolsTurnStart?: (tc: Array<ToolCallSpec>, from: string) => void;
@@ -17,7 +21,7 @@ class Agent {
     onAssistant?: (txt: string, from: string) => void;
     onThink?: (txt: string, from: string) => void;
 
-    constructor(params: AgentParams) {
+    constructor(params: AgentParams, spec?: AgentSpec) {
         this.lm = params.lm;
         if (params?.name) {
             this.name = params.name;
@@ -50,6 +54,14 @@ class Agent {
         this.onTurnEnd = params?.onTurnEnd;
         this.onAssistant = params?.onAssistant;
         this.onThink = params?.onThink;
+        if (spec) {
+            this.spec = spec;
+        }
+    }
+
+    static fromYaml(params: AgentParams, txt: string) {
+        const data = YAML.parse(txt);
+        return new Agent(params, data as AgentSpec)
     }
 
     async run(
@@ -57,15 +69,18 @@ class Agent {
         options: AgentInferenceOptions = {},
     ): Promise<InferenceResult> {
         const localOptions: AgentInferenceOptions = Object.assign({}, options);
-        if (localOptions?.debug) {
-            console.log("Agent", this.name, "inference params:", localOptions?.params);
-            console.log("Agent", this.name, "options:", localOptions);
-            //console.log("Agent template:", template);
-            //console.log("Agent prompt:", prompt);
-        }
-        if (localOptions?.history) {
+        if (localOptions?.isToolCall) {
+            // subagents use fresh context
+            localOptions.history = [];
+            this.history = [];
+        } else if (localOptions?.history) {
             this.history = localOptions.history;
-            //localOptions.history = undefined;
+        }
+        if (!localOptions?.model) {
+            if (!this?.spec) {
+                throw new Error(`${this.name}: provide a model in agent spec or runtime options`)
+            }
+            localOptions.model = this.spec.model;
         }
         this.tools = {};
         if (localOptions?.tools) {
@@ -73,7 +88,32 @@ class Agent {
                 this.tools[t.name] = t;
             });
         }
-        return await this._runAgent(1, prompt, localOptions)
+        let finalPrompt = prompt;
+        if (this?.spec) {
+            applyVariables(this.spec, localOptions);
+            localOptions.params = formatInferParams(this.spec.inferParams ?? {}, localOptions ?? {});
+            finalPrompt = this.spec.prompt.replace("{prompt}", prompt);
+            if (this.spec?.description) {
+                localOptions.isToolsRouter = this.spec.description.includes("routing agent")
+            }
+            if (this.spec.template?.system) {
+                localOptions.system = this.spec.template.system;
+            }
+            if (this.spec?.shots) {
+                localOptions.history = localOptions?.history ? [...this.spec.shots, ...localOptions.history] : this.spec.shots;
+            }
+        }
+        if (localOptions?.debug) {
+            console.log("-----------", localOptions.model, "-----------");
+            if (localOptions?.system) {
+                console.log("SYSTEM:", localOptions.system, "\n");
+            }
+            console.log(finalPrompt);
+            console.log("----------------------------------------------")
+            console.log("Infer params:", this.spec?.inferParams);
+            console.log("----------------------------------------------")
+        }
+        return await this._runAgent(1, finalPrompt, localOptions)
     }
 
     private async _runAgent(
