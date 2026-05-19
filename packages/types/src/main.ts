@@ -43,17 +43,16 @@ import {
     ModelStatusUnloaded,
 } from "./model.js";
 import {
-    TaskSettings,
-    TaskVariableDef,
-    TaskOptionalVariableDef,
-    TaskVariables,
-    UserTaskVariables,
-    ClientFeaturesService,
-    TaskState,
+    AgentParams,
+    AgentSpec,
+    AgentOptionalVariableDef,
+    AgentSettings,
+    AgentState,
+    AgentVariableDef,
+    AgentVariables,
     TemplateSpec,
-    TaskDef,
-    ClientFeaturesOptions,
-} from "./task.js";
+    UserAgentVariables
+} from "./agent.js";
 import {
     ToolCallSpec,
     ToolDefSpec,
@@ -75,15 +74,11 @@ import {
     AllCallbacks,
 } from "./callbacks.js";
 import {
-    AgentParams,
-} from "./agent.js";
-import {
     InputMode,
     OutputMode,
     RunMode,
     FormatMode,
     ActionExtension,
-    TaskExtension,
     AgentExtension,
     WorkflowExtension,
     AdaptaterExtension,
@@ -112,6 +107,10 @@ import {
     InferenceStats,
     PerformanceMetrics,
 } from "./stats.js";
+import {
+    ClientFeaturesOptions,
+    ClientFeaturesService,
+} from "./client.js";
 
 export type {
     Workspace,
@@ -143,13 +142,14 @@ export type {
     ModelStatusLoaded,
     ModelStatusLoading,
     ModelStatusUnloaded,
-    TaskSettings,
-    TaskVariableDef,
-    TaskOptionalVariableDef,
-    TaskVariables,
-    UserTaskVariables,
-    ClientFeaturesService,
-    TaskState,
+    AgentParams,
+    AgentSpec,
+    AgentOptionalVariableDef,
+    AgentSettings,
+    AgentState,
+    AgentVariableDef,
+    AgentVariables,
+    UserAgentVariables,
     FeatureType,
     ToolCallSpec,
     ToolDefSpec,
@@ -165,17 +165,14 @@ export type {
     InferenceCallbacks,
     AgentCallbacks,
     AllCallbacks,
-    AgentParams,
     AgentInferenceOptions,
     ClientInferenceOptions,
     TemplateSpec,
-    TaskDef,
     InputMode,
     OutputMode,
     RunMode,
     FormatMode,
     ActionExtension,
-    TaskExtension,
     AgentExtension,
     WorkflowExtension,
     AdaptaterExtension,
@@ -195,6 +192,7 @@ export type {
     WorkflowStep,
     UserCmdDef,
     ClientFeaturesOptions,
+    ClientFeaturesService,
     VerbosityOptions,
     PromptProcessingProgress,
     PerformanceMetrics,

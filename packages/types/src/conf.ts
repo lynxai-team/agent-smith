@@ -1,5 +1,5 @@
 import type { LmProviderType } from "./lm.js";
-import type { TaskSettings } from "./task.js";
+import type { AgentSettings } from "./agent.js";
 
 /**
  * Configuration for an inference backend.
@@ -40,7 +40,7 @@ interface InferenceBackend extends ConfInferenceBackend {
  * @param {Array<string>} [features] - Enabled features directories.
  * @param {Array<string>} [plugins] - Loaded plugins.
  * @param {BackendEntries} [backends] - Backend configurations.
- * @param {Record<string, TaskSettings>} [tasks] - Task settings.
+ * @param {Record<string, AgentSettings>} [tasks] - Agent settings.
  * @param {Record<string, string>} [apps] - Application configurations.
  * @example
  * const config: ConfigFile = {
@@ -58,7 +58,7 @@ interface ConfigFile {
     features?: Array<string>;
     plugins?: Array<string>;
     backends?: BackendEntries;
-    tasks?: Record<string, TaskSettings>;
+    agents?: Record<string, AgentSettings>;
     apps?: Record<string, string>;
 }
 
