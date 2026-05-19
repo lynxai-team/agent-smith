@@ -1,7 +1,5 @@
 import { executeAction } from "./actions/cmd.js";
 import { McpClient } from "./mcp.js";
-import { executeTask } from "./tasks/cmd.js";
-import { openTaskSpec } from "./utils/io.js";
 import { extractToolDoc } from "./tools.js";
 import { executeWorkflow } from "./workflows/cmd.js";
 import { readWorkflow } from "./workflows/read.js";
@@ -12,7 +10,7 @@ import { confDir, createConfigFile, dbPath, getConfigPath, processConfPath, upda
 import { initDb } from "./db/db.js";
 import { usePerfTimer } from "./utils/perf.js";
 import { deleteFileIfExists } from "./utils/sys/delete_file.js";
-import { getTaskPrompt, getInputFromOptions } from "./utils/io.js";
+import { getAgentPrompt, getInputFromOptions, openAgentSpec } from "./utils/io.js";
 import { getFeatureSpec } from "./state/features.js";
 
 import {
@@ -73,25 +71,25 @@ import {
     setBackend,
 } from "./state/backends.js";
 import {
-    tasksSettings,
-    isTaskSettingsInitialized,
-    initTaskSettings,
-    getTaskSettings
+    agentSettings,
+    isAgentSettingsInitialized,
+    initAgentSettings,
+    getAgentSettings
 } from "./state/tasks.js";
 import {
-    readTask,
-    readTasksDir,
-} from "./utils/sys/read_task.js";
+    readAgent,
+    readAgentsDir,
+} from "./utils/sys/read_agent.js";
 import { extractBetweenTags } from "./utils/text.js";
 import {
     updateConfCmd,
     updateFeaturesCmd,
 } from "./updateconf.js";
-import { useTaskExecutor } from "./tasks/usetask.js";
+import { useAgentExecutor } from "./agents/useagent.js";
+import { executeAgent } from "./agents/cmd.js";
 
 const db = {
     init: initDb,
-    getTaskSettings,
     updatePromptfilePath,
     updateDataDirPath,
     upsertBackends,
@@ -126,7 +124,7 @@ const db = {
 };
 
 const fs = {
-    openTaskSpec,
+    openAgentSpec,
     readWorkflow,
 }
 
@@ -146,8 +144,8 @@ const utils = {
     execute,
     runShellCmd,
     deleteFileIfExists,
-    readTask,
-    readTasksDir,
+    readAgent,
+    readAgentsDir,
     extractBetweenTags,
     writeToClipboard,
     usePerfTimer,
@@ -166,10 +164,10 @@ const state = {
     pluginDataDir,
     promptfilePath,
     pyShell,
-    tasksSettings,
-    isTaskSettingsInitialized,
-    initTaskSettings,
-    getTaskSettings,
+    agentSettings,
+    isAgentSettingsInitialized,
+    initAgentSettings,
+    getAgentSettings,
     backend,
     backends,
     initBackends,
@@ -180,14 +178,15 @@ const state = {
 export {
     backend, db, fs, conf, utils, state,
     executeAction,
-    executeTask,
     executeWorkflow,
-    getTaskPrompt,
+    getAgentPrompt,
     getInputFromOptions,
     getFeatureSpec,
     extractToolDoc,
     McpClient,
-    openTaskSpec,
-    useTaskExecutor,
+    openAgentSpec,
+    useAgentExecutor,
+    updateWorkspacePath,
+    executeAgent,
 };
 

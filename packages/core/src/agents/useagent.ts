@@ -1,15 +1,14 @@
-import { readTask } from "./read.js";
 import { Agent } from "@agent-smith/agent";
-import type { AgentInferenceOptions, InferenceResult, TaskSettings } from "@agent-smith/types";
+import type { AgentInferenceOptions, AgentSettings, InferenceResult } from "@agent-smith/types";
 import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
-import { default as color } from "ansi-colors";
 import { backend, backends, listBackends } from "../state/backends.js";
-import { initTaskSettings, isTaskSettingsInitialized, tasksSettings } from "../state/tasks.js";
+import { initAgentSettings, isAgentSettingsInitialized, agentSettings } from "../state/tasks.js";
 import { processOutput } from "../utils/io.js";
 import { usePerfTimer } from "../utils/perf.js";
-import { runtimeDataError, runtimeError, runtimeWarning } from "../utils/user_msgs.js";
+import { runtimeDataError, runtimeError } from "../utils/user_msgs.js";
+import { readAgent } from "./read.js";
 
-const useTaskExecutor = async (name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions) => {
+const useAgentExecutor = async (name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions) => {
     if (!backend.value) {
         throw new Error("no backend set")
     }
@@ -19,19 +18,19 @@ const useTaskExecutor = async (name: string, payload: { prompt: string } & Recor
     });
 
     const localOptions = Object.assign({}, options);
-    const { task, vars, mcpServers, taskDir, tools } = await readTask(name, payload, localOptions, agent);
+    const { agentSpec, vars, mcpServers, agentDir } = await readAgent(name, payload, localOptions, agent);
     //const taskPayload = { ...payload, ...vars };
     //console.log("PAY", taskPayload);
-    let settings: TaskSettings = {};
+    let settings: AgentSettings = {};
 
     const execute = async (): Promise<InferenceResult> => {
         //console.log("EXEC AGENT OPTS", localOptions);
-        if (!isTaskSettingsInitialized.value) {
-            initTaskSettings()
+        if (!isAgentSettingsInitialized.value) {
+            initAgentSettings()
         }
-        const hasSettings = Object.keys(tasksSettings).includes(name);
+        const hasSettings = Object.keys(agentSettings).includes(name);
         if (hasSettings) {
-            settings = tasksSettings[name]
+            settings = agentSettings[name]
         }
         if (localOptions?.backend) {
             if (localOptions.backend in backends) {
@@ -49,7 +48,7 @@ const useTaskExecutor = async (name: string, payload: { prompt: string } & Recor
             console.log("Agent:", color.bold(agent.name));
         }*/
         if (!localOptions?.model) {
-            localOptions.model = task.def.model;
+            localOptions.model = agentSpec.model;
             if (hasSettings) {
                 if (settings?.model) {
                     localOptions.model = settings.model;
@@ -62,7 +61,7 @@ const useTaskExecutor = async (name: string, payload: { prompt: string } & Recor
         for (const mcp of mcpServers) {
             await mcp.start();
             const _tools = await mcp.extractTools(localOptions);
-            _tools.forEach(t => task.def.tools?.push(t));
+            _tools.forEach(t => agentSpec.tools?.push(t));
             if (localOptions?.verbosity?.mcp) {
                 console.log("MCP start", mcp.name);
             }
@@ -152,18 +151,18 @@ const useTaskExecutor = async (name: string, payload: { prompt: string } & Recor
         if (!localOptions?.onToken) {
             localOptions.onToken = processToken;
         }
-        localOptions.baseDir = taskDir;
+        localOptions.baseDir = agentDir;
         //console.log("CORE AGENT OPTS", agentOptions);
         if (localOptions?.history && !localOptions.isToolCall) {
             agent.history = localOptions.history;
         }
         localOptions.variables = vars;
-        localOptions.tools = tools;
+        localOptions.tools = agentSpec.tools;
         //console.log("OPT VARS", localOptions.variables);
         let out: InferenceResult;
         //console.log("CLI EXEC TASK", payload.prompt, "\nOPTS", localOptions)
         try {
-            out = await task.run(payload.prompt, localOptions);
+            out = await agent.run(payload.prompt, localOptions);
         } catch (e: any) {
             //console.log("ERR CATCH", e);
             const errMsg = `${e}`;
@@ -293,15 +292,14 @@ const useTaskExecutor = async (name: string, payload: { prompt: string } & Recor
 
     return {
         agent,
-        task,
         vars,
         mcpServers,
-        taskDir,
+        agentDir,
         settings,
         execute,
     }
 }
 
 export {
-    useTaskExecutor,
-}
+    useAgentExecutor
+};

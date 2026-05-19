@@ -15,16 +15,6 @@ const plugin = `CREATE TABLE IF NOT EXISTS plugin (
     path TEXT NOT NULL
 );`;
 
-const tasks = `CREATE TABLE IF NOT EXISTS task (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE NOT NULL,
-    path TEXT NOT NULL,
-    variables TEXT,
-    ext TEXT NOT NULL CHECK ( ext IN ('yml') ),
-    type TEXT,
-    category TEXT
-);`;
-
 const agents = `CREATE TABLE IF NOT EXISTS agent (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
@@ -99,7 +89,7 @@ const backend = `CREATE TABLE IF NOT EXISTS backend (
     apiKey TEXT
 );`
 
-const tasksSettings = `CREATE TABLE IF NOT EXISTS tasksettings (
+const agentSettings = `CREATE TABLE IF NOT EXISTS agentsettings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
     model TEXT,
@@ -131,7 +121,6 @@ const setting = `CREATE TABLE IF NOT EXISTS setting (
 const schemas = [
     filepath,
     featurespath,
-    tasks,
     workflow,
     action,
     tool,
@@ -140,7 +129,7 @@ const schemas = [
     alias,
     adaptater,
     backend,
-    tasksSettings,
+    agentSettings,
     agents,
     workspace,
     setting,

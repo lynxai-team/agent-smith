@@ -1,11 +1,11 @@
 import { ref } from "@vue/reactivity";
 import { readTaskSettings } from "../db/read.js";
-import { TaskSettings } from "@agent-smith/types";
+import { AgentSettings } from "@agent-smith/types";
 
-const tasksSettings: Record<string, TaskSettings> = {};
-const isTaskSettingsInitialized = ref(false);
+const agentSettings: Record<string, AgentSettings> = {};
+const isAgentSettingsInitialized = ref(false);
 
-function initTaskSettings() {
+function initAgentSettings() {
     const data = readTaskSettings();
     data.forEach(row => {
         const name = row.name;
@@ -17,22 +17,22 @@ function initTaskSettings() {
                 vals[k] = v
             }
         }
-        tasksSettings[name] = vals;
+        agentSettings[name] = vals;
     });
-    //console.log("TS", tasksSettings);
-    isTaskSettingsInitialized.value = true;
+    //console.log("TS", agentSettings);
+    isAgentSettingsInitialized.value = true;
 }
 
-function getTaskSettings(force: boolean = false): Record<string, TaskSettings> {
-    if (!isTaskSettingsInitialized.value === true || force) {
-        initTaskSettings()
+function getAgentSettings(force: boolean = false): Record<string, AgentSettings> {
+    if (!isAgentSettingsInitialized.value === true || force) {
+        initAgentSettings()
     }
-    return tasksSettings;
+    return agentSettings;
 }
 
 export {
-    tasksSettings,
-    isTaskSettingsInitialized,
-    initTaskSettings,
-    getTaskSettings
+    agentSettings,
+    isAgentSettingsInitialized,
+    initAgentSettings,
+    getAgentSettings
 }

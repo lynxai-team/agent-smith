@@ -1,4 +1,4 @@
-import { ActionExtension, AdaptaterExtension, CmdExtension, Features, TaskExtension, WorkflowExtension, type AgentExtension, type SkillExtension } from "@agent-smith/types";
+import { ActionExtension, AdaptaterExtension, CmdExtension, Features, WorkflowExtension, type AgentExtension, type SkillExtension } from "@agent-smith/types";
 import { default as fs } from "fs";
 import { default as path } from "path";
 import { default as fm } from "front-matter";
@@ -44,7 +44,6 @@ function _readSkills(dir: string): Array<{ name: string, path: string, info: { n
 
 function readFeaturesDir(dir: string): Features {
     const feats: Features = {
-        task: [],
         action: [],
         cmd: [],
         workflow: [],
@@ -52,21 +51,7 @@ function readFeaturesDir(dir: string): Features {
         agent: [],
         skill: [],
     }
-    let dirpath = path.join(dir, "tasks");
-    if (fs.existsSync(dirpath)) {
-        const data = _readDir(dirpath, [".yml"]);
-        data.forEach((filename) => {
-            const parts = filename.split(".");
-            const ext = parts.pop()!;
-            const name = parts.join("");
-            feats.task.push({
-                name: name,
-                path: path.join(dirpath),
-                ext: ext as TaskExtension,
-            })
-        });
-    }
-    dirpath = path.join(dir, "agents");
+    let dirpath = path.join(dir, "agents");
     if (fs.existsSync(dirpath)) {
         const data = _readDir(dirpath, [".yml"]);
         data.forEach((filename) => {

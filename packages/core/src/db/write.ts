@@ -1,5 +1,5 @@
 import { extractTaskToolDocAndVariables, extractToolDoc } from "../tools.js";
-import { AliasType, FeatureSpec, FeatureType, Features, InferenceBackend, TaskSettings, type Workspace } from "@agent-smith/types";
+import { AliasType, FeatureSpec, FeatureType, Features, InferenceBackend, AgentSettings, type Workspace } from "@agent-smith/types";
 import { db } from "./db.js";
 
 function updatePromptfilePath(pf: string) {
@@ -124,9 +124,6 @@ function updateAliases(feats: Features) {
     feats.agent.forEach((feat) => {
         existingAliases = _updateAlias(existingAliases, feat.name, "agent")
     });
-    feats.task.forEach((feat) => {
-        existingAliases = _updateAlias(existingAliases, feat.name, "task")
-    });
     feats.action.forEach((feat) => {
         existingAliases = _updateAlias(existingAliases, feat.name, "action")
     });
@@ -239,19 +236,6 @@ function updateFeatures(feats: Features) {
             updateVariablesAndInfo(feat.name, "agent", JSON.stringify(variables, null, "  "), type, category)
         }
     });
-    upsertAndCleanFeatures(feats.task, "task");
-    feats.task.forEach((feat) => {
-        const { toolDoc, variables, type, category } = extractTaskToolDocAndVariables(feat.name, feat.ext, feat.path);
-        //const { found, toolDoc } = extractToolDoc(feat.name, feat.ext, feat.path);
-        //console.log(`TASK ${feat.name} TOOL DOC`, toolDoc);
-        if (toolDoc.length > 0) {
-            upsertTool(feat.name, "task", toolDoc)
-        }
-        if (Object.keys(variables.required).length > 0 || Object.keys(variables.optional).length > 0 || type !== null || category !== null) {
-            //console.log("UPDATE VARS", feat.name, ":", variables)
-            updateVariablesAndInfo(feat.name, "task", JSON.stringify(variables, null, "  "), type, category)
-        }
-    });
     upsertAndCleanFeatures(feats.action, "action");
     feats.action.forEach((feat) => {
         const { found, toolDoc } = extractToolDoc(feat.name, feat.ext, feat.path);
@@ -327,8 +311,8 @@ function upsertFilePath(name: string, newPath: string): boolean {
     }
 }
 
-function upsertTaskSettings(taskName: string, settings: TaskSettings): boolean {
-    const selectStmt = db.prepare("SELECT * FROM tasksettings WHERE name = ?");
+function upsertTaskSettings(taskName: string, settings: AgentSettings): boolean {
+    const selectStmt = db.prepare("SELECT * FROM agentsettings WHERE name = ?");
     const result = selectStmt.get(taskName) as Record<string, any>;
     if (result?.id) {
         const qparams = new Array<string>();
@@ -369,7 +353,7 @@ function upsertTaskSettings(taskName: string, settings: TaskSettings): boolean {
             qparams.push("backend = ?");
             qvalues.push(settings.backend)
         }
-        const q = `UPDATE tasksettings SET ${qparams.join(", ")} WHERE name = ?`;
+        const q = `UPDATE agentsettings SET ${qparams.join(", ")} WHERE name = ?`;
         //console.log("Q", q);
         const stmt = db.prepare(q);
         const updateResult = stmt.run(...qvalues, taskName);
@@ -423,7 +407,7 @@ function upsertTaskSettings(taskName: string, settings: TaskSettings): boolean {
         }
         const nq = new Array<string>("?");
         qnames.forEach(n => nq.push("?"));
-        const q = `INSERT INTO tasksettings (name, ${qnames.join(", ")}) VALUES (${nq.join(", ")})`;
+        const q = `INSERT INTO agentsettings (name, ${qnames.join(", ")}) VALUES (${nq.join(", ")})`;
         //console.log(q);
         //console.log("VALs", qvalues);
         const insertStmt = db.prepare(q);
@@ -439,13 +423,13 @@ function deleteWorkspace(name: string) {
 
 function deleteTaskSettings(settings: Array<string>) {
     settings.forEach(s => {
-        const deleteStmt = db.prepare("DELETE FROM tasksettings WHERE name = ?");
+        const deleteStmt = db.prepare("DELETE FROM agentsettings WHERE name = ?");
         deleteStmt.run(s);
     })
 }
 
 function deleteTaskSetting(name: string) {
-    const deleteStmt = db.prepare("DELETE FROM tasksettings WHERE name = ?");
+    const deleteStmt = db.prepare("DELETE FROM agentsettings WHERE name = ?");
     deleteStmt.run(name);
 }
 

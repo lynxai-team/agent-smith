@@ -1,11 +1,10 @@
-import colors from "ansi-colors";
 import { pathToFileURL } from "node:url";
 import type { AgentInferenceOptions, FeatureType } from "@agent-smith/types";
 import { getFeatureSpec } from "../state/features.js";
 import { executeAction } from "../actions/cmd.js";
 import { executeAdaptater } from "../adaptaters/cmd.js";
-import { executeTask } from "../tasks/cmd.js";
-import { getInputFromOptions, getTaskPrompt } from "../utils/io.js";
+import { executeAgent } from "../agents/cmd.js";
+import { getInputFromOptions, getAgentPrompt } from "../utils/io.js";
 import { runtimeError } from "../utils/user_msgs.js";
 import { readWorkflow } from "./read.js";
 
@@ -28,47 +27,17 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
     //console.log("WF OPTS", options);
     for (const step of workflow) {
         if (isDebug || isVerbose) {
-            console.log(i + 1, step.name, colors.dim(step.type))
+            console.log(i + 1, step.name, `\x1b[2m${step.type}\x1b[0m`)
         }
         switch (step.type) {
-            case "task":
-                try {
-                    let tdata: { prompt: string } & Record<string, any> = { prompt: "", ...taskRes };
-                    if (i == 0) {
-                        tdata.prompt = await getTaskPrompt(step.name, taskRes.cmdArgs, options);
-                    } else {
-                        if (prevStepType) {
-                            if (prevStepType == "task") {
-                                tdata.prompt = taskRes.text;
-                            } else if (prevStepType == "action") {
-                                if (taskRes?.args) {
-                                    if (typeof taskRes.args == "string") {
-                                        tdata.prompt = taskRes.args
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (!tdata?.prompt) {
-                        throw new Error(`Workflow ${wname} step ${i + 1}: provide a prompt for the task ${step.name}`)
-                    }
-                    options.isAgent = false;
-                    const tr = await executeTask(step.name, tdata, options);
-                    taskRes = { ...tr, ...taskRes };
-                } catch (e) {
-                    throw new Error(`workflow task ${i + 1}: ${e}`)
-                }
-                break;
             case "agent":
                 try {
                     let tdata: { prompt: string } & Record<string, any> = { prompt: "", ...taskRes };
                     if (i == 0) {
-                        tdata.prompt = await getTaskPrompt(step.name, taskRes.cmdArgs, options);
+                        tdata.prompt = await getAgentPrompt(step.name, taskRes.cmdArgs, options);
                     } else {
                         if (prevStepType) {
-                            if (prevStepType == "task") {
-                                tdata.prompt = taskRes.text;
-                            } else if (prevStepType == "action") {
+                            if (prevStepType == "action") {
                                 if (taskRes?.args) {
                                     if (typeof taskRes.args == "string") {
                                         tdata.prompt = taskRes.args
@@ -81,7 +50,7 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
                         throw new Error(`Workflow ${wname} step ${i + 1}: provide a prompt for the task ${step.name}`)
                     }
                     options.isAgent = true;
-                    const tr = await executeTask(step.name, tdata, options);
+                    const tr = await executeAgent(step.name, tdata, options);
                     options.isAgent = false;
                     taskRes = { ...tr, ...taskRes };
                 } catch (e) {

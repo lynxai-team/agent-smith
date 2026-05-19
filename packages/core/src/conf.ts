@@ -9,7 +9,7 @@ import { createDirectoryIfNotExists } from "./utils/sys/dirs.js";
 import { readConf } from "./utils/sys/read_conf.js";
 import { deleteTaskSettings, insertFeaturesPathIfNotExists, insertPluginIfNotExists, upsertBackends, upsertTaskSettings } from "./db/write.js";
 import { buildPluginsPaths } from "./state/plugins.js";
-import { initTaskSettings, tasksSettings } from "./state/tasks.js";
+import { initAgentSettings, agentSettings } from "./state/tasks.js";
 
 function getConfigPath(appName: string, filename: string): { confDir: string, dbPath: string } {
     let confDir: string;
@@ -132,14 +132,14 @@ async function processConfPath(confPath: string): Promise<{ paths: Array<string>
             insertPluginIfNotExists(_pl.name, _pl.path);
         });
     }
-    if (data?.tasks) {
-        initTaskSettings();
+    if (data?.agents) {
+        initAgentSettings();
         const okTasks = new Array<string>();
-        for (const [name, settings] of Object.entries(data.tasks)) {
+        for (const [name, settings] of Object.entries(data.agents)) {
             upsertTaskSettings(name, settings);
             okTasks.push(name);
         }
-        const toDel = Object.keys(tasksSettings).filter(t => !okTasks.includes(t));
+        const toDel = Object.keys(agentSettings).filter(t => !okTasks.includes(t));
         deleteTaskSettings(toDel);
     }
     let pf = "";

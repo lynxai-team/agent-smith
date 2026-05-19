@@ -1,15 +1,15 @@
 import { default as fs } from "fs";
 import { default as path } from "path";
 
-function readTask(taskpath: string): { found: boolean, ymlTask: string } {
+function readAgent(taskpath: string): { found: boolean, ymlAgent: string } {
     if (!fs.existsSync(taskpath)) {
-        return { ymlTask: "", found: false }
+        return { ymlAgent: "", found: false }
     }
     const data = fs.readFileSync(taskpath, 'utf8');
-    return { ymlTask: data, found: true }
+    return { ymlAgent: data, found: true }
 }
 
-function readTasksDir(dir: string): Array<string> {
+function readAgentsDir(dir: string): Array<string> {
     const tasks = new Array<string>();
     fs.readdirSync(dir).forEach((filename) => {
         const filepath = path.join(dir, filename);
@@ -24,6 +24,6 @@ function readTasksDir(dir: string): Array<string> {
 }
 
 export {
-    readTask,
-    readTasksDir,
+    readAgent,
+    readAgentsDir,
 }

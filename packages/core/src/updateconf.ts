@@ -42,9 +42,6 @@ async function updateAllFeatures(paths: Array<string>, userFeats?: Features) {
     if (userFeats?.cmd) {
         feats.cmd.push(...userFeats.cmd)
     }
-    if (userFeats?.task) {
-        feats.task.push(...userFeats.task)
-    }
     if (userFeats?.workflow) {
         feats.workflow.push(...userFeats.workflow)
     }

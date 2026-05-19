@@ -1,7 +1,7 @@
 import YAML from 'yaml';
 import { readClipboard } from '../utils/sys/clipboard.js';
-import { readTask } from "../utils/sys/read_task.js";
-import type { FeatureType, InferenceResult, TaskDef } from "@agent-smith/types";
+import { readAgent } from "../utils/sys/read_agent.js";
+import type { FeatureType, InferenceResult, AgentSpec } from "@agent-smith/types";
 import { getFeatureSpec } from "../state/features.js";
 import { runtimeDataError } from '../utils/user_msgs.js';
 import { initFilepaths, promptfilePath, outputMode, formatMode } from "../state/state.js";
@@ -51,19 +51,18 @@ async function processOutput(res: InferenceResult) {
     }
 }
 
-function openTaskSpec(name: string, isAgent = false): { taskDef: TaskDef, taskPath: string } {
-    const ft = isAgent ? "agent" : "task";
-    const { found, path } = getFeatureSpec(name, ft as FeatureType);
+function openAgentSpec(name: string): { agentSpec: AgentSpec, agentPath: string } {
+    const { found, path } = getFeatureSpec(name, "agent" as FeatureType);
     if (!found) {
-        throw new Error(`${ft} ${name} not found`);
+        throw new Error(`agent ${name} not found`);
     }
-    const res = readTask(path);
+    const res = readAgent(path);
     if (!res.found) {
-        throw new Error(`${ft} ${name}, ${path} not found`)
+        throw new Error(`agent ${name}, ${path} not found`)
     }
-    const taskDef = YAML.parse(res.ymlTask);
-    taskDef.name = name;
-    return { taskDef: taskDef, taskPath: path }
+    const agentSpec = YAML.parse(res.ymlAgent);
+    agentSpec.name = name;
+    return { agentSpec: agentSpec, agentPath: path }
 }
 
 async function getInputFromOptions(
@@ -80,7 +79,7 @@ async function getInputFromOptions(
     return out
 }
 
-async function getTaskPrompt(
+async function getAgentPrompt(
     name: string,
     args: Array<string>,
     options: Record<string, any>,
@@ -101,9 +100,9 @@ async function getTaskPrompt(
 }
 
 export {
-    getTaskPrompt,
+    getAgentPrompt,
     getInputFromOptions,
-    openTaskSpec,
+    openAgentSpec,
     readPromptFile,
     processOutput,
 };

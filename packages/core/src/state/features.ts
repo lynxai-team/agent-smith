@@ -5,7 +5,6 @@ import { readFeature } from "../db/read.js";
 
 function readFeaturesDirs(featuresPaths: Array<string>, isverbose = false): Features {
     const feats: Features = {
-        task: [],
         action: [],
         cmd: [],
         workflow: [],
@@ -19,7 +18,6 @@ function readFeaturesDirs(featuresPaths: Array<string>, isverbose = false): Feat
         }
         const _f = readFeaturesDir(dir);
         _f.agent.forEach((item) => feats.agent.push(item));
-        _f.task.forEach((item) => feats.task.push(item));
         _f.action.forEach((item) => feats.action.push(item));
         _f.cmd.forEach((item) => feats.cmd.push(item));
         _f.workflow.forEach((item) => feats.workflow.push(item));

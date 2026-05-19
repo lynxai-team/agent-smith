@@ -1,39 +1,38 @@
 import path from "path";
 import { Agent } from "@agent-smith/agent";
-import { NodeTask } from "@agent-smith/nodetask";
 import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
-import type { ToolSpec, ToolCallSpec, AgentInferenceOptions } from "@agent-smith/types";
+import type { ToolSpec, ToolCallSpec, AgentInferenceOptions, AgentSpec } from "@agent-smith/types";
 import { readFeature, readSkillsFromList, readTool } from "../db/read.js";
 import { executeAction } from "../actions/cmd.js";
 import { McpClient } from "../mcp.js";
 import { executeWorkflow } from "../workflows/cmd.js";
-import { executeTask } from "./cmd.js";
+import { executeAgent } from "./cmd.js";
 import { mergeInferParams } from "./conf.js";
-import { openTaskSpec } from "../utils/io.js";
+import { openAgentSpec } from "../utils/io.js";
 import { default as fm } from "front-matter";
 import { readFile } from "../utils/sys/read.js";
+import { applyFilePlaceholders } from "./files.js";
 //import { confirmToolUsage } from "../tools.js";
 
-async function readTask(
+async function readAgent(
     name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions & Record<string, any>, agent: Agent
 ): Promise<{
-    task: NodeTask;
+    agentSpec: AgentSpec;
     vars: Record<string, any>;
     mcpServers: Array<McpClient>;
-    taskDir: string;
-    tools: Array<ToolSpec>;
+    agentDir: string;
 }> {
-    /*console.log("Read Task", name);
+    /*console.log("Read Agent", name);
     console.log("Payload:", payload);
     console.log("Options:", options);*/
-    const { taskDef, taskPath } = openTaskSpec(name, options?.isAgent);
-    //console.log("Task vars:", taskDef?.variables);
-    const taskDir = path.dirname(taskPath);
-    options.params = mergeInferParams(options.params ?? {}, taskDef.inferParams ?? {});
+    const { agentSpec, agentPath } = openAgentSpec(name);
+    //console.log("Agent vars:", agentSpec?.variables);
+    const agentDir = path.dirname(agentPath);
+    options.params = mergeInferParams(options.params ?? {}, agentSpec.inferParams ?? {});
     // vars
     let vars: Record<string, any> = {};
-    if (taskDef?.variables?.optional) {
-        for (const k of Object.keys(taskDef.variables.optional)) {
+    if (agentSpec?.variables?.optional) {
+        for (const k of Object.keys(agentSpec.variables.optional)) {
             if (k in payload) {
                 vars[k] = payload[k];
                 vars[k] = payload[k];
@@ -51,9 +50,9 @@ async function readTask(
             }
         }
     }
-    if (taskDef?.variables?.required) {
-        for (const k of Object.keys(taskDef.variables.required)) {
-            //console.log("TASK V required:", Object.keys(taskDef.variables.required), "/", k in options, "/", k in payload);
+    if (agentSpec?.variables?.required) {
+        for (const k of Object.keys(agentSpec.variables.required)) {
+            //console.log("TASK V required:", Object.keys(agentSpec.variables.required), "/", k in options, "/", k in payload);
             if (k in payload) {
                 vars[k] = payload[k];
                 vars[k] = payload[k];
@@ -73,8 +72,8 @@ async function readTask(
     }
     //console.log("END VARS", vars);
     const mcpServers = new Array<McpClient>();
-    if (!taskDef?.tools) {
-        taskDef.tools = []
+    if (!agentSpec?.tools) {
+        agentSpec.tools = []
     }
     const mcpServersArgs: Record<string, Array<string>> = {};
     if (options?.mcpArgs) {
@@ -93,8 +92,8 @@ async function readTask(
         }
     }
     // mcp tools
-    if (taskDef?.mcp) {
-        for (const [servername, tool] of Object.entries(taskDef.mcp)) {
+    if (agentSpec?.mcp) {
+        for (const [servername, tool] of Object.entries(agentSpec.mcp)) {
             //console.log("MCP TOOL:", tool)
             const authorizedTools = new Array<string>();
             const askUserTools = new Array<string>();
@@ -123,15 +122,15 @@ async function readTask(
             mcpServers.push(mcp);
             /*await mcp.start();
             const tools = await mcp.extractTools();
-            tools.forEach(t => taskDef.tools?.push(t))*/
+            tools.forEach(t => agentSpec.tools?.push(t))*/
         }
     }
     // tools
-    //console.log("Task tools list:", taskDef.toolsList);
-    if (taskDef?.skills) {
-        //console.log(taskDef.name, taskDef.skills);
+    //console.log("Agent tools list:", agentSpec.toolsList);
+    if (agentSpec?.skills) {
+        //console.log(agentSpec.name, agentSpec.skills);
         // skills text
-        const sks = readSkillsFromList(taskDef.skills);
+        const sks = readSkillsFromList(agentSpec.skills);
         const skLines = new Array<string>();
         for (const s of Object.values(sks)) {
             if (!s?.variables) {
@@ -141,18 +140,18 @@ async function readTask(
             skLines.push("- **" + vars.name + "**: " + vars.description);
         }
         const skt = skLines.join("\n");
-        if (taskDef.prompt.includes("{skills}")) {
-            taskDef.prompt = taskDef.prompt.replace("{skills}", skt);
+        if (agentSpec.prompt.includes("{skills}")) {
+            agentSpec.prompt = agentSpec.prompt.replace("{skills}", skt);
         }
-        if (taskDef?.template?.system) {
-            if (taskDef.template.system.includes("{skills}")) {
-                taskDef.template.system = taskDef.template.system.replace("{skills}", skt);
+        if (agentSpec?.template?.system) {
+            if (agentSpec.template.system.includes("{skills}")) {
+                agentSpec.template.system = agentSpec.template.system.replace("{skills}", skt);
             }
         }
         // tool
         const ex: ToolSpec["execute"] = async (args) => {
             let sb = "";
-            if (taskDef?.skills) {
+            if (agentSpec?.skills) {
                 if (!args?.name) {
                     throw new Error(`loading skill: provide a skill name`)
                 }
@@ -164,7 +163,7 @@ async function readTask(
                 const data = fm<Record<string, any>>(fc);
                 sb = data.body;
             } else {
-                throw new Error(`loading skill: no skills defined in task`)
+                throw new Error(`loading skill: no skills defined in agent`)
             }
             return sb as any
         }
@@ -176,10 +175,10 @@ async function readTask(
             execute: ex,
             parallelCalls: true,
         };
-        taskDef.tools.push(lmTool)
+        agentSpec.tools.push(lmTool)
     }
-    if (taskDef?.toolsList) {
-        for (const rawToolName of taskDef.toolsList) {
+    if (agentSpec?.toolsList) {
+        for (const rawToolName of agentSpec.toolsList) {
             let toolName = rawToolName;
             let autoRunTool = true;
             if (rawToolName.endsWith("?")) {
@@ -188,7 +187,7 @@ async function readTask(
             }
             const { found, tool } = readTool(toolName);
             if (!found) {
-                throw new Error(`tool ${toolName} not found for task ${taskDef.name}`);
+                throw new Error(`tool ${toolName} not found for agent ${agentSpec.name}`);
             }
             //console.log("Tool found:", toolName, tool);
             const quiet = !options?.debug;
@@ -200,18 +199,9 @@ async function readTask(
                         case "action":
                             const res = await executeAction(toolName, params as { prompt: string & Record<string, any> }, options, quiet);
                             return res
-                        case "task":
-                            options.isToolCall = true;
-                            options.isAgent = false;
-                            const tres = await executeTask(toolName, params as { prompt: string & Record<string, any> }, options);
-                            options.isToolCall = false;
-                            //console.log("WFTRESP", tres.answer.text);
-                            return tres.text
                         case "agent":
                             options.isToolCall = true;
-                            options.isAgent = true;
-                            const agres = await executeTask(toolName, params as { prompt: string & Record<string, any> }, options);
-                            options.isAgent = false;
+                            const agres = await executeAgent(toolName, params as { prompt: string & Record<string, any> }, options);
                             options.isToolCall = false;
                             //console.log("WFTRESP", tres.answer.text);
                             if (agres?.text) {
@@ -234,32 +224,30 @@ async function readTask(
                 }
                 lmTool.canRun = options.confirmToolUsage as (tool: ToolCallSpec) => Promise<boolean>;
             }
-            taskDef.tools.push(lmTool)
+            agentSpec.tools.push(lmTool)
         }
-        delete taskDef.toolsList
+        delete agentSpec.toolsList
     };
     if (options?.isChatMode) {
-        taskDef.prompt = "{prompt}";
+        agentSpec.prompt = "{prompt}";
     }
-    //console.log("TASK SPEC:", JSON.stringify(taskDef, null, "  "));
-    const task = new NodeTask(agent, taskDef);
-    //task.addTools(taskDef.tools);
+    //console.log("TASK SPEC:", JSON.stringify(agentSpec, null, "  "));
+    applyFilePlaceholders(agentSpec, options.baseDir);
+    //task.addTools(agentSpec.tools);
     //console.log("TASK TOOLS", task.agent.tools);
     // check for grammars
-    if (taskDef?.inferParams?.tsGrammar) {
+    if (agentSpec?.inferParams?.tsGrammar) {
         //console.log("TSG");
-        taskDef.inferParams.grammar = serializeGrammar(await compile(taskDef.inferParams.tsGrammar, "Grammar"));
+        agentSpec.inferParams.grammar = serializeGrammar(await compile(agentSpec.inferParams.tsGrammar, "Grammar"));
     }
     /*if (options?.debug) {
-        console.log("Task model:", model);
-        //console.log("Task vars:", vars);
+        console.log("Agent model:", model);
+        //console.log("Agent vars:", vars);
     }*/
-    const tools = taskDef.tools;
-    taskDef.tools = [];
-    return { task, vars, mcpServers, taskDir, tools: tools }
+    return { agentSpec, vars, mcpServers, agentDir }
 }
 
 export {
-    readTask
+    readAgent
 };
 

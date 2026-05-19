@@ -1,4 +1,5 @@
-import { ToolSpec, TaskVariables, AliasType, FeatureExtension, FeatureSpec, FeatureType, ToolType, InferenceBackend, type Workspace } from "@agent-smith/types";
+import { ToolSpec, AgentVariables, AliasType, FeatureExtension, FeatureSpec, FeatureType, ToolType, InferenceBackend, type Workspace }
+    from "@agent-smith/types";
 import { db } from "./db.js";
 
 function readFeaturePaths(): Array<string> {
@@ -40,7 +41,7 @@ function readFeaturesType(type: FeatureType): Record<string, FeatureSpec> {
     const data = stmt.all() as Array<Record<string, any>>;
     const res: Record<string, FeatureSpec> = {};
     data.forEach((row) => {
-        const vars = row?.variables ? JSON.parse(row.variables) as TaskVariables : undefined;
+        const vars = row?.variables ? JSON.parse(row.variables) as AgentVariables : undefined;
         res[row.name] = {
             name: row.name,
             path: row.path,
@@ -76,10 +77,9 @@ function readSkillsFromList(names: Array<string>): Record<string, FeatureSpec> {
 
 function readFeatures(): Record<FeatureType, Record<string, FeatureSpec>> {
     const feats: Record<FeatureType, Record<string, FeatureSpec>> = {
-        task: {}, action: {}, cmd: {}, workflow: {}, adaptater: {}, agent: {}, skill: {}
+        action: {}, cmd: {}, workflow: {}, adaptater: {}, agent: {}, skill: {}
     };
     feats.agent = readFeaturesType("agent");
-    feats.task = readFeaturesType("task");
     feats.action = readFeaturesType("action");
     feats.cmd = readFeaturesType("cmd");
     feats.workflow = readFeaturesType("workflow");
@@ -152,13 +152,13 @@ function readFilePath(name: string): { found: boolean, path: string } {
 }
 
 function readTaskSettings(): Array<Record<string, any>> {
-    const stmt1 = db.prepare("SELECT * FROM tasksettings ORDER BY name");
+    const stmt1 = db.prepare("SELECT * FROM agentsettings ORDER BY name");
     const data = stmt1.all() as Array<Record<string, any>>;
     return data
 }
 
 function readTaskSetting(name: string): { found: boolean, settings: Record<string, string> } {
-    const q = "SELECT * FROM tasksettings WHERE name= ?";
+    const q = "SELECT * FROM agentsettings WHERE name= ?";
     const stmt = db.prepare(q);
     const result = stmt.get(name) as Record<string, string>;
     if (result?.id) {
