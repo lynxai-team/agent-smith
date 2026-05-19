@@ -228,6 +228,7 @@ interface TaskState {
     backends: Record<string, Record<string, any>>,
     currentFeature: { name: string, type: string },
     currentWorkspace: Workspace;
+    currentModel: ModelInfo;
     workspaces: Record<string, Workspace>;
     settings: Record<string, any>;
 }

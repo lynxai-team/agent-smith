@@ -49,6 +49,7 @@ interface InferenceCallbacks {
     onEndThinking?: (from: string) => void;
     onToken?: (t: string, from: string) => void;
     onThinkingToken?: (t: string, from: string) => void;
+    onToolCallToken?: (t: string, from: string) => void;
     onStartEmit?: (data: PromptProcessingProgress, from: string) => void;
     onEndEmit?: (result: InferenceResult, from: string) => void;
     onError?: (err: any, from: string) => void;
