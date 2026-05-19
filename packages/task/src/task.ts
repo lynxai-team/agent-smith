@@ -27,28 +27,28 @@ class Task {
         //console.log("RUN TASK opts", options);
         //console.log("RUN TASK def", this.def);
         let model = this.def.model;
-        if (options?.model) {
-            model = options.model;
+        const localOptions: AgentInferenceOptions = Object.assign({}, options);
+        if (localOptions?.model) {
+            model = localOptions.model;
         }
         // add task tools to the agent
         if (this.def?.tools) {
-            if (!options?.tools) {
-                options.tools = []
+            if (!localOptions?.tools) {
+                localOptions.tools = []
             }
             if (this.def.tools.length > 0) {
-                console.log("t of")
                 for (const t of this.def.tools) {
                     //console.log("push t", t)
-                    options.tools.push(t);
+                    localOptions.tools.push(t);
                     //console.log("push ok")
                 }
             }
         }
         //console.log("TASK PARAMS", params);
-        //console.log("TASK OPTS", options);
-        applyVariables(this.def, options);
+        //console.log("TASK OPTS", localOptions);
+        applyVariables(this.def, localOptions);
         //tpl = formatTaskTemplate(this.def, model?.template ? model.template : undefined);
-        this.def.inferParams = formatInferParams(this.def.inferParams ?? {}, options ?? {});
+        this.def.inferParams = formatInferParams(this.def.inferParams ?? {}, localOptions ?? {});
         //finalPrompt = params.prompt;
         /*console.log("-------------------------");
         console.log("DEF", this.def);
@@ -57,39 +57,43 @@ class Task {
         const finalPrompt = this.def.prompt.replace("{prompt}", prompt);
         //console.log("FP", finalPrompt);        
         let answer: InferenceResult;
-        /*if (options?.debug) {
+        /*if (localOptions?.debug) {
             // cut debug here. TODO: debug log levels
-            options.debug = false
+            localOptions.debug = false
         }*/
         let isRoutingAgent = false;
         if (this.def?.description) {
             isRoutingAgent = this.def.description.includes("routing agent")
         }
         if (isRoutingAgent) {
-            options.isToolsRouter = true
+            localOptions.isToolsRouter = true
         }
         if (this.def.template?.system) {
-            options.system = this.def.template.system;
+            localOptions.system = this.def.template.system;
         }
         if (this.def?.shots) {
-            options.history = options?.history ? [...this.def.shots, ...options.history] : this.def.shots;
+            localOptions.history = localOptions?.history ? [...this.def.shots, ...localOptions.history] : this.def.shots;
         }
-        if (options?.debug) {
+        if (localOptions?.debug) {
             console.log("-----------", model, "-----------");
-            if (options?.system) {
-                console.log("SYSTEM:", options.system, "\n");
+            if (localOptions?.system) {
+                console.log("SYSTEM:", localOptions.system, "\n");
             }
             console.log(finalPrompt);
             console.log("----------------------------------------------")
             console.log("Infer params:", this.def.inferParams);
             console.log("----------------------------------------------")
-            //options.debug = true
+            //localOptions.debug = true
+        }
+        if (localOptions?.isToolCall) {
+            // subagents use fresh context
+            localOptions.history = [];
         }
         const agentOpts: AgentInferenceOptions = {
-            ...options,
+            ...localOptions,
             params: this.def.inferParams,
         }
-        //console.log("TASK RUN agent options:", agentOpts);
+        //console.log("TASK RUN agent localOptions:", agentOpts);
         answer = await this.agent.run(finalPrompt, agentOpts);
 
         // remove task tools from the agent
