@@ -1,4 +1,4 @@
-import { executeAction, executeTask, executeWorkflow, getTaskPrompt, getInputFromOptions, useTaskExecutor } from "@agent-smith/core";
+import { executeAction, executeWorkflow, getAgentPrompt, getInputFromOptions, useAgentExecutor } from "@agent-smith/core";
 import { confirmToolUsage, parseCommandArgs } from "../utils.js";
 import type { InferenceResult } from "@agent-smith/types";
 import { useInferenceCallbacks } from "./callbacks.js";
@@ -20,8 +20,8 @@ async function executeTaskCmd(
     //console.log("ARGS", ca);
     const inferenceCallbacks = useInferenceCallbacks(name, ca.options);
     const options = { ...ca.options, ...inferenceCallbacks };
-    const prompt = await getTaskPrompt(name, ca.args, options);
-    const tsk = await useTaskExecutor(name, { prompt: prompt }, options);
+    const prompt = await getAgentPrompt(name, ca.args, options);
+    const tsk = await useAgentExecutor(name, { prompt: prompt }, options);
     const tr = await tsk.execute();
     //console.log("TR", tr);
     if (ca?.options.chat) {
@@ -40,8 +40,8 @@ async function executeAgentCmd(
     ca.options.confirmToolUsage = confirmToolUsage;
     const inferenceCallbacks = useInferenceCallbacks(name, ca.options);
     const options = { ...ca.options, ...inferenceCallbacks };
-    const prompt = await getTaskPrompt(name, ca.args, options);
-    const tsk = await useTaskExecutor(name, { prompt: prompt }, options);
+    const prompt = await getAgentPrompt(name, ca.args, options);
+    const tsk = await useAgentExecutor(name, { prompt: prompt }, options);
     //console.log("CA", ca);
     const tr = await tsk.execute();
     //console.dir(tsk.agent.history, { depth: 6 });

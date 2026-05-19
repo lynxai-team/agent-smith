@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { allOptions } from "../options.js";
-import { executeTaskCmd, executeWorkflowCmd, executeAgentCmd } from "./features.js";
+import { executeWorkflowCmd, executeAgentCmd } from "./features.js";
 import type { AliasType, FeatureSpec, FeatureType } from "@agent-smith/types";
 
 function initCommandsFromAliases(program: Command, aliases: {
@@ -31,29 +31,6 @@ function initCommandsFromAliases(program: Command, aliases: {
                     if (otv) {
                         for (const name of Object.keys(otv)) {
                             agcmd.option(`--${name} <value>`)
-                        }
-                    }
-                }
-                break;
-            case "task":
-                const tcmd = program.command(`${alias.name} [prompt_and_vars...]`)
-                    .description("task: " + alias.name)
-                    .action(async (...args: Array<any>) => {
-                        await executeTaskCmd(alias.name, args);
-                    });
-                allOptions.forEach(o => tcmd.addOption(o));
-                //console.log("TVARS", alias.name, features.task[alias.name]?.variables)
-                if (features.task[alias.name]?.variables) {
-                    const rtv = features.task[alias.name].variables?.required;
-                    if (rtv) {
-                        for (const name of Object.keys(rtv)) {
-                            tcmd.option(`--${name} <value>`)
-                        }
-                    }
-                    const otv = features.task[alias.name].variables?.optional;
-                    if (otv) {
-                        for (const name of Object.keys(otv)) {
-                            tcmd.option(`--${name} <value>`)
                         }
                     }
                 }

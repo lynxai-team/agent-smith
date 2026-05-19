@@ -1,7 +1,7 @@
 import { Command, Option } from "commander";
 import { conf, state } from "@agent-smith/core";
 import { parseCommandArgs } from "../utils.js";
-import { processTaskCmd, processTasksCmd, resetDbCmd } from "./cmds.js";
+import { processTaskCmd, processAgentsCmd, resetDbCmd } from "./cmds.js";
 import { displayOptions, inferenceOptions } from "../options.js";
 
 function initBaseCommands(program: Command): Command {
@@ -11,13 +11,13 @@ function initBaseCommands(program: Command): Command {
     program.command("exit")
         .description("exit the cli")
         .action(() => process.exit(0));
-    const tasksCmd = program.command("tasks")
-        .description("list all the tasks")
+    const agentCmd = program.command("agents")
+        .description("list all the agents")
         .action(async (...args: Array<any>) => {
             const ca = parseCommandArgs(args);
-            await processTasksCmd(ca.args, ca.options)
+            await processAgentsCmd(ca.args, ca.options)
         });
-    tasksCmd.addOption(
+    agentCmd.addOption(
         new Option("-c, --conf", "output the tasks config")
     )
     const taskCmd = program.command("task <task>")

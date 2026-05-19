@@ -81,15 +81,15 @@ async function resetDbCmd(): Promise<any> {
     console.log("Config database reset ok. Run the conf command to recreate it")
 }
 
-async function processTasksCmd(args: Array<string>, options: Record<string, any>) {
+async function processAgentsCmd(args: Array<string>, options: Record<string, any>) {
     if (options?.conf) {
-        if (!state.isTaskSettingsInitialized.value) {
-            state.initTaskSettings()
+        if (!state.isAgentSettingsInitialized.value) {
+            state.initAgentSettings()
         }
         //console.log("PTS", tasksSettings);
-        console.log(YAML.stringify({ "tasks": state.tasksSettings }));
+        console.log(YAML.stringify({ "agents": state.agentSettings }));
     } else {
-        const ts = Object.keys(db.readFeaturesType("task")).sort();
+        const ts = Object.keys(db.readFeaturesType("agent")).sort();
         console.table(ts)
     }
 }
@@ -111,12 +111,12 @@ async function processTaskCmd(args: Array<string>, options: Record<string, any>)
         return
     }
     //console.log("RT", path)
-    const res = utils.readTask(path);
+    const res = utils.readAgent(path);
     if (!res.found) {
         throw new Error(`Task ${args[0]}, ${path} not found`)
     }
     //const ts = JSON.parse(res.ymlTask);
-    console.log(res.ymlTask);
+    console.log(res.ymlAgent);
     if (Object.keys(options).length > 0) {
         db.upsertTaskSettings(args[0], options);
     }
@@ -139,7 +139,7 @@ async function processTaskCmd(args: Array<string>, options: Record<string, any>)
 export {
     initUserCmds,
     processTaskCmd,
-    processTasksCmd,
+    processAgentsCmd,
     resetDbCmd,
 };
 
