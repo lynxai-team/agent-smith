@@ -33,8 +33,8 @@ async function main() {
     });
     console.log("RESULT:");
     console.dir(result, { depth: 6 });
-    console.log("HISTORY:");
-    console.dir(agent.history, { depth: 6 });
+    //console.log("HISTORY:");
+    //console.dir(agent.history, { depth: 6 });
 }
 
 (async () => {
