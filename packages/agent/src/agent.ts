@@ -1,6 +1,7 @@
 import type { AgentCallbacks, AgentParams, HistoryTurn, InferenceCallbacks, InferenceResult, ToolCallSpec, ToolSpec, ToolTurn, VerbosityOptions } from "@agent-smith/types";
-import type { AgentInferenceOptions, PerformanceMetrics } from "@agent-smith/types/dist/inference.js";
+import type { AgentInferenceOptions, PerformanceMetrics } from "@agent-smith/types";
 import { Lm } from "./client.js";
+import { convertStats } from "./stats.js";
 
 class Agent {
     name: string = "unamed";
@@ -55,23 +56,24 @@ class Agent {
         prompt: string,
         options: AgentInferenceOptions = {},
     ): Promise<InferenceResult> {
-        if (options?.debug) {
-            console.log("Agent", this.name, "inference params:", options?.params);
-            console.log("Agent", this.name, "options:", options);
+        const localOptions: AgentInferenceOptions = Object.assign({}, options);
+        if (localOptions?.debug) {
+            console.log("Agent", this.name, "inference params:", localOptions?.params);
+            console.log("Agent", this.name, "options:", localOptions);
             //console.log("Agent template:", template);
             //console.log("Agent prompt:", prompt);
         }
-        if (options?.history) {
-            this.history = options.history;
-            //options.history = undefined;
+        if (localOptions?.history) {
+            this.history = localOptions.history;
+            //localOptions.history = undefined;
         }
         this.tools = {};
-        if (options?.tools) {
-            options.tools.forEach(t => {
+        if (localOptions?.tools) {
+            localOptions.tools.forEach(t => {
                 this.tools[t.name] = t;
             });
         }
-        return await this._runAgent(1, prompt, options)
+        return await this._runAgent(1, prompt, localOptions)
     }
 
     private async _runAgent(
@@ -118,7 +120,7 @@ class Agent {
         //console.dir(res, {depth: 8})
         //console.log("IT", it, prompt);
         if (it == 1) {
-            this.history.push({ user: prompt });
+            this.history.push({ user: prompt, stats: convertStats(res.stats) });
         }
         let _res = res;
         //console.log("RES", res);
@@ -231,9 +233,12 @@ class Agent {
             if (events?.onToolsTurnEnd) {
                 events.onToolsTurnEnd(toolsResults, this.name);
             }
-            const ht: HistoryTurn = { tools: toolsResults };
+            const ht: HistoryTurn = { tools: toolsResults, stats: convertStats(res.stats) };
             if (res.thinkingText) {
                 ht.think = res.thinkingText
+            }
+            if (res.text) {
+                ht.assistant = res.text
             }
             this.history.push(ht);
             if (options?.isToolsRouter) {
@@ -270,7 +275,7 @@ class Agent {
             //console.log("END RUN AGENT TC", this.name);
         } else {
             //console.log("END RUN AGENT NO TC", this.name);
-            const turn: HistoryTurn = { assistant: res.text };
+            const turn: HistoryTurn = { assistant: res.text, stats: convertStats(res.stats) };
             if (res?.thinkingText) {
                 turn.think = res.thinkingText
             }

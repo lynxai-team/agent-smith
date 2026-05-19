@@ -31,6 +31,7 @@ class Lm implements LmProvider {
     api: ReturnType<typeof useApi>;
     onToken?: (t: string, from: string) => void;
     onThinkingToken?: (t: string, from: string) => void;
+    onToolCallToken?: (t: string, from: string) => void;
     onStartThinking?: (from: string) => void;
     onEndThinking?: (from: string) => void;
     onStartEmit?: (data: PromptProcessingProgress, from: string) => void;
@@ -172,6 +173,7 @@ class Lm implements LmProvider {
         const events: InferenceCallbacks = {
             onStartThinking: options?.onStartThinking ?? this.onStartThinking,
             onEndThinking: options?.onEndThinking ?? this.onEndThinking,
+            onToolCallToken: options?.onToolCallToken ?? this.onToolCallToken,
             onToken: options?.onToken ?? this.onToken,
             onThinkingToken: options?.onThinkingToken ?? this.onThinkingToken,
             onStartEmit: options?.onStartEmit ?? this.onStartEmit,
@@ -462,6 +464,9 @@ class Lm implements LmProvider {
                                             events.onToolCallInProgress(toolsCallsInProgress, options?.agentName ?? "");
                                         }
                                     } else {
+                                        if (events?.onToolCallToken) {
+                                            events.onToolCallToken(toolCallDelta.function.arguments, this.name)
+                                        }
                                         // Update existing tool call with new information
                                         if (toolCallDelta.function?.name) {
                                             accumulatedToolCalls[index].function.name = toolCallDelta.function.name;
