@@ -1,10 +1,10 @@
 import path from "path";
-import { confDir, processConfPath } from "./conf.js";
+import { confDir, createConfigFileIfNotExists, processConfPath } from "./conf.js";
 import { initDb } from "./db/db.js";
 import { readFeaturePaths, readFilePath } from "./db/read.js";
 import { cleanupFeaturePaths, updateAliases, updateDataDirPath, updateFeatures, updatePromptfilePath, upsertFilePath } from "./db/write.js";
 import type { Features } from "@agent-smith/types";
-import { readFeaturesDirs } from "./state/features.js";
+import { getBuiltinFeaturesDirPath, readFeaturesDirs } from "./state/features.js";
 import { readPluginsPaths } from "./state/plugins.js";
 import { dataDirPath, promptfilePath } from "./state/state.js";
 //import { runtimeDataError, runtimeInfo } from './user_msgs.js';
@@ -28,6 +28,7 @@ async function getUserCmdsData(feats: Features): Promise<Features> {
 }
 
 async function updateAllFeatures(paths: Array<string>, userFeats?: Features) {
+    //console.log("updateAllFeatures", paths);
     let feats = readFeaturesDirs(paths, true);
     feats = await getUserCmdsData(feats);
     if (userFeats?.action) {
@@ -59,7 +60,7 @@ async function updateAllFeatures(paths: Array<string>, userFeats?: Features) {
 async function updateFeaturesCmd(options: Record<string, any>, userFeats?: Features): Promise<any> {
     const fp = readFeaturePaths();
     const pp = await readPluginsPaths();
-    const paths = [...fp, ...pp];
+    const paths = [getBuiltinFeaturesDirPath(), ...fp, ...pp];
     updateAllFeatures(paths, userFeats)
 }
 
@@ -84,6 +85,7 @@ async function updateConfCmd(args: Array<string>): Promise<any> {
             upsertFilePath("conf", confPath);
         }
     }
+    createConfigFileIfNotExists(confPath);
     const { paths, pf, dd } = await processConfPath(confPath);
     console.log("Using", confPath, "to update features");
     if (pf.length > 0) {

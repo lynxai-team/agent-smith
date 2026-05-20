@@ -19,6 +19,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
 
     const localOptions = Object.assign({}, options);
     const { agentSpec, vars, mcpServers, agentDir } = await readAgent(name, payload, localOptions, agent);
+    agent.spec = agentSpec;
     //const taskPayload = { ...payload, ...vars };
     //console.log("PAY", taskPayload);
     let settings: AgentSettings = {};
@@ -47,6 +48,9 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
         /*if (localOptions?.debug || localOptions?.backend) {
             console.log("Agent:", color.bold(agent.name));
         }*/
+        if (options?.isToolCall) {
+            localOptions.model = agentSpec.model;
+        }
         if (!localOptions?.model) {
             localOptions.model = agentSpec.model;
             if (hasSettings) {

@@ -10,6 +10,7 @@ import { readConf } from "./utils/sys/read_conf.js";
 import { deleteTaskSettings, insertFeaturesPathIfNotExists, insertPluginIfNotExists, upsertBackends, upsertTaskSettings } from "./db/write.js";
 import { buildPluginsPaths } from "./state/plugins.js";
 import { initAgentSettings, agentSettings } from "./state/tasks.js";
+import { getBuiltinFeaturesDirPath } from "./state/features.js";
 
 function getConfigPath(appName: string, filename: string): { confDir: string, dbPath: string } {
     let confDir: string;
@@ -44,9 +45,13 @@ function updateConfigFile(conf: ConfigFile, cfp?: string): string {
     return fp
 }
 
-function createConfigFile(cfp?: string): string {
-    createDirectoryIfNotExists(confDir);
+function createConfigFileIfNotExists(cfp?: string): string {
     const fp = cfp ? cfp : path.join(confDir, "config.yml")
+    if (fs.existsSync(fp)) {
+        return fp
+    }
+    createDirectoryIfNotExists(confDir);
+    console.log("Creating config file", fp);
     const fc: ConfigFile = {
         backends: {
             default: "llamacpp",
@@ -57,10 +62,6 @@ function createConfigFile(cfp?: string): string {
         promptfile: "",
     }
     const txt = yaml.stringify(fc);
-    if (fs.existsSync(fp)) {
-        const err = `Config file ${fp} already exists`;
-        throw new Error(err)
-    }
     try {
         fs.writeFileSync(fp, txt, { encoding: 'utf8' })
     } catch (e) {
@@ -70,13 +71,13 @@ function createConfigFile(cfp?: string): string {
 }
 
 async function processConfPath(confPath: string): Promise<{ paths: Array<string>, pf: string, dd: string }> {
-    createDirectoryIfNotExists(confDir);
+    //createDirectoryIfNotExists(confDir);
     const { found, data } = readConf(confPath);
     if (!found) {
         runtimeError(`Config file ${confPath} not found`);
     }
     //console.log(data)
-    const allPaths = new Array<string>();
+    const allPaths = new Array<string>(getBuiltinFeaturesDirPath());
     // backends
     const backends: Record<string, InferenceBackend> = {};
     let defaultBackendName = "";
@@ -154,5 +155,5 @@ async function processConfPath(confPath: string): Promise<{ paths: Array<string>
 }
 
 export {
-    confDir, createConfigFile, dbPath, getConfigPath, processConfPath, updateConfigFile
+    confDir, createConfigFileIfNotExists, dbPath, getConfigPath, processConfPath, updateConfigFile
 };

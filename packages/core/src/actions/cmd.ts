@@ -36,7 +36,7 @@ async function executeAction(name: string, payload: any, options: Record<string,
             run = systemAction(path);
             break
         case "py":
-            run = pythonAction(path);
+            run = pythonAction(path, options);
             break
         default:
             throw new Error(`Action ext ${ext} not implemented`)
@@ -88,7 +88,8 @@ function systemAction(path: string): FeatureExecutor<Array<string>, any> {
 }
 
 function pythonAction(
-    path: string
+    path: string,
+    options: Record<string, any>
 ): FeatureExecutor<Array<string>> {
     const run: FeatureExecutor = async (params: any) => {
         //console.log("PY ACTION PARAMS", params);
@@ -125,14 +126,15 @@ function pythonAction(
             txt = data.join("\n");
         }
         let final: string | Record<string, any> | Array<any> = txt;
-        if (txt.startsWith("{") || txt.startsWith("[")) {
+        /*if ((txt.startsWith("{") || txt.startsWith("[")) && !options?.isToolCall) {
             try {
                 final = JSON.parse(txt)
             } catch (e) {
                 console.warn("Can not parse json from python action", path, e)
                 //throw new Error(`python error: ${error}`) 
             }
-        }
+        }*/
+        console.log("PYTC TXT", final)
         return final
     }
     return run

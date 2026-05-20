@@ -232,6 +232,9 @@ async function readAgent(
         agentSpec.prompt = "{prompt}";
     }
     //console.log("TASK SPEC:", JSON.stringify(agentSpec, null, "  "));
+    if (!options?.baseDir) {
+        options.baseDir = agentDir
+    }
     applyFilePlaceholders(agentSpec, options.baseDir);
     //task.addTools(agentSpec.tools);
     //console.log("TASK TOOLS", task.agent.tools);

@@ -151,7 +151,7 @@ function readFilePath(name: string): { found: boolean, path: string } {
     return { found: false, path: "" }
 }
 
-function readTaskSettings(): Array<Record<string, any>> {
+function readAgentSettings(): Array<Record<string, any>> {
     const stmt1 = db.prepare("SELECT * FROM agentsettings ORDER BY name");
     const data = stmt1.all() as Array<Record<string, any>>;
     return data
@@ -204,7 +204,7 @@ export {
     readTool,
     readFeaturesType,
     readBackends,
-    readTaskSettings,
+    readAgentSettings,
     readTaskSetting,
     readWorkspaces,
     readSetting,

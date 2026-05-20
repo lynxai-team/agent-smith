@@ -3,7 +3,7 @@ import { readClipboard } from '../utils/sys/clipboard.js';
 import { readAgent } from "../utils/sys/read_agent.js";
 import type { FeatureType, InferenceResult, AgentSpec } from "@agent-smith/types";
 import { getFeatureSpec } from "../state/features.js";
-import { runtimeDataError } from '../utils/user_msgs.js';
+import { runtimeDataError, runtimeWarning } from '../utils/user_msgs.js';
 import { initFilepaths, promptfilePath, outputMode, formatMode } from "../state/state.js";
 import { readFile } from "../utils/sys/read.js";
 import { runtimeError } from '../utils/user_msgs.js';
@@ -81,20 +81,25 @@ async function getInputFromOptions(
 
 async function getAgentPrompt(
     name: string,
-    args: Array<string>,
+    args: Array<any> | Record<string, any>,
     options: Record<string, any>,
 ): Promise<string> {
     const ic = await getInputFromOptions(options);
     if (ic) {
         return ic
     }
-    let pr: string;
-    if (args[0] !== undefined) {
-        pr = args[0]
+    let pr: string = "";
+    if (Array.isArray(args)) {
+        if (args[0] !== undefined) {
+            pr = args[0]
+        }
+    } else {
+        if (args?.prompt) {
+            pr = args.prompt
+        }
     }
-    else {
-        runtimeDataError(options?.isAgent ? "agent" : "task", name, "provide a prompt or use input options")
-        throw new Error()
+    if (pr.length == 0) {
+        runtimeWarning("empty prompt provided to agent", name)
     }
     return pr
 }

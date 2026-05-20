@@ -2,6 +2,14 @@ import { default as path } from "path";
 import { readFeaturesDir } from "../utils/sys/read_features.js";
 import { FeatureExtension, FeatureType, Features } from "@agent-smith/types";
 import { readFeature } from "../db/read.js";
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+function getBuiltinFeaturesDirPath(): string {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    return join(__dirname, "../features");
+}
 
 function readFeaturesDirs(featuresPaths: Array<string>, isverbose = false): Features {
     const feats: Features = {
@@ -39,4 +47,5 @@ function getFeatureSpec(name: string, type: FeatureType): { found: boolean, path
 export {
     readFeaturesDirs,
     getFeatureSpec,
+    getBuiltinFeaturesDirPath,
 }

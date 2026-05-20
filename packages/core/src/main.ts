@@ -6,7 +6,7 @@ import { readWorkflow } from "./workflows/read.js";
 import { writeToClipboard } from "./utils/sys/clipboard.js";
 import { execute, runShellCmd } from "./utils/sys/execute.js";
 import { readConf } from "./utils/sys/read_conf.js";
-import { confDir, createConfigFile, dbPath, getConfigPath, processConfPath, updateConfigFile } from "./conf.js";
+import { confDir, createConfigFileIfNotExists, dbPath, getConfigPath, processConfPath, updateConfigFile } from "./conf.js";
 import { initDb } from "./db/db.js";
 import { usePerfTimer } from "./utils/perf.js";
 import { deleteFileIfExists } from "./utils/sys/delete_file.js";
@@ -43,7 +43,7 @@ import {
     readTool,
     readFeaturesType,
     readBackends,
-    readTaskSettings,
+    readAgentSettings,
     readTaskSetting,
     readWorkspaces,
     readSetting,
@@ -113,7 +113,7 @@ const db = {
     readTool,
     readFeaturesType,
     readBackends,
-    readTaskSettings,
+    readAgentSettings,
     readTaskSetting,
     deleteWorkspace,
     upsertWorkspace,
@@ -133,7 +133,7 @@ const conf = {
     processConfPath,
     readConf,
     updateConfigFile,
-    createConfigFile,
+    createConfigFileIfNotExists,
     updateConfCmd,
     updateFeaturesCmd,
     confDir,

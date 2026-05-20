@@ -1,12 +1,12 @@
 import { ref } from "@vue/reactivity";
-import { readTaskSettings } from "../db/read.js";
+import { readAgentSettings } from "../db/read.js";
 import { AgentSettings } from "@agent-smith/types";
 
 const agentSettings: Record<string, AgentSettings> = {};
 const isAgentSettingsInitialized = ref(false);
 
 function initAgentSettings() {
-    const data = readTaskSettings();
+    const data = readAgentSettings();
     data.forEach(row => {
         const name = row.name;
         delete row.name;
