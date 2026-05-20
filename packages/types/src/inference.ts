@@ -96,6 +96,7 @@ interface InferenceOptions {
     system?: string;
     assistant?: string;
     isToolsRouter?: boolean;
+    isToolCall?: boolean;
     params?: InferenceParams;
     verbosity?: VerbosityOptions;
 }
@@ -106,7 +107,6 @@ interface ClientInferenceOptions extends InferenceOptions, InferenceCallbacks {
 
 interface AgentInferenceOptions extends InferenceOptions, AllCallbacks {
     baseDir?: string;
-    isToolCall?: boolean;
     isChatMode?: boolean;
     showTokens?: boolean;
     nocli?: boolean;
