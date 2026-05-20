@@ -183,7 +183,8 @@ class Lm implements LmProvider {
             onPromptProcessingProgress: options?.onPromptProcessingProgress ?? this.onPromptProcessingProgress,
         };
         //console.log("EVENTS", events);
-        //console.log("CLI OPTS", options);
+        //console.log("CLI HIST");
+        //console.dir(options?.history ?? [], { depth: 5 })
         const verbosity: VerbosityOptions = options?.verbosity ?? { events: true };
         this.abortController = new AbortController();
         const params = options?.params ?? {};
@@ -214,7 +215,7 @@ class Lm implements LmProvider {
             draft_n_accepted: 0
         };
         let msgs = new Array<ChatCompletionMessageParam | { role: "assistant", content?: string, reasoning_content?: string, tool_calls?: Array<ChatCompletionMessageToolCall> }>();
-        if (options?.history && !options?.isToolCall) {
+        if (options?.history) {
             msgs = buildHistory(options.history, options);
         }
         //console.log("CLIENT HIST OUT", msgs);
@@ -464,6 +465,9 @@ class Lm implements LmProvider {
                                             events.onToolCallInProgress(toolsCallsInProgress, options?.agentName ?? "");
                                         }
                                     } else {
+                                        if (options?.debug) {
+                                            process.stdout.write(toolCallDelta.function.arguments)
+                                        }
                                         if (events?.onToolCallToken) {
                                             events.onToolCallToken(toolCallDelta.function.arguments, this.name)
                                         }
