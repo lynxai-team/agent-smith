@@ -1,7 +1,7 @@
 import type {
     ClientFeaturesOptions, ClientFeaturesService, ModelInfo, ToolDefSpec,
-    ConfigFile, TaskState, UserTaskVariables, ServerParams,
-    TaskDef,
+    ConfigFile, AgentState, UserAgentVariables, ServerParams,
+    AgentSpec,
     Workspace
 } from "@agent-smith/types";
 import { reactive, ref, toRaw } from "@vue/reactivity";
@@ -13,8 +13,8 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
     //console.log(from, ":", params);
     const ws = useWsServer(params);
     const isReady = ref<boolean>(false);
-    const task = ref<TaskDef>({} as TaskDef);
-    const variables = reactive<UserTaskVariables>({ required: {}, optional: {}, values: { required: {}, optional: {} } });
+    const agentSpec = ref<AgentSpec>({} as AgentSpec);
+    const variables = reactive<UserAgentVariables>({ required: {}, optional: {}, values: { required: {}, optional: {} } });
     const mcp = reactive<{ servers: Record<string, any> }>({ servers: {} });
     let { awaiter, unblock } = createAwaiter<boolean>();
 
@@ -38,12 +38,11 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         return res.data
     }
 
-    async function load(name: string, isAgent: boolean = false) {
+    async function load(name: string) {
         variables.required = {};
         variables.optional = {};
-        const type = isAgent ? "agent" : "task";
-        const res = await api.get<TaskDef>(`/${type}/` + name);
-        task.value = res.data;
+        const res = await api.get<AgentSpec>(`/agent/${name}/`);
+        agentSpec.value = res.data;
         if (res.data?.variables) {
             //console.log("VARS", res.data.variables);
             if (res.data.variables?.required) {
@@ -71,16 +70,10 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         if (res.data?.mcp) {
             mcp.servers = res.data.mcp
         }
-        //console.log("TS", name, toRaw(stateLocal.tasksSettings))
-        /*if (name in stateLocal?.tasksSettings) {
-            if (stateLocal.tasksSettings[name]?.model) {
-                inferOptions.model = stateLocal.tasksSettings[name].model;
-            }
-        }*/
         isReady.value = true;
     }
 
-    const _exec = async (prompt: string, opts: ClientFeaturesOptions, isAgent = false, isSync = false) => {
+    const _exec = async (prompt: string, opts: ClientFeaturesOptions, isSync = false) => {
         if (isSync) {
             let oir = params?.onTurnEnd;
             initAwaiter();
@@ -91,44 +84,36 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
                 unblock(true);
             }
         }
-        //console.log(payload);
-        //options.model = task.value.model;
-        let taskvars: Record<string, string> = {};
+        let agentvars: Record<string, string> = {};
 
         if (opts?.variables) {
-            taskvars = Object.assign({}, opts.variables);
+            agentvars = Object.assign({}, opts.variables);
         } else {
             //console.log("WSCLI VARS", variables.values);
             for (const name of Object.keys(variables.values.required)) {
                 if (variables.values.required[name] == "") {
                     const msg = `[Error]: missing required variable: ${name} \n\nCurrent options:\n${JSON.stringify(opts)}`;
                     if (params?.onError) {
-                        params.onError(msg, task.value.name)
+                        params.onError(msg, agentSpec.value.name)
                     }
                     throw new Error()
                 };
-                taskvars[name] = variables.values.required[name];
+                agentvars[name] = variables.values.required[name];
             };
             if (variables?.optional) {
                 for (const name of Object.keys(variables.optional)) {
-                    taskvars[name] = variables.values.optional[name];
+                    agentvars[name] = variables.values.optional[name];
                 };
             };
         }
-        //console.log("SRV OPTS VARS", taskvars);
+        //console.log("SRV OPTS VARS", agentvars);
         const payload = { prompt: prompt };
-        opts = { ...opts, variables: taskvars };
+        opts = { ...opts, variables: agentvars };
         //console.log("==> OPTS", options);
-        if (!isAgent) {
-            ws.executeTask(task.value?.name, payload, opts);
-            if (isSync) {
-                await awaiter;
-            }
-        } else {
-            ws.executeAgent(task.value?.name, payload, opts);
-            if (isSync) {
-                await awaiter;
-            }
+
+        ws.executeAgent(agentSpec.value?.name, payload, opts);
+        if (isSync) {
+            await awaiter;
         }
     }
 
@@ -149,21 +134,13 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         }
     }
 
-    const executeTask = async (
-        prompt: string, opts: ClientFeaturesOptions = {}
-    ) => _exec(prompt, opts, false);
-
     const executeAgent = async (
         prompt: string, opts: ClientFeaturesOptions = {}
     ) => _exec(prompt, opts, true);
 
-    const executeTaskSync = async (
-        prompt: string, opts: ClientFeaturesOptions = {}
-    ) => _exec(prompt, opts, false, true);
-
     const executeAgentSync = async (
         prompt: string, opts: ClientFeaturesOptions = {}
-    ) => _exec(prompt, opts, true, true);
+    ) => _exec(prompt, opts, true);
 
     const executeWorkflow = async (
         name: string, payload: any, options: ClientFeaturesOptions = {}
@@ -200,10 +177,10 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         return (await api.post<Array<{ def: ToolDefSpec, type: string }>>("/tools", tl)).data;
     }
 
-    const loadTaskSettings = async () => {
-        const res = await api.get<Record<string, Record<string, any>>>("/tasks/settings");
+    const loadAgentSettings = async () => {
+        const res = await api.get<Record<string, Record<string, any>>>("/agentsettings");
         if (!res.ok) {
-            throw new Error("can not load tasks settings")
+            throw new Error("can not load agents settings")
         }
         return res.data
     }
@@ -260,15 +237,13 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
 
     return {
         isReady,
-        task,
         variables,
         //inferOptions,
         mcp,
+        agentSpec,
         loadModels,
-        loadTaskSettings,
+        loadAgentSettings,
         load,
-        executeTask,
-        executeTaskSync,
         executeAgent,
         executeAgentSync,
         executeWorkflow,

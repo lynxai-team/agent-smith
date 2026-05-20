@@ -179,10 +179,6 @@ const useWsServer = (params: ServerParams) => {
         _sendMsg(JSON.stringify(cmd));
     };
 
-    const executeTask = (
-        name: string, payload: any, options: Record<string, any> = {}
-    ) => _executeFeature(name, "task", payload, options);
-
     const executeWorkflow = (
         name: string, payload: any, options: Record<string, any> = {}
     ) => _executeFeature(name, "workflow", payload, options);
@@ -200,7 +196,6 @@ const useWsServer = (params: ServerParams) => {
     }
 
     return {
-        executeTask,
         executeWorkflow,
         executeAgent,
         cancel,
