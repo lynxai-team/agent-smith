@@ -11,16 +11,16 @@ import type {
     PromptProcessingProgress,
     PerformanceMetrics,
 } from "@agent-smith/types";
-import type { ClientInferenceOptions } from "@agent-smith/types/dist/inference.js";
+import type { ClientInferenceOptions } from "@agent-smith/types";
 import { createParser } from 'eventsource-parser';
-import {
-    type ChatCompletionContentPart,
-    type ChatCompletionCreateParamsNonStreaming,
-    type ChatCompletionCreateParamsStreaming,
-    type ChatCompletionMessageFunctionToolCall,
-    type ChatCompletionMessageParam,
-    type ChatCompletionMessageToolCall,
-    type ChatCompletionTool
+import type {
+    ChatCompletionContentPart,
+    ChatCompletionCreateParamsNonStreaming,
+    ChatCompletionCreateParamsStreaming,
+    ChatCompletionMessageFunctionToolCall,
+    ChatCompletionMessageParam,
+    ChatCompletionMessageToolCall,
+    ChatCompletionTool
 } from "openai/resources/index.js";
 import { useApi } from "restmix";
 import { convertToolCallSpec, generateId } from './tools.js';
@@ -214,7 +214,7 @@ class Lm implements LmProvider {
             draft_n_accepted: 0
         };
         let msgs = new Array<ChatCompletionMessageParam | { role: "assistant", content?: string, reasoning_content?: string, tool_calls?: Array<ChatCompletionMessageToolCall> }>();
-        if (options?.history) {
+        if (options?.history && !options?.isToolCall) {
             msgs = buildHistory(options.history, options);
         }
         //console.log("CLIENT HIST OUT", msgs);

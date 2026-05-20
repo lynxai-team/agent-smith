@@ -69,18 +69,13 @@ class Agent {
         options: AgentInferenceOptions = {},
     ): Promise<InferenceResult> {
         const localOptions: AgentInferenceOptions = Object.assign({}, options);
+        //console.log("AGENT OPTS IN", localOptions);
         if (localOptions?.isToolCall) {
             // subagents use fresh context
             localOptions.history = [];
             this.history = [];
         } else if (localOptions?.history) {
             this.history = localOptions.history;
-        }
-        if (!localOptions?.model) {
-            if (!this?.spec) {
-                throw new Error(`${this.name}: provide a model in agent spec or runtime options`)
-            }
-            localOptions.model = this.spec.model;
         }
         this.tools = {};
         if (localOptions?.tools) {
@@ -89,9 +84,21 @@ class Agent {
             });
         }
         let finalPrompt = prompt;
+        //console.log("OPTS MODEL IN", localOptions?.model);
         if (this?.spec) {
+            if (!localOptions?.model) {
+                if (!this?.spec) {
+                    throw new Error(`${this.name}: provide a model in agent spec or runtime options`)
+                }
+                //console.log("USE SPEC MODEL", this.spec.model);
+                localOptions.model = this.spec.model;
+            }
             applyVariables(this.spec, localOptions);
-            localOptions.params = formatInferParams(this.spec.inferParams ?? {}, localOptions ?? {});
+            if (!options?.isToolCall) {
+                localOptions.params = formatInferParams(this.spec.inferParams ?? {}, localOptions ?? {});
+            } else {
+                localOptions.params = this.spec.inferParams;
+            }
             finalPrompt = this.spec.prompt.replace("{prompt}", prompt);
             if (this.spec?.description) {
                 localOptions.isToolsRouter = this.spec.description.includes("routing agent")
@@ -110,9 +117,10 @@ class Agent {
             }
             console.log(finalPrompt);
             console.log("----------------------------------------------")
-            console.log("Infer params:", this.spec?.inferParams);
+            console.log("Infer params:", localOptions.params);
             console.log("----------------------------------------------")
         }
+        //console.log("OPTS MODEL FINAL", localOptions?.model);
         return await this._runAgent(1, finalPrompt, localOptions)
     }
 
@@ -206,6 +214,8 @@ class Agent {
                         let ok = false;
                         try {
                             toolCallResult = await tool.execute(tc.arguments);
+                            //console.log("TCR*******", toolCallResult)
+                            //console.log("*************")
                             ok = true;
                         } catch (e) {
                             toolCallResult = `[Error] running tool call ${e},\n ${JSON.stringify(tc, null, 2)}`;
