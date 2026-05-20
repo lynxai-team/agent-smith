@@ -2,16 +2,16 @@ import { db, state } from '@agent-smith/core';
 import type Router from '@koa/router';
 import type { Next, Context } from 'koa';
 
-function getTaskSettingsCmd(r: Router) {
-    r.get('/tasks/settings', async (ctx: Context, next: Next) => {
+function getAgentSettingsCmd(r: Router) {
+    r.get('/agentsettings', async (ctx: Context, next: Next) => {
         const ts = state.getAgentSettings();
         ctx.body = ts;
         ctx.status = 200;
     })
 }
 
-function updateTaskSettingsCmd(r: Router) {
-    r.post('/tasks/settings/update', async (ctx: Context, next: Next) => {
+function updateAgentSettingsCmd(r: Router) {
+    r.post('/agentsettings/update', async (ctx: Context, next: Next) => {
         const data = ctx.request.body as Record<string, any>;
         //console.log("DATA", data);
         const name = data.name;
@@ -23,6 +23,6 @@ function updateTaskSettingsCmd(r: Router) {
 }
 
 export {
-    getTaskSettingsCmd,
-    updateTaskSettingsCmd,
+    getAgentSettingsCmd,
+    updateAgentSettingsCmd,
 }

@@ -1,6 +1,6 @@
 import { Router } from "@koa/router";
 import { getModelsCmd } from "./models.js";
-import { getTaskSettingsCmd, updateTaskSettingsCmd } from "./task_settings.js";
+import { getAgentSettingsCmd, updateAgentSettingsCmd } from "./agent_settings.js";
 import { getAgentRoute, getAgentsRoute } from "./agents.js";
 import { createConfRoute, getConfRoute } from "./conf.js";
 import { getToolsRoute } from "./tools.js";
@@ -19,10 +19,10 @@ const baseRoutes = new Array<((r: Router) => void)>(
     getAgentsRoute,
     getModelsCmd,
     getToolsRoute,
-    getTaskSettingsCmd,
+    getAgentSettingsCmd,
     getStateRoute,
     createConfRoute,
-    updateTaskSettingsCmd,
+    updateAgentSettingsCmd,
     installPluginRoute,
     addFolderRoute,
     getWorkflowRoute,
