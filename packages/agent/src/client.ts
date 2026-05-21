@@ -183,9 +183,9 @@ class Lm implements LmProvider {
             onPromptProcessingProgress: options?.onPromptProcessingProgress ?? this.onPromptProcessingProgress,
         };
         //console.log("EVENTS", events);
-        //console.log("CLI HIST");
+        //console.log("CLIENT OPTS", options);
         //console.dir(options?.history ?? [], { depth: 5 })
-        const verbosity: VerbosityOptions = options?.verbosity ?? { events: true };
+        const verbosity: VerbosityOptions = options?.verbosity ?? { events: true, history: options?.debug ?? false };
         this.abortController = new AbortController();
         const params = options?.params ?? {};
         const inferenceParams: Record<string, any> = Object.assign({}, params);
@@ -261,13 +261,14 @@ class Lm implements LmProvider {
             delete inferenceParams.extra;
         }
         if (verbosity?.history) {
-            console.log("Messages ----------\n");
+            console.log("---------- Messages ----------");
             console.dir(msgs, { depth: 6 });
-            console.log("-------------------");
             if (this?.tools && verbosity?.tools) {
-                console.log("Tools ----------\n");
+                console.log("Tools ------------------------");
                 console.dir(this.tools, { depth: 6 });
-                console.log("-------------------");
+                console.log("------------------------------");
+            } else {
+                console.log("------------------------------");
             }
         }
         let i = 1;

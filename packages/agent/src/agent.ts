@@ -117,16 +117,6 @@ class Agent {
                 localOptions.history = localOptions?.history ? [...this.spec.shots, ...localOptions.history] : this.spec.shots;
             }
         }
-        if (localOptions?.debug) {
-            console.log("-----------", localOptions.model, "-----------");
-            if (localOptions?.system) {
-                console.log("SYSTEM:", localOptions.system, "\n");
-            }
-            console.log("PROMPT:", finalPrompt);
-            console.log("----------------------------------------------")
-            console.log("Infer params:", localOptions.params);
-            console.log("----------------------------------------------")
-        }
         //console.log("OPTS MODEL FINAL", localOptions?.model);
         return await this._runAgent(1, finalPrompt, localOptions)
     }
@@ -167,9 +157,20 @@ class Agent {
         baseOpts.tools = Object.values(this.tools);
         baseOpts.history = this.history;
         //console.log("AGENT OPTS", baseOpts);
-        const clientOpts = { ...baseOpts, ...clientEvents, ...events, agentName: this.name };
+        localOptions = { ...baseOpts, ...clientEvents, ...events };
+        const clientOpts = { ...localOptions, agentName: this.name };
         //console.log("AGENT CLIENT OPS", clientOpts);
         //localOptions.history = this.history;
+        if (localOptions?.debug) {
+            console.log("-----------", localOptions.model, "-----------");
+            if (localOptions?.system) {
+                console.log("SYSTEM:", localOptions.system, "\n");
+            }
+            console.log("PROMPT:", prompt);
+            console.log("----------------------------------------------")
+            console.log("Infer params:", localOptions.params);
+            console.log("----------------------------------------------")
+        }
         const res = await this.lm.infer(prompt, clientOpts);
         //console.log("(AGENT) RUN RES:");
         //console.dir(res, {depth: 8})
@@ -337,9 +338,6 @@ class Agent {
             if (events?.onTurnEnd) {
                 events.onTurnEnd(this.history[this.history.length - 1], this.name)
             }
-            //console.log("HIST", this.name + ":");
-            //console.dir(this.history, { depth: 6 });
-            //console.log("RUN AGENT TC", nit, this.name);
             localOptions.history = this.history;
             //console.log("END LOOP HIST", this.name + ":");
             //console.dir(this.history, { depth: 6 });

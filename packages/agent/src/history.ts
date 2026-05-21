@@ -7,6 +7,14 @@ function buildHistory(
 ): Array<ChatCompletionMessageParam | { role: "assistant", content?: string, reasoning_content?: string, tool_calls?: Array<ChatCompletionMessageToolCall> }> {
     const msgs: Array<ChatCompletionMessageParam | { role: "assistant", content: string, reasoning_content: string }> = [];
     let i = 1;
+    //console.log("Processing history:", history);
+    // console.dir(options, { depth: 5 });
+    if (history.length == 0 && options?.system) {
+        msgs.push({
+            role: "system",
+            content: options.system
+        })
+    }
     history.forEach(turn => {
         if (i == 1 && options?.system) {
             msgs.push({ role: "system", content: options.system });
