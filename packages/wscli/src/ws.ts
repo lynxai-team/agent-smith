@@ -84,6 +84,11 @@ const useWsServer = (params: ServerParams) => {
                     params.onToolCallInProgress(JSON.parse(msg), from)
                 }
                 break
+            case "promptprocessingprogress":
+                if (params?.onPromptProcessingProgress) {
+                    params.onPromptProcessingProgress(JSON.parse(msg), from)
+                }
+                break
             case "toolcalltoken":
                 if (params?.onToolCallToken) {
                     params.onToolCallToken(msg, from)
