@@ -161,7 +161,7 @@ class Agent {
         const clientOpts = { ...localOptions, agentName: this.name };
         //console.log("AGENT CLIENT OPS", clientOpts);
         //localOptions.history = this.history;
-        if (localOptions?.debug) {
+        /*if (localOptions?.debug) {
             console.log("-----------", localOptions.model, "-----------");
             if (localOptions?.system) {
                 console.log("SYSTEM:", localOptions.system, "\n");
@@ -170,7 +170,7 @@ class Agent {
             console.log("----------------------------------------------")
             console.log("Infer params:", localOptions.params);
             console.log("----------------------------------------------")
-        }
+        }*/
         const res = await this.lm.infer(prompt, clientOpts);
         //console.log("(AGENT) RUN RES:");
         //console.dir(res, {depth: 8})

@@ -182,22 +182,23 @@ class Lm implements LmProvider {
             onToolCallInProgress: options?.onToolCallInProgress ?? this.onToolCallInProgress,
             onPromptProcessingProgress: options?.onPromptProcessingProgress ?? this.onPromptProcessingProgress,
         };
-        //console.log("EVENTS", events);
+        //console.log("CLIENT EVENTS", events);
         //console.log("CLIENT OPTS", options);
         //console.dir(options?.history ?? [], { depth: 5 })
-        const verbosity: VerbosityOptions = options?.verbosity ?? { events: true, history: options?.debug ?? false };
+        const localOptions = Object.assign({}, options);
+        const verbosity: VerbosityOptions = localOptions?.verbosity ?? { events: true, history: localOptions?.debug ?? false };
         this.abortController = new AbortController();
-        const params = options?.params ?? {};
+        const params = localOptions?.params ?? {};
         const inferenceParams: Record<string, any> = Object.assign({}, params);
         if ("max_tokens" in inferenceParams) {
             inferenceParams.max_completion_tokens = params.max_tokens;
             delete inferenceParams.max_tokens;
         }
-        if (options?.model) {
-            this.model = options.model;
+        if (localOptions?.model) {
+            this.model = localOptions.model;
         }
         if (verbosity?.options) {
-            console.log("Options", options);
+            console.log("Options", localOptions);
         }
         inferenceParams.stream = params?.stream ?? true;
         //console.log("STREAM", inferenceParams.stream, params?.stream)
@@ -215,8 +216,8 @@ class Lm implements LmProvider {
             draft_n_accepted: 0
         };
         let msgs = new Array<ChatCompletionMessageParam | { role: "assistant", content?: string, reasoning_content?: string, tool_calls?: Array<ChatCompletionMessageToolCall> }>();
-        if (options?.history) {
-            msgs = buildHistory(options.history, options);
+        if (localOptions?.history) {
+            msgs = buildHistory(localOptions.history, localOptions);
         }
         //console.log("CLIENT HIST OUT", msgs);
         //console.log("AGENT IP", inferenceParams);
@@ -241,8 +242,8 @@ class Lm implements LmProvider {
         }
         let tools: Array<ChatCompletionTool> = [];
         this.tools = {};
-        if (options?.tools) {
-            options.tools.forEach(t => {
+        if (localOptions?.tools) {
+            localOptions.tools.forEach(t => {
                 this.tools[t.name] = t;
                 const finalToolCall = convertToolCallSpec(t);
                 //console.log("Tool call def:")
@@ -250,8 +251,8 @@ class Lm implements LmProvider {
                 tools.push(finalToolCall);
             });
         }
-        if (options?.assistant) {
-            msgs.push({ role: "assistant", content: options.assistant });
+        if (localOptions?.assistant) {
+            msgs.push({ role: "assistant", content: localOptions.assistant });
         }
         if (params?.extra) {
             //inferenceParams = { ...inferenceParams, ...params.extra };
@@ -261,6 +262,8 @@ class Lm implements LmProvider {
             delete inferenceParams.extra;
         }
         if (verbosity?.history) {
+            console.log(`---- ${localOptions.model} --------`)
+            console.log("Infer params:", localOptions.params);
             console.log("---------- Messages ----------");
             console.dir(msgs, { depth: 6 });
             if (this?.tools && verbosity?.tools) {
@@ -282,10 +285,10 @@ class Lm implements LmProvider {
                 parallel_tool_calls: true,
                 ...inferenceParams,
             };
-            if (verbosity?.inferenceParams) {
-                console.log("Inference parameters:");
-                console.dir(inferenceParams, { depth: 4 });
-            }
+            /*if (localOptions?.debug) {
+                console.log("Chat completion message");
+                console.dir(ip, { depth: 6 });
+            }*/
             if (tools.length > 0) {
                 ip.tools = tools;
                 ip.tool_choice = "auto";
@@ -324,17 +327,17 @@ class Lm implements LmProvider {
                 });
             }
         } else {
-            const ip: ChatCompletionCreateParamsStreaming & { return_progress: boolean } = {
+            const ip: ChatCompletionCreateParamsStreaming & { return_progress?: boolean } = {
                 messages: msgs,
                 model: this.model,
                 parallel_tool_calls: true,
                 ...inferenceParams,
                 stream: true,
-                return_progress: true,
+                //return_progress: true,
             };
-            if (verbosity?.inferenceParams) {
-                console.log("Inference parameters:");
-                console.dir(inferenceParams, { depth: 4 });
+            if (localOptions?.debug) {
+                console.log("Chat completion message");
+                console.dir(ip, { depth: 6 });
             }
             if (tools.length > 0) {
                 ip.tools = tools;
@@ -365,7 +368,7 @@ class Lm implements LmProvider {
                 const jerr = await response.json();
                 const err = jerr?.error ?? await response.text();
                 if (this?.onError) {
-                    this.onError(err, options?.agentName ?? "");
+                    this.onError(err, localOptions?.agentName ?? "");
                     return {} as InferenceResult;
                 } else {
                     throw new Error(`Inference server error: ${JSON.stringify(err, null, 2)}`)
@@ -373,7 +376,7 @@ class Lm implements LmProvider {
             }
             if (!response.body) {
                 if (this?.onError) {
-                    this.onError(new Error("No response body"), options?.agentName ?? "");
+                    this.onError(new Error("No response body"), localOptions?.agentName ?? "");
                 };
                 throw new Error("No response body")
             }
@@ -402,12 +405,11 @@ class Lm implements LmProvider {
                     const done = event.data === '[DONE]';
                     if (!done) {
                         const payload = JSON.parse(event.data);
-                        if (this.onPromptProcessingProgress) {
+                        //console.log("PL", this?.onPromptProcessingProgress, payload);
+                        if (events?.onPromptProcessingProgress) {
                             if (payload?.prompt_progress) {
-                                this.onPromptProcessingProgress(payload.prompt_progress as PromptProcessingProgress, this.name);
+                                events.onPromptProcessingProgress(payload.prompt_progress as PromptProcessingProgress, this.name);
                             }
-                            //console.log(payload.prompt_progress.processed, "/", payload.prompt_progress.total);
-                            return
                         }
                         if (i == 1) {
                             if (events.onStartEmit) {
@@ -459,14 +461,14 @@ class Lm implements LmProvider {
                                         if (isThinking) {
                                             isThinking = false;
                                             if (events.onEndThinking) {
-                                                events.onEndThinking(options?.agentName ?? "")
+                                                events.onEndThinking(localOptions?.agentName ?? "")
                                             }
                                         }
                                         if (events.onToolCallInProgress) {
-                                            events.onToolCallInProgress(toolsCallsInProgress, options?.agentName ?? "");
+                                            events.onToolCallInProgress(toolsCallsInProgress, localOptions?.agentName ?? "");
                                         }
                                     } else {
-                                        if (options?.debug) {
+                                        if (localOptions?.debug) {
                                             process.stdout.write(toolCallDelta.function.arguments)
                                         }
                                         if (events?.onToolCallToken) {
@@ -511,12 +513,12 @@ class Lm implements LmProvider {
                                 if (!isThinking) {
                                     isThinking = true;
                                     if (events.onStartThinking) {
-                                        events.onStartThinking(options?.agentName ?? "")
+                                        events.onStartThinking(localOptions?.agentName ?? "")
                                     }
                                 }
                                 thinkingText += delta.reasoning_content;
                                 if (events.onThinkingToken) {
-                                    events.onThinkingToken(delta.reasoning_content, options?.agentName ?? "");
+                                    events.onThinkingToken(delta.reasoning_content, localOptions?.agentName ?? "");
                                 }
                             } else {
                                 const t = delta?.content;
@@ -524,11 +526,11 @@ class Lm implements LmProvider {
                                     if (isThinking) {
                                         isThinking = false;
                                         if (events.onEndThinking) {
-                                            events.onEndThinking(options?.agentName ?? "")
+                                            events.onEndThinking(localOptions?.agentName ?? "")
                                         }
                                     }
                                     if (events.onToken) {
-                                        events.onToken(t, options?.agentName ?? "");
+                                        events.onToken(t, localOptions?.agentName ?? "");
                                     }
                                     buf.push(t);
 
@@ -543,7 +545,7 @@ class Lm implements LmProvider {
                                     args = JSON.parse(v.arguments.join(""));
                                 } catch (e) {
                                     if (events.onError) {
-                                        events.onError(`${e}`, options?.agentName ?? "")
+                                        events.onError(`${e}`, localOptions?.agentName ?? "")
                                     } else {
                                         throw new Error(`parsing tool call args:\n${v.arguments}\nMRTC:\n${typeof modelRawToolCalls} ${JSON.stringify(modelRawToolCalls, null, 2)}`)
                                     }
@@ -590,7 +592,7 @@ class Lm implements LmProvider {
             }
         }
         if (events.onEndEmit) {
-            events.onEndEmit(ir, options?.agentName ?? "")
+            events.onEndEmit(ir, localOptions?.agentName ?? "")
         }
         return ir
     }
