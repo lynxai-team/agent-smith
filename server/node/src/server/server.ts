@@ -98,7 +98,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
         }
         // ---------- task -------------
         if (msg.feature == "agent") {
-          buildCallbacks(msg, ctx, true, confirmToolCalls);
+          buildCallbacks(msg, ctx, confirmToolCalls);
           try {
             //let buf = "";            
             /*const it = setInterval(() => {

@@ -1,9 +1,9 @@
-import type { InferenceResult, WsClientMsg, WsRawServerMsg } from "@agent-smith/types";
+import type { InferenceResult, PromptProcessingProgress, WsClientMsg, WsRawServerMsg } from "@agent-smith/types";
 import type { Context } from "koa";
 import { default as color } from "ansi-colors";
 import { createAwaiter } from "./utils.js";
 
-function buildCallbacks(msg: WsClientMsg, ctx: Context, isAgent: boolean,
+function buildCallbacks(msg: WsClientMsg, ctx: Context,
     confirmToolCalls: Record<string, (value: boolean) => void>
 ) {
     if (!msg?.options) {
@@ -83,81 +83,96 @@ function buildCallbacks(msg: WsClientMsg, ctx: Context, isAgent: boolean,
         }
         ctx.websocket.send(JSON.stringify(rsm));
     };
-    if (isAgent) {
-        msg.options.onToolCallInProgress = (tcs: Array<any>, from: string) => {
-            const rsm: WsRawServerMsg = {
-                type: "toolcallinprogress",
-                from: from,
-                msg: JSON.stringify(tcs),
-            }
-            ctx.websocket.send(JSON.stringify(rsm));
-        };
-        msg.options.onToolsTurnStart = (tcs: Record<string, any>, from: string) => {
-            const rsm: WsRawServerMsg = {
-                type: "toolsturnstart",
-                from: from,
-                msg: JSON.stringify(tcs),
-            }
-            ctx.websocket.send(JSON.stringify(rsm));
-        };
-        msg.options.onToolsTurnEnd = (tr: Record<string, any>, from: string) => {
-            const rsm: WsRawServerMsg = {
-                type: "toolsturnend",
-                from: from,
-                msg: JSON.stringify(tr),
-            }
-            ctx.websocket.send(JSON.stringify(rsm));
-        };
-        msg.options.onToolCall = (tc: Record<string, any>, type: string, from: string) => {
-            if (!tc?.id) {
-                tc.id = crypto.randomUUID()
-            }
-            const payload = { tc: tc, type: type, from: from };
-            const rsm: WsRawServerMsg = {
-                type: "toolcall",
-                from: from,
-                msg: JSON.stringify(payload),
-            }
-            ctx.websocket.send(JSON.stringify(rsm));
-            console.log("\n⚒️ ", color.bold(msg.command), "=>", `${color.yellowBright(tc.name)}`, tc.arguments);
-        };
-        msg.options.onToolCallEnd = (tc: any, tr: any, type: string, from: string) => {
-            let toolResData: any;
-            if (typeof tr == 'object') {
-                tr.type = type;
-                if (tr?.text) {
-                    // comes from an inference task
-                    toolResData = tr.text
-                } else {
-                    toolResData = JSON.stringify(tr)
-                }
+
+    msg.options.onToolCallToken = (t: string, from: string) => {
+        const rsm: WsRawServerMsg = {
+            type: "toolcalltoken",
+            from: from,
+            msg: JSON.stringify(t),
+        }
+        ctx.websocket.send(JSON.stringify(rsm));
+    };
+    msg.options.onToolCallInProgress = (tcs: Array<any>, from: string) => {
+        const rsm: WsRawServerMsg = {
+            type: "toolcallinprogress",
+            from: from,
+            msg: JSON.stringify(tcs),
+        }
+        ctx.websocket.send(JSON.stringify(rsm));
+    };
+    msg.options.onPromptProcessingProgress = (progress: PromptProcessingProgress, from: string) => {
+        const rsm: WsRawServerMsg = {
+            type: "promptprocessingprogress",
+            from: from,
+            msg: JSON.stringify(progress),
+        }
+        ctx.websocket.send(JSON.stringify(rsm));
+    };
+    msg.options.onToolsTurnStart = (tcs: Record<string, any>, from: string) => {
+        const rsm: WsRawServerMsg = {
+            type: "toolsturnstart",
+            from: from,
+            msg: JSON.stringify(tcs),
+        }
+        ctx.websocket.send(JSON.stringify(rsm));
+    };
+    msg.options.onToolsTurnEnd = (tr: Record<string, any>, from: string) => {
+        const rsm: WsRawServerMsg = {
+            type: "toolsturnend",
+            from: from,
+            msg: JSON.stringify(tr),
+        }
+        ctx.websocket.send(JSON.stringify(rsm));
+    };
+    msg.options.onToolCall = (tc: Record<string, any>, type: string, from: string) => {
+        if (!tc?.id) {
+            tc.id = crypto.randomUUID()
+        }
+        const payload = { tc: tc, type: type, from: from };
+        const rsm: WsRawServerMsg = {
+            type: "toolcall",
+            from: from,
+            msg: JSON.stringify(payload),
+        }
+        ctx.websocket.send(JSON.stringify(rsm));
+        console.log("\n⚒️ ", color.bold(msg.command), "=>", `${color.yellowBright(tc.name)}`, tc.arguments);
+    };
+    msg.options.onToolCallEnd = (tc: any, tr: any, type: string, from: string) => {
+        let toolResData: any;
+        if (typeof tr == 'object') {
+            tr.type = type;
+            if (tr?.text) {
+                // comes from an inference task
+                toolResData = tr.text
             } else {
-                toolResData = tr.toString();
+                toolResData = JSON.stringify(tr)
             }
-            const payload = { tc: tc, type: type, from: from };
-            const rsm: WsRawServerMsg = {
-                type: "toolcallend",
-                from: from,
-                msg: `${JSON.stringify(payload)}<|xtool_call_id|>` + toolResData,
-            };
-            //console.log("TOOL CALL END", toolResData);
-            ctx.websocket.send(JSON.stringify(rsm));
+        } else {
+            toolResData = tr.toString();
         }
-        msg.options.confirmToolUsage = async (tc: Record<string, any>, from: string) => {
-            if (!tc?.id) {
-                tc.id = crypto.randomUUID()
-            }
-            const rsm: WsRawServerMsg = {
-                type: "toolcallconfirm",
-                from: from,
-                msg: JSON.stringify(tc),
-            }
-            const { promise, resolve } = createAwaiter<boolean>();
-            confirmToolCalls[tc.id] = resolve;
-            ctx.websocket.send(JSON.stringify(rsm));
-            const res = await promise;
-            return res
+        const payload = { tc: tc, type: type, from: from };
+        const rsm: WsRawServerMsg = {
+            type: "toolcallend",
+            from: from,
+            msg: `${JSON.stringify(payload)}<|xtool_call_id|>` + toolResData,
+        };
+        //console.log("TOOL CALL END", toolResData);
+        ctx.websocket.send(JSON.stringify(rsm));
+    }
+    msg.options.confirmToolUsage = async (tc: Record<string, any>, from: string) => {
+        if (!tc?.id) {
+            tc.id = crypto.randomUUID()
         }
+        const rsm: WsRawServerMsg = {
+            type: "toolcallconfirm",
+            from: from,
+            msg: JSON.stringify(tc),
+        }
+        const { promise, resolve } = createAwaiter<boolean>();
+        confirmToolCalls[tc.id] = resolve;
+        ctx.websocket.send(JSON.stringify(rsm));
+        const res = await promise;
+        return res
     }
 }
 
