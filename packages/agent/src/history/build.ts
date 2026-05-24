@@ -1,11 +1,21 @@
 import type { ClientInferenceOptions, HistoryTurn } from "@agent-smith/types";
-import type { ChatCompletionMessageParam, ChatCompletionMessageToolCall } from "openai/resources/index.js";
+import type { ChatCompletionContentPart, ChatCompletionMessageToolCall, ChatCompletionRole } from "openai/resources/index.js";
 
-function buildHistory(
+function buildMessagesHistory(
     history: Array<HistoryTurn>,
     options: ClientInferenceOptions,
-): Array<ChatCompletionMessageParam | { role: "assistant", content?: string, reasoning_content?: string, tool_calls?: Array<ChatCompletionMessageToolCall> }> {
-    const msgs: Array<ChatCompletionMessageParam | { role: "assistant", content: string, reasoning_content: string }> = [];
+): Array<{
+    role: ChatCompletionRole,
+    content?: string | Array<ChatCompletionContentPart>,
+    reasoning_content?: string,
+    tool_calls?: Array<ChatCompletionMessageToolCall>
+}> {
+    const msgs: Array<{
+        role: ChatCompletionRole,
+        content?: string | Array<ChatCompletionContentPart>,
+        reasoning_content?: string,
+        tool_calls?: Array<ChatCompletionMessageToolCall>
+    }> = [];
     let i = 1;
     //console.log("Processing history:", history);
     // console.dir(options, { depth: 5 });
@@ -25,7 +35,12 @@ function buildHistory(
                 content: turn.user,
             });
         }
-        let assistantMsg: ChatCompletionMessageParam | { role: "assistant", content?: string, reasoning_content?: string, tool_calls?: Array<ChatCompletionMessageToolCall> } = {
+        let assistantMsg: {
+            role: ChatCompletionRole,
+            content?: string | Array<ChatCompletionContentPart>,
+            reasoning_content?: string,
+            tool_calls?: Array<ChatCompletionMessageToolCall>
+        } = {
             role: "assistant"
         };
         if (turn?.assistant) {
@@ -38,7 +53,7 @@ function buildHistory(
                 }
             }
         }
-        const toolResponses = new Array<ChatCompletionMessageParam>();
+        const toolResponses = new Array<any>();
         if (turn?.tools) {
             const toolCalls = new Array<ChatCompletionMessageToolCall>();
             turn.tools.forEach(tt => {
@@ -72,5 +87,5 @@ function buildHistory(
 }
 
 export {
-    buildHistory,
+    buildMessagesHistory,
 }

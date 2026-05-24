@@ -298,12 +298,12 @@ class Agent {
                 events.onToolsTurnEnd(toolsResults, this.name);
             }
             const ht: HistoryTurn = { tools: toolsResults, stats: convertStats(res.stats) };
-            /*if (res.thinkingText) {
+            if (res.thinkingText) {
                 ht.think = res.thinkingText
             }
             if (res.text) {
                 ht.assistant = res.text
-            }*/
+            }
             //console.log("TC HT", this.name, "tc", localOptions?.isToolCall ?? false);
             //console.dir(ht, { depth: 5 })
             this.history.push(ht);
@@ -340,7 +340,7 @@ class Agent {
             }
             localOptions.history = this.history;
             //console.log("END LOOP HIST", this.name + ":");
-            //console.dir(this.history, { depth: 6 });
+            console.dir(this.history, { depth: 6 });
             _res = await this._runAgent(nit, "", localOptions);
             //console.log("END RUN AGENT TC", this.name);
         } else {

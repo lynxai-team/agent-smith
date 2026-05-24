@@ -10,21 +10,26 @@ import type {
     VerbosityOptions,
     PromptProcessingProgress,
     PerformanceMetrics,
+    PromptProcessingInProgressStats,
 } from "@agent-smith/types";
 import type { ClientInferenceOptions } from "@agent-smith/types";
 import { createParser } from 'eventsource-parser';
 import type {
     ChatCompletionContentPart,
+    ChatCompletionContentPartText,
     ChatCompletionCreateParamsNonStreaming,
     ChatCompletionCreateParamsStreaming,
     ChatCompletionMessageFunctionToolCall,
     ChatCompletionMessageParam,
     ChatCompletionMessageToolCall,
+    ChatCompletionRole,
     ChatCompletionTool
 } from "openai/resources/index.js";
 import { useApi } from "restmix";
 import { convertToolCallSpec, generateId } from './tools.js';
-import { buildHistory } from "./history.js";
+import { buildMessagesHistory } from "./history/build.js";
+import { calcPromptProcessingProgress } from "./stats.js";
+import { displayMessagesHistory } from "./history/display.js";
 
 class Lm implements LmProvider {
     name: string;
@@ -34,11 +39,11 @@ class Lm implements LmProvider {
     onToolCallToken?: (t: string, from: string) => void;
     onStartThinking?: (from: string) => void;
     onEndThinking?: (from: string) => void;
-    onStartEmit?: (data: PromptProcessingProgress, from: string) => void;
+    onStartEmit?: (data: PromptProcessingInProgressStats, from: string) => void;
     onEndEmit?: (result: InferenceResult, from: string) => void;
     onError?: (err: any, from: string) => void;
     onToolCallInProgress?: (tc: Array<ToolCallSpec>, from: string) => void;
-    onPromptProcessingProgress?: (progress: PromptProcessingProgress, from: string) => void;
+    onPromptProcessingProgress?: (progress: PromptProcessingInProgressStats, from: string) => void;
     // state
     model = "";
     models = new Array<ModelInfo>();
@@ -215,17 +220,23 @@ class Lm implements LmProvider {
             draft_n: 0,
             draft_n_accepted: 0
         };
-        let msgs = new Array<ChatCompletionMessageParam | { role: "assistant", content?: string, reasoning_content?: string, tool_calls?: Array<ChatCompletionMessageToolCall> }>();
+        let msgs = new Array<{
+            role: ChatCompletionRole,
+            content?: string | Array<ChatCompletionContentPart>,
+            reasoning_content?: string,
+            tool_calls?: Array<ChatCompletionMessageToolCall>
+        }>();
         if (localOptions?.history) {
-            msgs = buildHistory(localOptions.history, localOptions);
+            msgs = buildMessagesHistory(localOptions.history, localOptions);
         }
         //console.log("CLIENT HIST OUT", msgs);
         //console.log("AGENT IP", inferenceParams);
         if (inferenceParams?.images) {
             const usermsgs = new Array<ChatCompletionContentPart>();
             if (prompt.length > 0) {
+                const um: ChatCompletionContentPartText = { type: "text", text: prompt }
                 usermsgs.push(
-                    { type: "text", text: prompt }
+                    um
                 );
             }
             (inferenceParams.images as Array<string>).forEach(imgStr => {
@@ -261,34 +272,18 @@ class Lm implements LmProvider {
             }
             delete inferenceParams.extra;
         }
-        if (verbosity?.history) {
-            console.log(`---- ${localOptions.model} --------`)
-            console.log("Infer params:", localOptions.params);
-            console.log("---------- Messages ----------");
-            console.dir(msgs, { depth: 6 });
-            if (this?.tools && verbosity?.tools) {
-                console.log("Tools ------------------------");
-                console.dir(this.tools, { depth: 6 });
-                console.log("------------------------------");
-            } else {
-                console.log("------------------------------");
-            }
-        }
         let i = 1;
         let text: string;
         let thinkingText = "";
         const toolCalls = new Array<ToolCallSpec>();
         if (!inferenceParams.stream) {
             const ip: ChatCompletionCreateParamsNonStreaming = {
+                // @ts-ignore
                 messages: msgs,
                 model: this.model,
                 parallel_tool_calls: true,
                 ...inferenceParams,
             };
-            /*if (localOptions?.debug) {
-                console.log("Chat completion message");
-                console.dir(ip, { depth: 6 });
-            }*/
             if (tools.length > 0) {
                 ip.tools = tools;
                 ip.tool_choice = "auto";
@@ -328,6 +323,7 @@ class Lm implements LmProvider {
             }
         } else {
             const ip: ChatCompletionCreateParamsStreaming & { return_progress?: boolean } = {
+                // @ts-ignore
                 messages: msgs,
                 model: this.model,
                 parallel_tool_calls: true,
@@ -336,8 +332,16 @@ class Lm implements LmProvider {
                 //return_progress: true,
             };
             if (localOptions?.debug) {
-                console.log("Chat completion message");
-                console.dir(ip, { depth: 6 });
+                console.log(`Agent ${options?.agentName} client request ---------`);
+                console.log("Model:", ip.model);
+                console.log(inferenceParams);
+                if (localOptions?.history && localOptions.history.length > 0) {
+                    console.log(`History: ---------`);
+                    displayMessagesHistory(msgs)
+                } else {
+                    console.log("User:", prompt);
+                }
+                console.log(`----------------------------------------------------`);
             }
             if (tools.length > 0) {
                 ip.tools = tools;
@@ -352,11 +356,11 @@ class Lm implements LmProvider {
             }
             const _url = `${this.serverUrl}/chat/completions`;
             const body = JSON.stringify(ip);
-            if (verbosity?.request) {
+            /*if (verbosity?.request) {
                 console.log("Agent: request body -------------");
                 console.log(ip);
                 console.log("-----------------------------------");
-            }
+            }*/
             //console.log("CLIENT POST", JSON.stringify(ip, null, 2));
             const response = await fetch(_url, {
                 method: 'POST',
@@ -408,12 +412,13 @@ class Lm implements LmProvider {
                         //console.log("PL", this?.onPromptProcessingProgress, payload);
                         if (events?.onPromptProcessingProgress) {
                             if (payload?.prompt_progress) {
-                                events.onPromptProcessingProgress(payload.prompt_progress as PromptProcessingProgress, this.name);
+                                const pr = calcPromptProcessingProgress(payload.prompt_progress as PromptProcessingProgress);
+                                events.onPromptProcessingProgress(pr, this.name);
                             }
                         }
                         if (i == 1) {
                             if (events.onStartEmit) {
-                                events.onStartEmit(promptProcessingStats, this.name)
+                                events.onStartEmit(calcPromptProcessingProgress(promptProcessingStats), this.name)
                             }
                         }
                         if (events.onToken) {

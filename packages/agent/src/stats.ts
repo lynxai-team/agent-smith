@@ -1,4 +1,5 @@
-import type { InferenceStats, PerformanceMetrics } from "@agent-smith/types";
+import type { InferenceStats, PerformanceMetrics, PromptProcessingInProgressStats, PromptProcessingProgress } from "@agent-smith/types";
+import { formatDuration } from "./utils.js";
 
 function convertStats(metrics: PerformanceMetrics): InferenceStats {
     const percentCache = metrics.cache_n > 0
@@ -32,6 +33,20 @@ function convertStats(metrics: PerformanceMetrics): InferenceStats {
     };
 }
 
+function calcPromptProcessingProgress(progress: PromptProcessingProgress): PromptProcessingInProgressStats {
+    const { total, processed, cache, time_ms } = progress;
+    const percent_progress = total === 0 ? 0 : (processed / total) * 100;
+    const percent_cache = total === 0 ? 0 : (cache / total) * 100;
+    const time_humanized = formatDuration(time_ms);
+    return {
+        ...progress,
+        percent_cache,
+        percent_progress,
+        time_humanized,
+    }
+}
+
 export {
     convertStats,
+    calcPromptProcessingProgress,
 }
