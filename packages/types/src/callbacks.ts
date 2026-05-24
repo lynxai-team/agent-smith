@@ -23,7 +23,7 @@
  */
 
 import type { HistoryTurn, ToolTurn } from "./history.js";
-import type { InferenceResult, PromptProcessingProgress } from "./inference.js";
+import type { InferenceResult, PromptProcessingInProgressStats, PromptProcessingProgress } from "./inference.js";
 import type { ToolCallSpec } from "./tools.js";
 
 /**
@@ -50,11 +50,11 @@ interface InferenceCallbacks {
     onToken?: (t: string, from: string) => void;
     onThinkingToken?: (t: string, from: string) => void;
     onToolCallToken?: (t: string, from: string) => void;
-    onStartEmit?: (data: PromptProcessingProgress, from: string) => void;
+    onStartEmit?: (data: PromptProcessingInProgressStats, from: string) => void;
     onEndEmit?: (result: InferenceResult, from: string) => void;
     onError?: (err: any, from: string) => void;
     onToolCallInProgress?: (tc: Array<ToolCallSpec>, from: string) => void;
-    onPromptProcessingProgress?: (progress: PromptProcessingProgress, from: string) => void;
+    onPromptProcessingProgress?: (progress: PromptProcessingInProgressStats, from: string) => void;
 }
 
 /**

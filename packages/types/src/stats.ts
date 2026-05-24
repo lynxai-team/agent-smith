@@ -30,6 +30,14 @@ interface PerformanceMetrics {
     draft_n_accepted: number;
 }
 
+interface CtxStats {
+    total: number;
+    consumedPercent: number;
+    emittedTokens: number;
+    tps: number;
+    pps: number;
+}
+
 export {
     InferenceStats,
     PerformanceMetrics,

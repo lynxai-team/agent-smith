@@ -2,7 +2,7 @@ import type { AllCallbacks } from "./callbacks.js";
 import type { LmProvider } from "./lm.js";
 import type { McpServerSpec } from "./core.js";
 import type { HistoryTurn, UiHistoryTurn } from "./history.js";
-import type { InferenceParams } from "./inference.js";
+import type { InferenceParams, PromptProcessingInProgressStats } from "./inference.js";
 import type { ModelInfo } from "./model.js";
 import type { ToolSpec } from "./tools.js";
 import type { Workspace } from "./workspace.js";
@@ -148,7 +148,10 @@ interface UserAgentVariables extends AgentVariables {
  */
 interface AgentState {
     isReady: boolean,
+    isProcessingPrompt: boolean,
+    isLoadingModel: boolean,
     onReady: Promise<boolean>,
+    promptProcessingProgress: PromptProcessingInProgressStats,
     hasConfig: boolean,
     uihistory: Array<UiHistoryTurn>,
     history: Array<HistoryTurn>,
@@ -225,6 +228,7 @@ interface AgentSpec {
     category?: string;
     mcp?: McpServerSpec;
     skills?: Array<string>;
+    workers?: Record<string, { description: string }>;
 }
 
 /**

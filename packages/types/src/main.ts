@@ -19,6 +19,7 @@ import {
     AgentInferenceOptions,
     ClientInferenceOptions,
     PromptProcessingProgress,
+    PromptProcessingInProgressStats,
 } from "./inference.js";
 import {
     OnLoadProgress,
@@ -195,6 +196,7 @@ export type {
     ClientFeaturesService,
     VerbosityOptions,
     PromptProcessingProgress,
+    PromptProcessingInProgressStats,
     PerformanceMetrics,
     UiHistoryTurnState,
     UiHistoryTurnType,

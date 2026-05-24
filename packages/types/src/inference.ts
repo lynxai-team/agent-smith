@@ -156,6 +156,12 @@ interface PromptProcessingProgress {
     time_ms: number;
 }
 
+interface PromptProcessingInProgressStats extends PromptProcessingProgress {
+    percent_progress: number;
+    percent_cache: number;
+    time_humanized: string;
+}
+
 export {
     AgentInferenceOptions,
     ClientInferenceOptions,
@@ -163,5 +169,6 @@ export {
     InferenceParams,
     InferenceResult,
     PromptProcessingProgress,
+    PromptProcessingInProgressStats,
 };
 
