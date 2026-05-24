@@ -10,7 +10,6 @@ import { readConf } from "./utils/sys/read_conf.js";
 import { deleteTaskSettings, insertFeaturesPathIfNotExists, insertPluginIfNotExists, upsertBackends, upsertTaskSettings } from "./db/write.js";
 import { buildPluginsPaths } from "./state/plugins.js";
 import { initAgentSettings, agentSettings } from "./state/tasks.js";
-import { getBuiltinFeaturesDirPath } from "./state/features.js";
 
 function getConfigPath(appName: string, filename: string): { confDir: string, dbPath: string } {
     let confDir: string;
@@ -77,7 +76,7 @@ async function processConfPath(confPath: string): Promise<{ paths: Array<string>
         runtimeError(`Config file ${confPath} not found`);
     }
     //console.log(data)
-    const allPaths = new Array<string>(getBuiltinFeaturesDirPath());
+    const allPaths = new Array<string>();
     // backends
     const backends: Record<string, InferenceBackend> = {};
     let defaultBackendName = "";

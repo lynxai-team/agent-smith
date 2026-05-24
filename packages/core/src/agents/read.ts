@@ -2,7 +2,7 @@ import path from "path";
 import { Agent } from "@agent-smith/agent";
 import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
 import type { ToolSpec, ToolCallSpec, AgentInferenceOptions, AgentSpec } from "@agent-smith/types";
-import { readFeature, readSkillsFromList, readTool } from "../db/read.js";
+import { readFeature, readFeaturesType, readSkillsFromList, readTool } from "../db/read.js";
 import { executeAction } from "../actions/cmd.js";
 import { McpClient } from "../mcp.js";
 import { executeWorkflow } from "../workflows/cmd.js";
@@ -148,34 +148,46 @@ async function readAgent(
                 agentSpec.template.system = agentSpec.template.system.replace("{skills}", skt);
             }
         }
-        // tool
-        const ex: ToolSpec["execute"] = async (args) => {
-            let sb = "";
-            if (agentSpec?.skills) {
-                if (!args?.name) {
-                    throw new Error(`loading skill: provide a skill name`)
-                }
-                const { found, feature } = readFeature(args.name, "skill");
-                if (!found) {
-                    throw new Error(`skill ${args.name} not found`)
-                }
-                const fc = readFile(feature.path);
-                const data = fm<Record<string, any>>(fc);
-                sb = data.body;
-            } else {
-                throw new Error(`loading skill: no skills defined in agent`)
+        // load skill
+        if (agentSpec?.skills) {
+            if (!agentSpec?.toolsList) {
+                agentSpec.toolsList = []
             }
-            return sb as any
+            agentSpec.toolsList.push("read-skill")
+        } else {
+            throw new Error(`loading skill: no skills defined in agent`)
         }
-        const lmTool: ToolSpec = {
-            name: "load-skill",
-            description: "load a skill",
-            arguments: { name: { description: "the name of the skill to load", required: true } },
-            type: "skill",
-            execute: ex,
-            parallelCalls: true,
-        };
-        agentSpec.tools.push(lmTool)
+    }
+    //console.log("AS", agentSpec.name, agentSpec.workers);
+    // load worker
+    if (agentSpec?.workers) {
+        if (!agentSpec?.toolsList) {
+            agentSpec.toolsList = []
+        }
+        agentSpec.toolsList.push("run-worker");
+        const specWorkersNames = Object.keys(agentSpec.workers);
+        //console.log("WN", workersNames);
+        const workersFeatures = readFeaturesType("agent", undefined, specWorkersNames);
+        const workersFeaturesNames = Object.keys(workersFeatures);
+        const hasPw = agentSpec.prompt.includes("{workers}");
+        const hasSw = agentSpec.template?.system ? agentSpec.template.system.includes("{workers}") : false;
+        if (hasPw || hasSw) {
+            const lines = new Array<string>();
+            //console.log("AW", agentSpec.workers);
+            for (const wn of specWorkersNames) {
+                if (!workersFeaturesNames.includes(wn)) {
+                    throw new Error(`worker ${wn} not found`)
+                }
+                lines.push("- **" + wn + "**: " + agentSpec.workers[wn].description);
+            }
+            if (hasPw) {
+                agentSpec.prompt = agentSpec.prompt.replace("{workers}", lines.join("\n"));
+            }
+            if (hasSw) {
+                // @ts-ignore
+                agentSpec.template.system = agentSpec.template.system.replace("{workers}", lines.join("\n"));
+            }
+        }
     }
     if (agentSpec?.toolsList) {
         for (const rawToolName of agentSpec.toolsList) {

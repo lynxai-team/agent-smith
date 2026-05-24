@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ES2020",
+    "target": "ES2022",
+    "module": "ES2022",
     "strict": true,
     "sourceMap": false,
     "resolveJsonModule": true,
@@ -18,7 +18,7 @@
       "node"
     ],
     "lib": [
-      "ES2020",
+      "ES2022",
       "dom"
     ],
     "ignoreDeprecations": "6.0",
@@ -34,6 +34,7 @@
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.js",
     "src/**/*.d.ts",
     "src/**/*.vue",
   ],

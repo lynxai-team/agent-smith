@@ -29,7 +29,8 @@ async function getUserCmdsData(feats: Features): Promise<Features> {
 
 async function updateAllFeatures(paths: Array<string>, userFeats?: Features) {
     //console.log("updateAllFeatures", paths);
-    let feats = readFeaturesDirs(paths, true);
+    const p = [getBuiltinFeaturesDirPath(), ...paths];
+    let feats = readFeaturesDirs(p, true);
     feats = await getUserCmdsData(feats);
     if (userFeats?.action) {
         feats.action.push(...userFeats.action)
@@ -60,7 +61,7 @@ async function updateAllFeatures(paths: Array<string>, userFeats?: Features) {
 async function updateFeaturesCmd(options: Record<string, any>, userFeats?: Features): Promise<any> {
     const fp = readFeaturePaths();
     const pp = await readPluginsPaths();
-    const paths = [getBuiltinFeaturesDirPath(), ...fp, ...pp];
+    const paths = [...fp, ...pp];
     updateAllFeatures(paths, userFeats)
 }
 

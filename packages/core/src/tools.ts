@@ -6,9 +6,12 @@ import { readYmlFile } from './utils/sys/read_yml_file.js';
 
 function _extractToolDoc(filePath: string, startComment: string, endComment: string): { found: boolean, doc: string } {
     try {
+        //console.log("TD", filePath);
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         const startMarker = startComment + '\n# tool';
+        //console.log("TD 2", fileContent.startsWith(startMarker));
         if (!fileContent.startsWith(startMarker)) {
+            //console.log("TD ERR", fileContent)
             return { found: false, doc: "" };
         }
         const endMarker = endComment;
@@ -18,6 +21,8 @@ function _extractToolDoc(filePath: string, startComment: string, endComment: str
             throw new Error(`Markers not found in the file: ${filePath}`);
         }
         const extractedContent = fileContent.substring(startIndex, endIndex).trim();
+        //console.log("TD 3", fileContent.substring(startIndex, endIndex).trim());
+        //console.log("TD 4", extractedContent);
         return { found: true, doc: extractedContent };
     } catch (error) {
         if (error instanceof Error) {

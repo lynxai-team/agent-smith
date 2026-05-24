@@ -32,12 +32,27 @@ function readPlugins(): Array<Record<string, string>> {
     return f
 }
 
-function readFeaturesType(type: FeatureType): Record<string, FeatureSpec> {
-    //console.log(`SELECT name, path, ext, variables FROM ${type}`)
-    let stmt = db.prepare(`SELECT name, path, ext, variables FROM ${type}`);
-    if (["agent", "task"].includes(type)) {
-        stmt = db.prepare(`SELECT name, path, ext, variables, type, category FROM ${type}`);
+function readFeaturesType(type: FeatureType, innerType?: string, names?: Array<string>): Record<string, FeatureSpec> {
+    let q = `SELECT name, path, ext, variables FROM ${type}`;
+    if (type == "agent") {
+        q = `SELECT name, path, ext, variables, type, category FROM ${type}`;
     }
+    if (innerType) {
+        q += ` WHERE type = '${innerType}'`
+    }
+    if (names) {
+        if (innerType) {
+            q += " AND";
+        } else {
+            q += " WHERE";
+        }
+        let nqb = new Array<string>();
+        names.forEach(n => nqb.push(`'${n}'`));
+
+        q += ` name IN (${nqb.join(",")})`
+    }
+    //console.log("Q", q);
+    let stmt = db.prepare(q);
     const data = stmt.all() as Array<Record<string, any>>;
     const res: Record<string, FeatureSpec> = {};
     data.forEach((row) => {
@@ -48,7 +63,7 @@ function readFeaturesType(type: FeatureType): Record<string, FeatureSpec> {
             ext: row.ext,
             variables: vars,
         }
-        if (["agent", "task"].includes(type)) {
+        if (type) {
             res[row.name].type = row.type;
             res[row.name].category = row.category;
         }
@@ -98,8 +113,11 @@ function readAliases(): Array<{ name: string, type: AliasType }> {
     return f
 }
 
-function readFeature(name: string, type: FeatureType): { found: boolean, feature: FeatureSpec } {
-    const q = `SELECT id, name, path, ext, variables FROM ${type} WHERE name='${name}'`;
+function readFeature(name: string, type: FeatureType, innerType?: string): { found: boolean, feature: FeatureSpec } {
+    let q = `SELECT id, name, path, ext, variables FROM ${type} WHERE name='${name}'`;
+    if (innerType) {
+        q = q + ` AND type = '${innerType}'`
+    }
     const stmt = db.prepare(q);
     const result = stmt.get() as Record<string, string>;
     if (result?.id) {
