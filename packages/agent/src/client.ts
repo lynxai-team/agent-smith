@@ -1,18 +1,18 @@
 import type {
+    ClientInferenceOptions,
     InferenceCallbacks,
     InferenceResult,
     LmProvider,
     LmProviderParams,
     ModelInfo,
     OnLoadProgress,
+    PerformanceMetrics,
+    PromptProcessingInProgressStats,
+    PromptProcessingProgress,
     ToolCallSpec,
     ToolSpec,
     VerbosityOptions,
-    PromptProcessingProgress,
-    PerformanceMetrics,
-    PromptProcessingInProgressStats,
 } from "@agent-smith/types";
-import type { ClientInferenceOptions } from "@agent-smith/types";
 import { createParser } from 'eventsource-parser';
 import type {
     ChatCompletionContentPart,
@@ -20,16 +20,16 @@ import type {
     ChatCompletionCreateParamsNonStreaming,
     ChatCompletionCreateParamsStreaming,
     ChatCompletionMessageFunctionToolCall,
-    ChatCompletionMessageParam,
     ChatCompletionMessageToolCall,
     ChatCompletionRole,
     ChatCompletionTool
 } from "openai/resources/index.js";
 import { useApi } from "restmix";
-import { convertToolCallSpec, generateId } from './tools.js';
 import { buildMessagesHistory } from "./history/build.js";
-import { calcPromptProcessingProgress } from "./stats.js";
 import { displayMessagesHistory } from "./history/display.js";
+import { calcPromptProcessingProgress } from "./stats.js";
+import { convertToolCallSpec, generateId } from './tools.js';
+import { formatLimitTxt } from "./utils.js";
 
 class Lm implements LmProvider {
     name: string;
@@ -332,14 +332,23 @@ class Lm implements LmProvider {
                 //return_progress: true,
             };
             if (localOptions?.debug) {
-                console.log(`Agent ${options?.agentName} client request ---------`);
-                console.log("Model:", ip.model);
-                console.log(inferenceParams);
+                console.log(`${options?.agentName} ${ip.model} request ---------`);
+                //console.log("Model:", ip.model);
+                if (inferenceParams) {
+                    let kvparams = new Array<any>();
+                    for (const [k, v] of Object.entries(inferenceParams)) {
+                        kvparams.push(k, v);
+                    }
+                    console.log("Inference params:", ...kvparams);
+                }
                 if (localOptions?.history && localOptions.history.length > 0) {
                     console.log(`History: ---------`);
                     displayMessagesHistory(msgs)
                 } else {
-                    console.log("User:", prompt);
+                    if (localOptions?.system) {
+                        console.log(0, "SYSTEM:", formatLimitTxt(localOptions.system));
+                    }
+                    console.log(1, "USER:", formatLimitTxt(prompt));
                 }
                 console.log(`----------------------------------------------------`);
             }
@@ -356,12 +365,6 @@ class Lm implements LmProvider {
             }
             const _url = `${this.serverUrl}/chat/completions`;
             const body = JSON.stringify(ip);
-            /*if (verbosity?.request) {
-                console.log("Agent: request body -------------");
-                console.log(ip);
-                console.log("-----------------------------------");
-            }*/
-            //console.log("CLIENT POST", JSON.stringify(ip, null, 2));
             const response = await fetch(_url, {
                 method: 'POST',
                 headers: headers,

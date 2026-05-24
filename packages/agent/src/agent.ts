@@ -340,7 +340,7 @@ class Agent {
             }
             localOptions.history = this.history;
             //console.log("END LOOP HIST", this.name + ":");
-            console.dir(this.history, { depth: 6 });
+            //console.dir(this.history, { depth: 6 });
             _res = await this._runAgent(nit, "", localOptions);
             //console.log("END RUN AGENT TC", this.name);
         } else {

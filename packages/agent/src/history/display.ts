@@ -1,4 +1,5 @@
 import type { ChatCompletionContentPart, ChatCompletionMessageToolCall, ChatCompletionRole } from "openai/resources/index.js";
+import { formatLimitTxt } from "../utils.js";
 
 function displayMessagesHistory(msgs: Array<{
     role: ChatCompletionRole,
@@ -11,18 +12,18 @@ function displayMessagesHistory(msgs: Array<{
     let i = 1
     for (const msg of msgs) {
         if (msg.role == "system") {
-            console.log(0, "SYSTEM:", msg.content?.slice(0, 75));
+            console.log(0, "SYSTEM:", formatLimitTxt(`${msg.content}`));
             continue
         }
         if (msg.role == "user") {
-            console.log(i, "USER:", msg.content?.slice(0, 75))
+            console.log(i, "USER:", formatLimitTxt(`${msg.content}`))
         }
         if (msg.role == "assistant") {
             if (msg.reasoning_content) {
-                console.log(i, "THINK:", msg.reasoning_content.slice(0, 75))
+                console.log(i, "THINK:", formatLimitTxt(msg.reasoning_content))
             }
             if (msg?.content) {
-                console.log(i, "ASSISTANT:", msg.content.slice(0, 75))
+                console.log(i, "ASSISTANT:", formatLimitTxt(`${msg.content}`))
             }
             if (msg?.tool_calls) {
                 console.log(i, "TOOL CALLS:");
@@ -30,13 +31,13 @@ function displayMessagesHistory(msgs: Array<{
                     // @ts-ignore
                     const tcn = t.function.name;
                     // @ts-ignore
-                    const tca = t.function.arguments.slice(0, 75)
+                    const tca = formatLimitTxt(t.function.arguments);
                     console.log("-", tcn, tca)
                 })
             }
         }
         if (msg.role == "tool") {
-            console.log(i, "TOOL RESPONSE:", msg.content?.slice(0, 15));
+            console.log(i, "TOOL RESPONSE:", formatLimitTxt(`${msg.content}`));
         }
         ++i
     }

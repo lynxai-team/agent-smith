@@ -16,6 +16,16 @@ const formatDuration = (ms: number, unitCls?: string) => {
     return `${minutes.toFixed()}${u1} ${Math.round(seconds % 60)}${u2}`;
 }
 
+function formatLimitTxt(txt: string): string {
+    let t = txt;
+    t = t.replaceAll("\n", "\\n").slice(0, 75);
+    if (txt.length > 75) {
+        t += "..."
+    }
+    return t
+}
+
 export {
     formatDuration,
+    formatLimitTxt,
 }
