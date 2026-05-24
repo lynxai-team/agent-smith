@@ -108,10 +108,10 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
             delete localOptions.params.tsGrammar;
         }
         let c = false;
-        if (localOptions?.verbosity?.task) {
+        /*if (localOptions?.verbosity?.task) {
             console.log("Task model:", localOptions.model);
             console.log("Task vars:", vars);
-        }
+        }*/
         let emittedTokens = 0;
         let emittedThinkingTokens = 0;
         const printToken = (t: string, dim = false) => {
@@ -183,6 +183,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 const msg = "The server answered with a 502 Bad Gateway error. It might be down or misconfigured. Check your inference server.";
                 const err = msg + "\n" + errMsg;
                 if ((localOptions?.onError)) {
+                    console.error(err, name);
                     localOptions.onError(err, name);
                 } else {
                     runtimeError(msg)
@@ -196,6 +197,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 const msg = "The server answered with a 404 Not Found error. That might mean that the model you are requesting does not exist on the server.";
                 const err = msg + "\n" + errMsg;
                 if ((localOptions?.onError)) {
+                    console.error(err, name);
                     localOptions.onError(err, name);
                 } else {
                     runtimeError(msg)
@@ -209,6 +211,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 const msg = "The server answered with a 400 Bad Request error. That might mean that:\n- The model you are requesting does not exist on the server\n- A parameter is wrong or missing in your request\n- The request size exceeds the available context window size";
                 const err = msg + "\n" + errMsg;
                 if ((localOptions?.onError)) {
+                    console.error(err, name);
                     localOptions.onError(err, name);
                 } else {
                     runtimeError()
@@ -222,6 +225,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 const msg = "The server is not responding. Check if your inference backend is running.";
                 const err = msg + "\n" + errMsg;
                 if ((localOptions?.onError)) {
+                    console.error(err, name);
                     localOptions.onError(err, name);
                 } else {
                     runtimeError(msg)

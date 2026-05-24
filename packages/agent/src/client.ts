@@ -340,6 +340,7 @@ class Lm implements LmProvider {
                         kvparams.push(k, v);
                     }
                     console.log("Inference params:", ...kvparams);
+                    console.log("Options:", options);
                 }
                 if (localOptions?.history && localOptions.history.length > 0) {
                     console.log(`History: ---------`);

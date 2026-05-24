@@ -228,7 +228,6 @@ interface AgentSpec {
     category?: string;
     mcp?: McpServerSpec;
     skills?: Array<string>;
-    workers?: Record<string, { description: string }>;
 }
 
 /**

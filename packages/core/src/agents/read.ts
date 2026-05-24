@@ -126,9 +126,8 @@ async function readAgent(
         }
     }
     // tools
-    //console.log("Agent tools list:", agentSpec.toolsList);
+    //console.log("AGENT SPECS", agent.name, agentSpec);
     if (agentSpec?.skills) {
-        //console.log(agentSpec.name, agentSpec.skills);
         // skills text
         const sks = readSkillsFromList(agentSpec.skills);
         const skLines = new Array<string>();
@@ -149,46 +148,16 @@ async function readAgent(
             }
         }
         // load skill
-        if (agentSpec?.skills) {
-            if (!agentSpec?.toolsList) {
-                agentSpec.toolsList = []
-            }
-            agentSpec.toolsList.push("read-skill")
-        } else {
-            throw new Error(`loading skill: no skills defined in agent`)
-        }
-    }
-    //console.log("AS", agentSpec.name, agentSpec.workers);
-    // load worker
-    if (agentSpec?.workers) {
+        //if (agentSpec?.skills) {
         if (!agentSpec?.toolsList) {
             agentSpec.toolsList = []
         }
-        agentSpec.toolsList.push("run-worker");
-        const specWorkersNames = Object.keys(agentSpec.workers);
-        //console.log("WN", workersNames);
-        const workersFeatures = readFeaturesType("agent", undefined, specWorkersNames);
-        const workersFeaturesNames = Object.keys(workersFeatures);
-        const hasPw = agentSpec.prompt.includes("{workers}");
-        const hasSw = agentSpec.template?.system ? agentSpec.template.system.includes("{workers}") : false;
-        if (hasPw || hasSw) {
-            const lines = new Array<string>();
-            //console.log("AW", agentSpec.workers);
-            for (const wn of specWorkersNames) {
-                if (!workersFeaturesNames.includes(wn)) {
-                    throw new Error(`worker ${wn} not found`)
-                }
-                lines.push("- **" + wn + "**: " + agentSpec.workers[wn].description);
-            }
-            if (hasPw) {
-                agentSpec.prompt = agentSpec.prompt.replace("{workers}", lines.join("\n"));
-            }
-            if (hasSw) {
-                // @ts-ignore
-                agentSpec.template.system = agentSpec.template.system.replace("{workers}", lines.join("\n"));
-            }
-        }
+        agentSpec.toolsList.push("load-skill")
+        /*} else {
+            throw new Error(`loading skill: no skills defined in agent`)
+        }*/
     }
+    //console.log("ATL", agentSpec.toolsList);
     if (agentSpec?.toolsList) {
         for (const rawToolName of agentSpec.toolsList) {
             let toolName = rawToolName;
@@ -240,6 +209,7 @@ async function readAgent(
         }
         delete agentSpec.toolsList
     };
+    //console.log("AS TOOLS", agentSpec.name, agentSpec.tools);
     if (options?.isChatMode) {
         agentSpec.prompt = "{prompt}";
     }
@@ -255,10 +225,7 @@ async function readAgent(
         //console.log("TSG");
         agentSpec.inferParams.grammar = serializeGrammar(await compile(agentSpec.inferParams.tsGrammar, "Grammar"));
     }
-    /*if (options?.debug) {
-        console.log("Agent model:", model);
-        //console.log("Agent vars:", vars);
-    }*/
+    console.log("AS END", agentSpec);
     return { agentSpec, vars, mcpServers, agentDir }
 }
 
