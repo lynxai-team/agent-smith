@@ -1,4 +1,4 @@
-import { ConfInferenceBackend, InferenceBackend, type ConfigFile } from "@agent-smith/types";
+import { ConfInferenceBackend, InferenceBackend, Workspace, type ConfigFile } from "@agent-smith/types";
 import fs from "node:fs";
 import path from "node:path";
 import { homedir } from 'os';
@@ -7,7 +7,7 @@ import yaml from "yaml";
 import { runtimeError } from "./utils/user_msgs.js";
 import { createDirectoryIfNotExists } from "./utils/sys/dirs.js";
 import { readConf } from "./utils/sys/read_conf.js";
-import { deleteTaskSettings, insertFeaturesPathIfNotExists, insertPluginIfNotExists, upsertBackends, upsertTaskSettings } from "./db/write.js";
+import { deleteAgentSettings, insertFeaturesPathIfNotExists, insertPluginIfNotExists, upsertAndCleanWorkspaces, upsertBackends, upsertAgentSettings } from "./db/write.js";
 import { buildPluginsPaths } from "./state/plugins.js";
 import { initAgentSettings, agentSettings } from "./state/tasks.js";
 
@@ -134,13 +134,20 @@ async function processConfPath(confPath: string): Promise<{ paths: Array<string>
     }
     if (data?.agents) {
         initAgentSettings();
-        const okTasks = new Array<string>();
+        const okAgents = new Array<string>();
         for (const [name, settings] of Object.entries(data.agents)) {
-            upsertTaskSettings(name, settings);
-            okTasks.push(name);
+            upsertAgentSettings(name, settings);
+            okAgents.push(name);
         }
-        const toDel = Object.keys(agentSettings).filter(t => !okTasks.includes(t));
-        deleteTaskSettings(toDel);
+        const toDel = Object.keys(agentSettings).filter(t => !okAgents.includes(t));
+        deleteAgentSettings(toDel);
+    }
+    if (data?.workspaces) {
+        const wsd = new Array<Workspace>();
+        for (const [k, v] of Object.entries(data.workspaces)) {
+            wsd.push({ name: k, path: v, props: {} })
+        }
+        upsertAndCleanWorkspaces(wsd)
     }
     let pf = "";
     if (data?.promptfile) {

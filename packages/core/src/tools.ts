@@ -69,7 +69,7 @@ function _parseToolDoc(rawTxt: string, name: string): ToolSpec {
     }
 }
 
-function _parseTaskVariables(data: Record<string, any>): { required: Array<string>, optional: Array<string> } {
+function _parseAgentVariables(data: Record<string, any>): { required: Array<string>, optional: Array<string> } {
     const res = { required: new Array<string>(), optional: new Array<string>() };
     if (data?.variables) {
         if (data.variables?.required) {
@@ -82,7 +82,7 @@ function _parseTaskVariables(data: Record<string, any>): { required: Array<strin
     return res
 }
 
-function extractTaskToolDocAndVariables(
+function extractAgentToolDocAndVariables(
     name: string, ext: FeatureExtension, dirPath: string
 ): {
     toolDoc: string, variables: { required: Array<string>, optional: Array<string> }, type: string | null, category: string | null
@@ -93,7 +93,7 @@ function extractTaskToolDocAndVariables(
     // tools
     let tspec: ToolSpec;
     if (!found) {
-        throw new Error(`extractTaskToolDocAndVariables: file ${fp} not found`)
+        throw new Error(`extractAgentToolDocAndVariables: file ${fp} not found`)
     }
     if (data?.tool) {
         data.tool.name = name;
@@ -101,7 +101,7 @@ function extractTaskToolDocAndVariables(
         res.toolDoc = JSON.stringify(tspec, null, "  ");
     }
     // variables
-    const { required, optional } = _parseTaskVariables(data);
+    const { required, optional } = _parseAgentVariables(data);
     res.variables.required = required;
     res.variables.optional = optional;
     // type
@@ -157,5 +157,5 @@ function extractToolDoc(name: string, ext: FeatureExtension, dirPath: string): {
 
 export {
     extractToolDoc,
-    extractTaskToolDocAndVariables,
+    extractAgentToolDocAndVariables,
 }

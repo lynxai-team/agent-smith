@@ -225,7 +225,7 @@ async function readAgent(
         //console.log("TSG");
         agentSpec.inferParams.grammar = serializeGrammar(await compile(agentSpec.inferParams.tsGrammar, "Grammar"));
     }
-    console.log("AS END", agentSpec);
+    //console.log("AS END", agentSpec);
     return { agentSpec, vars, mcpServers, agentDir }
 }
 

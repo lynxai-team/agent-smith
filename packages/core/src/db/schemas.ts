@@ -118,6 +118,23 @@ const setting = `CREATE TABLE IF NOT EXISTS setting (
     value TEXT NOT NULL
 );`;
 
+const modelPresets = `CREATE TABLE IF NOT EXISTS modelpreset (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    model TEXT NOT NULL,
+    max_tokens INTEGER,
+    top_k INTEGER,
+    top_p REAL,
+    min_p REAL,
+    temperature REAL,
+    repeat_penalty REAL,
+    presence_penalty REAL,
+    frequence_penalty REAL,
+    backend TEXT,
+    chat_template_kwargs TEXT,
+    props TEXT
+);`;
+
 const schemas = [
     filepath,
     featurespath,
@@ -134,6 +151,7 @@ const schemas = [
     workspace,
     setting,
     skill,
+    modelPresets,
 ];
 
 export { schemas }

@@ -1,5 +1,5 @@
 import path from "path";
-import { confDir, createConfigFileIfNotExists, processConfPath } from "./conf.js";
+import { confDir, createConfigFileIfNotExists, dbPath, processConfPath } from "./conf.js";
 import { initDb } from "./db/db.js";
 import { readFeaturePaths, readFilePath } from "./db/read.js";
 import { cleanupFeaturePaths, updateAliases, updateDataDirPath, updateFeatures, updatePromptfilePath, upsertFilePath } from "./db/write.js";
@@ -9,6 +9,7 @@ import { readPluginsPaths } from "./state/plugins.js";
 import { dataDirPath, promptfilePath } from "./state/state.js";
 //import { runtimeDataError, runtimeInfo } from './user_msgs.js';
 import { readUserCmd } from "./utils/sys/read_cmds.js";
+import { deleteFileIfExists } from "./utils/sys/delete_file.js";
 
 async function getUserCmdsData(feats: Features): Promise<Features> {
     for (const feat of feats.cmd) {
@@ -65,6 +66,23 @@ async function updateFeaturesCmd(options: Record<string, any>, userFeats?: Featu
     updateAllFeatures(paths, userFeats)
 }
 
+async function recreateDbFromConf() {
+    // try to find a conf path in db
+    let confPath: string;
+    const cf = readFilePath("conf");
+    if (cf.found) {
+        confPath = cf.path;
+    } else {
+        // use default conf path
+        confPath = path.join(confDir, "config.yml");
+    }
+    console.log("Deleting db");
+    deleteFileIfExists(dbPath);
+    console.log("Using", confPath, "to recreate the db");
+    await updateConfCmd([confPath]);
+    console.log(`Config recreated db ${dbPath} from ${confPath} ok`)
+}
+
 async function updateConfCmd(args: Array<string>): Promise<any> {
     initDb(false, true);
     let confPath: string;
@@ -103,4 +121,5 @@ async function updateConfCmd(args: Array<string>): Promise<any> {
 export {
     updateConfCmd,
     updateFeaturesCmd,
+    recreateDbFromConf,
 }

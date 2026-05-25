@@ -1,5 +1,4 @@
-import { ToolSpec, AgentVariables, AliasType, FeatureExtension, FeatureSpec, FeatureType, ToolType, InferenceBackend, type Workspace }
-    from "@agent-smith/types";
+import type { AgentVariables, AliasType, FeatureExtension, FeatureSpec, FeatureType, InferenceBackend, ToolSpec, Workspace } from "@agent-smith/types";
 import { db } from "./db.js";
 
 function readFeaturePaths(): Array<string> {
@@ -175,7 +174,7 @@ function readAgentSettings(): Array<Record<string, any>> {
     return data
 }
 
-function readTaskSetting(name: string): { found: boolean, settings: Record<string, string> } {
+function readAgentSetting(name: string): { found: boolean, settings: Record<string, string> } {
     const q = "SELECT * FROM agentsettings WHERE name= ?";
     const stmt = db.prepare(q);
     const result = stmt.get(name) as Record<string, string>;
@@ -212,20 +211,6 @@ function readSettings(): Record<string, any> {
 }
 
 export {
-    readFeatures,
-    readFeaturePaths,
-    readFeature,
-    readPlugins,
-    readAliases,
-    readFilePath,
-    readFilePaths,
-    readTool,
-    readFeaturesType,
-    readBackends,
-    readAgentSettings,
-    readTaskSetting,
-    readWorkspaces,
-    readSetting,
-    readSettings,
-    readSkillsFromList,
-}
+    readAgentSettings, readAliases, readBackends, readFeature, readFeaturePaths, readFeatures, readFeaturesType, readFilePath,
+    readFilePaths, readPlugins, readSetting, readSettings, readSkillsFromList, readAgentSetting, readTool, readWorkspaces
+};

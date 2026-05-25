@@ -7,6 +7,7 @@ const isAgentSettingsInitialized = ref(false);
 
 function initAgentSettings() {
     const data = readAgentSettings();
+    //console.log("AGENT SETTINGS DATAA", data);
     data.forEach(row => {
         const name = row.name;
         delete row.name;
@@ -19,7 +20,7 @@ function initAgentSettings() {
         }
         agentSettings[name] = vals;
     });
-    //console.log("TS", agentSettings);
+    //console.log("AGENT SETTINGS", agentSettings);
     isAgentSettingsInitialized.value = true;
 }
 

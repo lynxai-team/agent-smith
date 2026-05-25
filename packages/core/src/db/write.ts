@@ -1,4 +1,4 @@
-import { extractTaskToolDocAndVariables, extractToolDoc } from "../tools.js";
+import { extractAgentToolDocAndVariables, extractToolDoc } from "../tools.js";
 import { AliasType, FeatureSpec, FeatureType, Features, InferenceBackend, AgentSettings, type Workspace } from "@agent-smith/types";
 import { db } from "./db.js";
 
@@ -225,7 +225,7 @@ function updateFeatures(feats: Features) {
     //console.log("FEATS", feats);
     upsertAndCleanFeatures(feats.agent, "agent");
     feats.agent.forEach((feat) => {
-        const { toolDoc, variables, type, category } = extractTaskToolDocAndVariables(feat.name, feat.ext, feat.path);
+        const { toolDoc, variables, type, category } = extractAgentToolDocAndVariables(feat.name, feat.ext, feat.path);
         //const { found, toolDoc } = extractToolDoc(feat.name, feat.ext, feat.path);
         //console.log(`TASK ${feat.name} TOOL DOC`, toolDoc);
         if (toolDoc.length > 0) {
@@ -275,22 +275,50 @@ function upsertSetting(name: string, value: any) {
     }
 }
 
-function upsertWorkspace(workspace: Workspace): boolean {
+function upsertWorkspace(workspace: Workspace, isVerbose = false): boolean {
     const selectStmt = db.prepare("SELECT * FROM workspace WHERE name = ?");
     const result = selectStmt.get(workspace.name) as Record<string, any>;
     if (result?.id) {
         // If the filepath exists, update it
         const q = `UPDATE workspace SET path = ?, props = ? WHERE name = ?`;
         const stmt = db.prepare(q);
-
         const updateResult = stmt.run(workspace.path, JSON.stringify(workspace.props), workspace.name);
         return updateResult.changes > 0;
     } else {
         // If the filepath does not exist, insert it
         const insertStmt = db.prepare("INSERT INTO workspace (name, path, props) VALUES (?, ?, ?)");
         insertStmt.run(workspace.name, workspace.path, JSON.stringify(workspace.props));
+        if (isVerbose) {
+            console.log("-", "[workspace]", workspace.name, workspace.path);
+        }
         return true;
     }
+}
+
+function upsertAndCleanWorkspaces(workspaces: Array<Workspace>): Array<Workspace> {
+    // Get all existing workspace names
+    const existingStmt = db.prepare("SELECT name FROM workspace");
+    const existingWorkspaces = existingStmt.all() as Array<{ name: string }>;
+    const existingNames = new Set(existingWorkspaces.map(w => w.name));
+
+    // Create a set of new workspace names for comparison
+    const newNames = new Set(workspaces.map(w => w.name));
+
+    // Delete workspaces that are not in the new list
+    const toDelete = Array.from(existingNames).filter(name => !newNames.has(name));
+    for (const name of toDelete) {
+        deleteWorkspace(name);
+        console.log("-", "[workspace]", name);
+    }
+
+    // Upsert the new workspaces and track new/updated ones
+    const updatedWorkspaces = new Array<Workspace>();
+    for (const workspace of workspaces) {
+        if (upsertWorkspace(workspace, true)) {
+            updatedWorkspaces.push(workspace);
+        }
+    }
+    return updatedWorkspaces;
 }
 
 function upsertFilePath(name: string, newPath: string): boolean {
@@ -311,7 +339,7 @@ function upsertFilePath(name: string, newPath: string): boolean {
     }
 }
 
-function upsertTaskSettings(taskName: string, settings: AgentSettings): boolean {
+function upsertAgentSettings(taskName: string, settings: AgentSettings): boolean {
     const selectStmt = db.prepare("SELECT * FROM agentsettings WHERE name = ?");
     const result = selectStmt.get(taskName) as Record<string, any>;
     if (result?.id) {
@@ -421,14 +449,14 @@ function deleteWorkspace(name: string) {
     deleteStmt.run(name);
 }
 
-function deleteTaskSettings(settings: Array<string>) {
+function deleteAgentSettings(settings: Array<string>) {
     settings.forEach(s => {
         const deleteStmt = db.prepare("DELETE FROM agentsettings WHERE name = ?");
         deleteStmt.run(s);
     })
 }
 
-function deleteTaskSetting(name: string) {
+function deleteAgentSetting(name: string) {
     const deleteStmt = db.prepare("DELETE FROM agentsettings WHERE name = ?");
     deleteStmt.run(name);
 }
@@ -440,6 +468,7 @@ export {
     upsertBackends,
     upsertSetting,
     upsertWorkspace,
+    upsertAndCleanWorkspaces,
     setDefaultBackend,
     insertFeaturesPathIfNotExists,
     insertPluginIfNotExists,
@@ -447,8 +476,8 @@ export {
     updateAliases,
     cleanupFeaturePaths,
     upsertFilePath,
-    upsertTaskSettings,
-    deleteTaskSettings,
-    deleteTaskSetting,
+    upsertAgentSettings,
+    deleteAgentSettings,
+    deleteAgentSetting,
     deleteWorkspace,
 }
