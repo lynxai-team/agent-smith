@@ -4,7 +4,7 @@ import type { Next, Context } from 'koa';
 
 function getAgentSettingsCmd(r: Router) {
     r.get('/agentsettings', async (ctx: Context, next: Next) => {
-        const ts = state.getAgentSettings();
+        const ts = state.getAgentSettings(true);
         ctx.body = ts;
         ctx.status = 200;
     })
@@ -16,7 +16,7 @@ function updateAgentSettingsCmd(r: Router) {
         //console.log("DATA", data);
         const name = data.name;
         const settings = data.settings;
-        const ts = db.upsertTaskSettings(name, settings);
+        const ts = db.upsertAgentSettings(name, settings);
         ctx.body = ts;
         ctx.status = 200;
     })
