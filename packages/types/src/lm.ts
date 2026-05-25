@@ -179,7 +179,7 @@ interface LmProvider extends InferenceCallbacks {
  * @example
  * const providerType: LmProviderType = 'browser';
  */
-type LmProviderType = "openai" | "browser";
+type LmProviderType = "llamacpp" | "openai" | "browser";
 
 
 export {

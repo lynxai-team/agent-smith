@@ -60,6 +60,7 @@ interface ConfigFile {
     backends?: BackendEntries;
     agents?: Record<string, AgentSettings>;
     apps?: Record<string, string>;
+    workspaces?: Record<string, string>;
 }
 
 export {
