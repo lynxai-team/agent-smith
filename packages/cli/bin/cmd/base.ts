@@ -1,7 +1,7 @@
 import { Command, Option } from "commander";
 import { conf, state } from "@agent-smith/core";
 import { parseCommandArgs } from "../utils.js";
-import { processTaskCmd, processAgentsCmd, resetDbCmd } from "./cmds.js";
+import { processAgentCmd, processAgentsCmd, recreateDbCmd, resetDbCmd } from "./cmds.js";
 import { displayOptions, inferenceOptions } from "../options.js";
 
 function initBaseCommands(program: Command): Command {
@@ -11,23 +11,23 @@ function initBaseCommands(program: Command): Command {
     program.command("exit")
         .description("exit the cli")
         .action(() => process.exit(0));
-    const agentCmd = program.command("agents")
+    const agentsCmd = program.command("agents")
         .description("list all the agents")
         .action(async (...args: Array<any>) => {
             const ca = parseCommandArgs(args);
             await processAgentsCmd(ca.args, ca.options)
         });
-    agentCmd.addOption(
+    agentsCmd.addOption(
         new Option("-c, --conf", "output the tasks config")
     )
-    const taskCmd = program.command("task <task>")
-        .description("read a task")
+    const agentCmd = program.command("agent <agent>")
+        .description("view an agent")
         .action(async (...args: Array<any>) => {
             const ca = parseCommandArgs(args);
-            await processTaskCmd(ca.args, ca.options)
+            await processAgentCmd(ca.args, ca.options)
         });
-    inferenceOptions.forEach(o => taskCmd.addOption(o));
-    taskCmd.addOption(new Option("--reset", "reset the task config to the original"));
+    inferenceOptions.forEach(o => agentCmd.addOption(o));
+    agentCmd.addOption(new Option("--reset", "reset the task config to the original"));
     program.command("backend <name>")
         .description("set the default backend")
         .action(async (...args: Array<any>) => {
@@ -56,6 +56,11 @@ function initBaseCommands(program: Command): Command {
         .description("reset the config database")
         .action(async (...args: Array<any>) => {
             await resetDbCmd()
+        });
+    program.command("regendb")
+        .description("regenerate the database from the current registered config file")
+        .action(async (...args: Array<any>) => {
+            await recreateDbCmd()
         });
     return program
 }

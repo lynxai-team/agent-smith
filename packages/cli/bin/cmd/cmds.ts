@@ -81,6 +81,14 @@ async function resetDbCmd(): Promise<any> {
     console.log("Config database reset ok. Run the conf command to recreate it")
 }
 
+async function recreateDbCmd(): Promise<any> {
+    if (runMode.value == "cli") {
+        console.log("This command can not be run in cli mode")
+        return
+    }
+    await conf.recreateDbFromConf()
+}
+
 async function processAgentsCmd(args: Array<string>, options: Record<string, any>) {
     if (options?.conf) {
         if (!state.isAgentSettingsInitialized.value) {
@@ -94,33 +102,33 @@ async function processAgentsCmd(args: Array<string>, options: Record<string, any
     }
 }
 
-async function processTaskCmd(args: Array<string>, options: Record<string, any>): Promise<any> {
+async function processAgentCmd(args: Array<string>, options: Record<string, any>): Promise<any> {
     //console.log("TASK OPTS", options);
     if (args.length == 0) {
-        console.warn("Provide a task name");
+        console.warn("Provide an agent name");
         return
     }
-    const { found, path } = getFeatureSpec(args[0], "task" as FeatureType);
+    const { found, path } = getFeatureSpec(args[0], "agent" as FeatureType);
     if (!found) {
-        console.warn(`Task ${args[0]} not found`)
+        console.warn(`Agent ${args[0]} not found`)
         return
     }
     if (options?.reset) {
-        db.deleteTaskSetting(args[0]);
-        console.log("Task", args[0], "reset ok")
+        db.deleteAgentSetting(args[0]);
+        console.log("Agent", args[0], "reset ok")
         return
     }
     //console.log("RT", path)
     const res = utils.readAgent(path);
     if (!res.found) {
-        throw new Error(`Task ${args[0]}, ${path} not found`)
+        throw new Error(`Agent ${args[0]}, ${path} not found`)
     }
-    //const ts = JSON.parse(res.ymlTask);
+    //const ts = JSON.parse(res.ymlAgent);
     console.log(res.ymlAgent);
     if (Object.keys(options).length > 0) {
-        db.upsertTaskSettings(args[0], options);
+        db.upsertAgentSettings(args[0], options);
     }
-    const s = db.readTaskSetting(args[0]);
+    const s = db.readAgentSetting(args[0]);
     if (s.found) {
         const sts = s.settings;
         delete sts.id;
@@ -138,8 +146,9 @@ async function processTaskCmd(args: Array<string>, options: Record<string, any>)
 
 export {
     initUserCmds,
-    processTaskCmd,
+    processAgentCmd,
     processAgentsCmd,
     resetDbCmd,
+    recreateDbCmd,
 };
 
