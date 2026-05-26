@@ -1,5 +1,5 @@
 import { extractAgentToolDocAndVariables, extractToolDoc } from "../tools.js";
-import { AliasType, FeatureSpec, FeatureType, Features, InferenceBackend, AgentSettings, type Workspace } from "@agent-smith/types";
+import { AliasType, FeatureSpec, FeatureType, Features, InferenceBackend, AgentSettings, type Workspace, type ModelPreset } from "@agent-smith/types";
 import { db } from "./db.js";
 
 function updatePromptfilePath(pf: string) {
@@ -349,24 +349,20 @@ function upsertAgentSettings(taskName: string, settings: AgentSettings): boolean
             qparams.push("model = ?");
             qvalues.push(settings.model)
         }
-        if (settings?.ctx) {
-            qparams.push("ctx = ?");
-            qvalues.push(settings.ctx)
-        }
         if (settings?.max_tokens) {
-            qparams.push("maxtokens = ?");
+            qparams.push("max_tokens = ?");
             qvalues.push(settings.max_tokens)
         }
         if (settings?.top_k) {
-            qparams.push("topk = ?");
+            qparams.push("top_k = ?");
             qvalues.push(settings.top_k)
         }
         if (settings?.top_p) {
-            qparams.push("topp = ?");
+            qparams.push("top_p = ?");
             qvalues.push(settings.top_p)
         }
         if (settings?.min_p) {
-            qparams.push("minp = ?");
+            qparams.push("min_p = ?");
             qvalues.push(settings.min_p)
         }
         if (settings?.temperature) {
@@ -374,8 +370,16 @@ function upsertAgentSettings(taskName: string, settings: AgentSettings): boolean
             qvalues.push(settings.temperature)
         }
         if (settings?.repeat_penalty) {
-            qparams.push("repeat = ?");
+            qparams.push("repeat_penalty = ?");
             qvalues.push(settings.repeat_penalty)
+        }
+        if (settings?.presence_penalty) {
+            qparams.push("presence_penalty = ?");
+            qvalues.push(settings.presence_penalty)
+        }
+        if (settings?.frequency_penalty) {
+            qparams.push("frequency_penalty = ?");
+            qvalues.push(settings.frequency_penalty)
         }
         if (settings?.backend) {
             qparams.push("backend = ?");
@@ -444,6 +448,101 @@ function upsertAgentSettings(taskName: string, settings: AgentSettings): boolean
     }
 }
 
+function upsertModelPreset(preset: ModelPreset): boolean {
+    const stmt1 = db.prepare("SELECT * FROM modelpreset WHERE name = ?");
+    const result = stmt1.get(preset.name) as Record<string, any>;
+    let hasUpdates = false;
+    if (result?.id) {
+        // Update existing model preset
+        const updateStmt = db.prepare(`
+                UPDATE modelpreset SET 
+                    model = ?, 
+                    max_tokens = ?, 
+                    top_k = ?, 
+                    top_p = ?, 
+                    min_p = ?, 
+                    temperature = ?, 
+                    repeat_penalty = ?, 
+                    presence_penalty = ?, 
+                    frequency_penalty = ?, 
+                    backend = ?, 
+                    chat_template_kwargs = ?, 
+                    props = ? 
+                WHERE name = ?`);
+        updateStmt.run(
+            preset.model,
+            preset.max_tokens ?? null,
+            preset.top_k ?? null,
+            preset.top_p ?? null,
+            preset.min_p ?? null,
+            preset.temperature ?? null,
+            preset.repeat_penalty ?? null,
+            preset.presence_penalty ?? null,
+            preset.frequency_penalty ?? null,
+            preset.backend ?? null,
+            preset.chat_template_kwargs ?? null,
+            preset.props ?? null,
+            preset.name
+        );
+        hasUpdates = true;
+    } else {
+        // Insert new model preset
+        const stmt = db.prepare(`
+                INSERT INTO modelpreset 
+                (name, model, max_tokens, top_k, top_p, min_p, temperature, repeat_penalty, presence_penalty, frequency_penalty, backend, chat_template_kwargs, props) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+        stmt.run(
+            preset.name,
+            preset.model,
+            preset.max_tokens ?? null,
+            preset.top_k ?? null,
+            preset.top_p ?? null,
+            preset.min_p ?? null,
+            preset.temperature ?? null,
+            preset.repeat_penalty ?? null,
+            preset.presence_penalty ?? null,
+            preset.frequency_penalty ?? null,
+            preset.backend ?? null,
+            preset.chat_template_kwargs ?? null,
+            preset.props ?? null
+        );
+        hasUpdates = true;
+    }
+    return hasUpdates
+}
+
+function upsertModelPresets(modelPresets: Array<ModelPreset>): boolean {
+    let hasUpdates = false;
+
+    // Get all existing model preset names
+    const existingStmt = db.prepare("SELECT name FROM modelpreset");
+    const existingModelPresets = existingStmt.all() as Array<{ name: string }>;
+    const existingNames = new Set(existingModelPresets.map(p => p.name));
+
+    // Create a set of new model preset names for comparison
+    const newNames = new Set(modelPresets.map(p => p.name));
+
+    // Delete model presets that are not in the new list
+    const toDelete = Array.from(existingNames).filter(name => !newNames.has(name));
+    if (toDelete.length > 0) {
+        const deleteStmt = db.prepare("DELETE FROM modelpreset WHERE name = ?");
+        for (const name of toDelete) {
+            deleteStmt.run(name);
+        }
+        hasUpdates = true;
+    }
+
+    // Upsert the new model presets
+    for (const preset of modelPresets) {
+        const up = upsertModelPreset(preset);
+        if (!hasUpdates && up) {
+            hasUpdates = up
+        }
+    }
+
+    return hasUpdates;
+}
+
 function deleteWorkspace(name: string) {
     const deleteStmt = db.prepare("DELETE FROM workspace WHERE name = ?");
     deleteStmt.run(name);
@@ -458,6 +557,11 @@ function deleteAgentSettings(settings: Array<string>) {
 
 function deleteAgentSetting(name: string) {
     const deleteStmt = db.prepare("DELETE FROM agentsettings WHERE name = ?");
+    deleteStmt.run(name);
+}
+
+function deleteModelPreset(name: string) {
+    const deleteStmt = db.prepare("DELETE FROM modelpreset WHERE name = ?");
     deleteStmt.run(name);
 }
 
@@ -480,4 +584,7 @@ export {
     deleteAgentSettings,
     deleteAgentSetting,
     deleteWorkspace,
+    upsertModelPresets,
+    upsertModelPreset,
+    deleteModelPreset,
 }

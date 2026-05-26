@@ -13,42 +13,8 @@ import { deleteFileIfExists } from "./utils/sys/delete_file.js";
 import { getAgentPrompt, getInputFromOptions, openAgentSpec } from "./utils/io.js";
 import { getFeatureSpec } from "./state/features.js";
 
-import {
-    updatePromptfilePath,
-    updateDataDirPath,
-    updateWorkspacePath,
-    upsertBackends,
-    setDefaultBackend,
-    insertFeaturesPathIfNotExists,
-    insertPluginIfNotExists,
-    updateFeatures,
-    updateAliases,
-    cleanupFeaturePaths,
-    upsertFilePath,
-    upsertAgentSettings,
-    deleteAgentSettings,
-    deleteAgentSetting,
-    deleteWorkspace,
-    upsertWorkspace,
-    upsertSetting,
-} from "./db/write.js";
-import {
-    readFeatures,
-    readFeaturePaths,
-    readFeature,
-    readPlugins,
-    readAliases,
-    readFilePath,
-    readFilePaths,
-    readTool,
-    readFeaturesType,
-    readBackends,
-    readAgentSettings,
-    readAgentSetting,
-    readWorkspaces,
-    readSetting,
-    readSettings,
-} from "./db/read.js";
+import * as dbw from "./db/write.js";
+import * as dbr from "./db/read.js";
 import {
     dataDirPath,
     formatMode,
@@ -91,37 +57,8 @@ import { executeAgent } from "./agents/cmd.js";
 
 const db = {
     init: initDb,
-    updatePromptfilePath,
-    updateDataDirPath,
-    upsertBackends,
-    setDefaultBackend,
-    insertFeaturesPathIfNotExists,
-    insertPluginIfNotExists,
-    updateFeatures,
-    updateAliases,
-    cleanupFeaturePaths,
-    upsertFilePath,
-    upsertAgentSettings,
-    deleteAgentSettings,
-    deleteAgentSetting,
-    readFeatures,
-    readFeaturePaths,
-    readFeature,
-    readPlugins,
-    readAliases,
-    readFilePath,
-    readFilePaths,
-    readTool,
-    readFeaturesType,
-    readBackends,
-    readAgentSettings,
-    readAgentSetting,
-    deleteWorkspace,
-    upsertWorkspace,
-    readWorkspaces,
-    readSetting,
-    readSettings,
-    upsertSetting,
+    ...dbw,
+    ...dbr,
 };
 
 const fs = {
@@ -188,7 +125,6 @@ export {
     McpClient,
     openAgentSpec,
     useAgentExecutor,
-    updateWorkspacePath,
     executeAgent,
 };
 

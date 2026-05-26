@@ -1,4 +1,4 @@
-import type { AgentVariables, AliasType, FeatureExtension, FeatureSpec, FeatureType, InferenceBackend, ToolSpec, Workspace } from "@agent-smith/types";
+import type { AgentVariables, AliasType, FeatureExtension, FeatureSpec, FeatureType, InferenceBackend, ModelPreset, ToolSpec, Workspace } from "@agent-smith/types";
 import { db } from "./db.js";
 
 function readFeaturePaths(): Array<string> {
@@ -210,7 +210,57 @@ function readSettings(): Record<string, any> {
     return st
 }
 
+function readModelPreset(name: string): { found: boolean, preset: ModelPreset } {
+    const q = "SELECT * FROM modelpreset WHERE name= ?";
+    const stmt = db.prepare(q);
+    const result = stmt.get(name) as Record<string, any>;
+    if (result?.id) {
+        return {
+            found: true,
+            preset: {
+                name: result.name,
+                model: result.model,
+                max_tokens: result.max_tokens,
+                top_k: result.top_k,
+                top_p: result.top_p,
+                min_p: result.min_p,
+                temperature: result.temperature,
+                repeat_penalty: result.repeat_penalty,
+                presence_penalty: result.presence_penalty,
+                frequency_penalty: result.frequency_penalty,
+                backend: result.backend,
+                chat_template_kwargs: JSON.parse(result.chat_template_kwargs),
+                props: JSON.parse(result.props)
+            }
+        }
+    }
+    return { found: false, preset: {} as ModelPreset }
+}
+
+function readModelPresets(): Array<ModelPreset> {
+    const stmt1 = db.prepare("SELECT * FROM modelpreset ORDER BY name");
+    const data = stmt1.all() as Array<Record<string, any>>;
+    const presets = new Array<ModelPreset>();
+    data.forEach(row => presets.push({
+        name: row.name,
+        model: row.model,
+        max_tokens: row.max_tokens,
+        top_k: row.top_k,
+        top_p: row.top_p,
+        min_p: row.min_p,
+        temperature: row.temperature,
+        repeat_penalty: row.repeat_penalty,
+        presence_penalty: row.presence_penalty,
+        frequency_penalty: row.frequency_penalty,
+        backend: row.backend,
+        chat_template_kwargs: JSON.parse(row.chat_template_kwargs),
+        props: JSON.parse(row.props)
+    }));
+    return presets
+}
+
 export {
     readAgentSettings, readAliases, readBackends, readFeature, readFeaturePaths, readFeatures, readFeaturesType, readFilePath,
-    readFilePaths, readPlugins, readSetting, readSettings, readSkillsFromList, readAgentSetting, readTool, readWorkspaces
+    readFilePaths, readPlugins, readSetting, readSettings, readSkillsFromList, readAgentSetting, readTool, readWorkspaces,
+    readModelPreset, readModelPresets
 };

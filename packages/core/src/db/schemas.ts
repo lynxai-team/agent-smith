@@ -93,7 +93,6 @@ const agentSettings = `CREATE TABLE IF NOT EXISTS agentsettings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
     model TEXT,
-    ctx INTEGER,
     max_tokens INTEGER
     top_k INTEGER,
     top_p REAL,
@@ -101,7 +100,7 @@ const agentSettings = `CREATE TABLE IF NOT EXISTS agentsettings (
     temperature REAL,
     repeat_penalty REAL,
     presence_penalty REAL,
-    frequence_penalty REAL,
+    frequency_penalty REAL,
     backend TEXT
 );`;
 
@@ -129,7 +128,7 @@ const modelPresets = `CREATE TABLE IF NOT EXISTS modelpreset (
     temperature REAL,
     repeat_penalty REAL,
     presence_penalty REAL,
-    frequence_penalty REAL,
+    frequency_penalty REAL,
     backend TEXT,
     chat_template_kwargs TEXT,
     props TEXT
