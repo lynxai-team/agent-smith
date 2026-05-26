@@ -3,7 +3,7 @@ import type { LmProvider } from "./lm.js";
 import type { McpServerSpec } from "./core.js";
 import type { HistoryTurn, UiHistoryTurn } from "./history.js";
 import type { InferenceParams, PromptProcessingInProgressStats } from "./inference.js";
-import type { ModelInfo } from "./model.js";
+import type { ModelInfo, ModelPreset } from "./model.js";
 import type { ToolSpec } from "./tools.js";
 import type { Workspace } from "./workspace.js";
 
@@ -163,6 +163,7 @@ interface AgentState {
     currentModel: ModelInfo;
     workspaces: Record<string, Workspace>;
     settings: Record<string, any>;
+    modelPresets: Record<string, ModelPreset>;
 }
 
 /**

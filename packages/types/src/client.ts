@@ -4,6 +4,7 @@ import type { AgentInferenceOptions } from "./inference.js";
 import type { ToolDefSpec } from "./tools.js";
 import type { Workspace } from "./workspace.js";
 import type { AgentSpec, UserAgentVariables } from "./agent.js";
+import type { ModelPreset } from "./model.js";
 
 interface ClientFeaturesOptions extends AgentInferenceOptions {
     backend?: string;
@@ -32,6 +33,7 @@ interface ClientFeaturesService {
     checkState: () => Promise<{ found: boolean, config: ConfigFile }>;
     loadWorkspaces: () => Promise<Array<Workspace>>;
     loadSettings: () => Promise<Record<string, any>>;
+    loadModelsPresets: () => Promise<Record<string, ModelPreset>>;
 }
 
 export {
