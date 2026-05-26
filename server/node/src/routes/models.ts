@@ -1,6 +1,6 @@
 import { backend } from '@agent-smith/core';
 import { db } from '@agent-smith/core';
-import { ModelInfo, type ModelPreset } from '@agent-smith/types';
+import type { ModelInfo, SamplingPreset } from '@agent-smith/types';
 import type Router from '@koa/router';
 import type { Next, Context } from 'koa';
 
@@ -22,9 +22,9 @@ function getModelsRoute(r: Router) {
 
 function getModelsPresetsRoute(r: Router) {
     r.get('/models/presets', async (ctx: Context, next: Next) => {
-        let mp = new Array<ModelPreset>();
+        let mp = new Array<SamplingPreset>();
         try {
-            mp = db.readModelPresets()
+            mp = db.readSamplingPresets()
             //console.log("M", mi);
         } catch (e) {
             ctx.body = "error reading the models presets";
@@ -38,9 +38,9 @@ function getModelsPresetsRoute(r: Router) {
 
 function upsertModelPresetRoute(r: Router) {
     r.post('/models/preset/update', async (ctx: Context, next: Next) => {
-        const payload = ctx.request.body as ModelPreset;
+        const payload = ctx.request.body as SamplingPreset;
         try {
-            db.upsertModelPreset(payload);
+            db.upsertSamplingPreset(payload);
             ctx.status = 204;
         } catch (e) {
             const err = `error updating model preset:\n ${e}`;
@@ -58,7 +58,7 @@ function delModelPresetRoute(r: Router) {
             ctx.body = "provide a name to delete model preset";
             ctx.status = 400
         } else {
-            const w = db.deleteModelPreset(name);
+            const w = db.deleteSamplingPreset(name);
             ctx.body = w;
             ctx.status = 200;
         }
