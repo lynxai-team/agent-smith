@@ -2,7 +2,8 @@ import type {
     ClientFeaturesOptions, ClientFeaturesService, ModelInfo, ToolDefSpec,
     ConfigFile, AgentState, UserAgentVariables, ServerParams,
     AgentSpec,
-    Workspace
+    Workspace,
+    ModelPreset
 } from "@agent-smith/types";
 import { reactive, ref, toRaw } from "@vue/reactivity";
 import { api } from "./api.js";
@@ -165,6 +166,17 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         return mi
     }
 
+    const loadModelsPresets = async (): Promise<Record<string, ModelPreset>> => {
+        const res = await api.get<Array<ModelPreset>>("/models/presets");
+        //console.log("SMODELS", res.data);
+        if (!res.ok) {
+            throw new Error("can not load model presets")
+        }
+        const mi: Record<string, ModelPreset> = {};
+        res.data.forEach(m => mi[m.name] = m)
+        return mi
+    }
+
     const getTools = async (tools: Array<string>): Promise<Array<{ def: ToolDefSpec, type: string }>> => {
         const tl = new Array<string>();
         tools.forEach(t => {
@@ -256,6 +268,7 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         setBackend,
         loadWorkspaces,
         loadSettings,
+        loadModelsPresets,
     }
 };
 
