@@ -2,8 +2,8 @@ import type { AllCallbacks } from "./callbacks.js";
 import type { LmProvider } from "./lm.js";
 import type { McpServerSpec } from "./core.js";
 import type { HistoryTurn, UiHistoryTurn } from "./history.js";
-import type { InferenceParams, PromptProcessingInProgressStats } from "./inference.js";
-import type { ModelInfo, ModelPreset } from "./model.js";
+import type { InferenceParams, PromptProcessingInProgressStats, SamplingPreset } from "./inference.js";
+import type { ModelInfo } from "./model.js";
 import type { ToolSpec } from "./tools.js";
 import type { Workspace } from "./workspace.js";
 
@@ -31,7 +31,7 @@ import type { Workspace } from "./workspace.js";
  */
 interface AgentSettings {
     model?: string;
-    ctx?: number;
+    backend?: string;
     max_tokens?: number;
     top_k?: number;
     top_p?: number;
@@ -40,7 +40,8 @@ interface AgentSettings {
     repeat_penalty?: number;
     presence_penalty?: number;
     frequency_penalty?: number;
-    backend?: string;
+    chat_template_kwargs?: Record<string, any>;
+    props?: Record<string, any>;
 }
 
 /**
@@ -163,7 +164,7 @@ interface AgentState {
     currentModel: ModelInfo;
     workspaces: Record<string, Workspace>;
     settings: Record<string, any>;
-    modelPresets: Record<string, ModelPreset>;
+    samplingPresets: Record<string, SamplingPreset>;
 }
 
 /**

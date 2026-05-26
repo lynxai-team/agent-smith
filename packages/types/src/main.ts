@@ -20,6 +20,7 @@ import {
     ClientInferenceOptions,
     PromptProcessingProgress,
     PromptProcessingInProgressStats,
+    SamplingPreset,
 } from "./inference.js";
 import {
     OnLoadProgress,
@@ -42,7 +43,6 @@ import {
     ModelStatusLoaded,
     ModelStatusLoading,
     ModelStatusUnloaded,
-    ModelPreset,
 } from "./model.js";
 import {
     AgentParams,
@@ -202,5 +202,5 @@ export type {
     UiHistoryTurnState,
     UiHistoryTurnType,
     InferenceStats,
-    ModelPreset,
+    SamplingPreset,
 }

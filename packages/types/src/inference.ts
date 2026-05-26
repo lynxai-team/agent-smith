@@ -149,6 +149,22 @@ interface InferenceResult {
     toolCalls?: Array<ToolCallSpec>;
 }
 
+interface SamplingPreset {
+    name: string;
+    model?: string;
+    max_tokens?: number;
+    top_k?: number;
+    top_p?: number;
+    min_p?: number;
+    temperature?: number;
+    repeat_penalty?: number;
+    presence_penalty?: number;
+    frequency_penalty?: number;
+    backend?: string;
+    chat_template_kwargs?: Record<string, any>;
+    props?: Record<string, any>;
+}
+
 interface PromptProcessingProgress {
     total: number;
     cache: number;
@@ -170,5 +186,6 @@ export {
     InferenceResult,
     PromptProcessingProgress,
     PromptProcessingInProgressStats,
+    SamplingPreset,
 };
 
