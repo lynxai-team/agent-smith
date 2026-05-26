@@ -7,7 +7,7 @@ const isAgentSettingsInitialized = ref(false);
 
 function initAgentSettings() {
     const data = readAgentSettings();
-    //console.log("AGENT SETTINGS DATAA", data);
+    //console.log("AGENT SETTINGS DATA", data);
     data.forEach(row => {
         const name = row.name;
         delete row.name;
@@ -15,7 +15,11 @@ function initAgentSettings() {
         const vals: Record<string, any> = {};
         for (const [k, v] of Object.entries(row)) {
             if (v !== null) {
-                vals[k] = v
+                let _v = v;
+                if (["props", "chat_template_kwargs"].includes(k)) {
+                    _v = JSON.parse(v)
+                }
+                vals[k] = _v
             }
         }
         agentSettings[name] = vals;

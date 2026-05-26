@@ -93,7 +93,7 @@ const agentSettings = `CREATE TABLE IF NOT EXISTS agentsettings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
     model TEXT,
-    max_tokens INTEGER
+    max_tokens INTEGER,
     top_k INTEGER,
     top_p REAL,
     min_p REAL,
@@ -101,7 +101,9 @@ const agentSettings = `CREATE TABLE IF NOT EXISTS agentsettings (
     repeat_penalty REAL,
     presence_penalty REAL,
     frequency_penalty REAL,
-    backend TEXT
+    backend TEXT,
+    chat_template_kwargs TEXT,
+    props TEXT
 );`;
 
 const workspace = `CREATE TABLE IF NOT EXISTS workspace (
@@ -117,10 +119,10 @@ const setting = `CREATE TABLE IF NOT EXISTS setting (
     value TEXT NOT NULL
 );`;
 
-const modelPresets = `CREATE TABLE IF NOT EXISTS modelpreset (
+const samplingPresets = `CREATE TABLE IF NOT EXISTS modelpreset (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
-    model TEXT NOT NULL,
+    model TEXT,
     max_tokens INTEGER,
     top_k INTEGER,
     top_p REAL,
@@ -150,7 +152,7 @@ const schemas = [
     workspace,
     setting,
     skill,
-    modelPresets,
+    samplingPresets,
 ];
 
 export { schemas }

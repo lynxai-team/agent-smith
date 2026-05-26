@@ -1,4 +1,4 @@
-import type { AgentVariables, AliasType, FeatureExtension, FeatureSpec, FeatureType, InferenceBackend, ModelPreset, ToolSpec, Workspace } from "@agent-smith/types";
+import type { AgentVariables, AliasType, FeatureExtension, FeatureSpec, FeatureType, InferenceBackend, SamplingPreset, ToolSpec, Workspace } from "@agent-smith/types";
 import { db } from "./db.js";
 
 function readFeaturePaths(): Array<string> {
@@ -210,7 +210,7 @@ function readSettings(): Record<string, any> {
     return st
 }
 
-function readModelPreset(name: string): { found: boolean, preset: ModelPreset } {
+function readSamplingPreset(name: string): { found: boolean, preset: SamplingPreset } {
     const q = "SELECT * FROM modelpreset WHERE name= ?";
     const stmt = db.prepare(q);
     const result = stmt.get(name) as Record<string, any>;
@@ -234,13 +234,13 @@ function readModelPreset(name: string): { found: boolean, preset: ModelPreset } 
             }
         }
     }
-    return { found: false, preset: {} as ModelPreset }
+    return { found: false, preset: {} as SamplingPreset }
 }
 
-function readModelPresets(): Array<ModelPreset> {
+function readSamplingPresets(): Array<SamplingPreset> {
     const stmt1 = db.prepare("SELECT * FROM modelpreset ORDER BY name");
     const data = stmt1.all() as Array<Record<string, any>>;
-    const presets = new Array<ModelPreset>();
+    const presets = new Array<SamplingPreset>();
     data.forEach(row => presets.push({
         name: row.name,
         model: row.model,
@@ -262,5 +262,5 @@ function readModelPresets(): Array<ModelPreset> {
 export {
     readAgentSettings, readAliases, readBackends, readFeature, readFeaturePaths, readFeatures, readFeaturesType, readFilePath,
     readFilePaths, readPlugins, readSetting, readSettings, readSkillsFromList, readAgentSetting, readTool, readWorkspaces,
-    readModelPreset, readModelPresets
+    readSamplingPreset, readSamplingPresets
 };

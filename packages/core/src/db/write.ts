@@ -1,5 +1,5 @@
 import { extractAgentToolDocAndVariables, extractToolDoc } from "../tools.js";
-import { AliasType, FeatureSpec, FeatureType, Features, InferenceBackend, AgentSettings, type Workspace, type ModelPreset } from "@agent-smith/types";
+import { AliasType, FeatureSpec, FeatureType, Features, InferenceBackend, AgentSettings, type Workspace, type SamplingPreset } from "@agent-smith/types";
 import { db } from "./db.js";
 
 function updatePromptfilePath(pf: string) {
@@ -340,107 +340,116 @@ function upsertFilePath(name: string, newPath: string): boolean {
 }
 
 function upsertAgentSettings(taskName: string, settings: AgentSettings): boolean {
+    //console.log("Upsert agent settings", taskName, settings);
     const selectStmt = db.prepare("SELECT * FROM agentsettings WHERE name = ?");
     const result = selectStmt.get(taskName) as Record<string, any>;
     if (result?.id) {
         const qparams = new Array<string>();
-        const qvalues = new Array<string | number>();
-        if (settings?.model) {
-            qparams.push("model = ?");
-            qvalues.push(settings.model)
-        }
-        if (settings?.max_tokens) {
+        const qvalues = new Array<string | number | null>();
+        qparams.push("model = ?");
+        qvalues.push(settings?.model ?? null)
+        if (settings?.max_tokens !== undefined) {
             qparams.push("max_tokens = ?");
             qvalues.push(settings.max_tokens)
         }
-        if (settings?.top_k) {
+        if (settings?.top_k !== undefined) {
             qparams.push("top_k = ?");
             qvalues.push(settings.top_k)
         }
-        if (settings?.top_p) {
+        if (settings?.top_p !== undefined) {
             qparams.push("top_p = ?");
             qvalues.push(settings.top_p)
         }
-        if (settings?.min_p) {
+        if (settings?.min_p !== undefined) {
             qparams.push("min_p = ?");
             qvalues.push(settings.min_p)
         }
-        if (settings?.temperature) {
+        if (settings?.temperature !== undefined) {
             qparams.push("temperature = ?");
             qvalues.push(settings.temperature)
         }
-        if (settings?.repeat_penalty) {
+        if (settings?.repeat_penalty !== undefined) {
             qparams.push("repeat_penalty = ?");
             qvalues.push(settings.repeat_penalty)
         }
-        if (settings?.presence_penalty) {
+        if (settings?.presence_penalty !== undefined) {
             qparams.push("presence_penalty = ?");
             qvalues.push(settings.presence_penalty)
         }
-        if (settings?.frequency_penalty) {
+        if (settings?.frequency_penalty !== undefined) {
             qparams.push("frequency_penalty = ?");
             qvalues.push(settings.frequency_penalty)
         }
-        if (settings?.backend) {
+        if (settings?.backend !== undefined) {
             qparams.push("backend = ?");
             qvalues.push(settings.backend)
         }
+        if (settings?.chat_template_kwargs !== undefined) {
+            qparams.push("chat_template_kwargs = ?");
+            qvalues.push(JSON.stringify(settings.chat_template_kwargs))
+        }
+        if (settings?.props !== undefined) {
+            qparams.push("props = ?");
+            qvalues.push(JSON.stringify(settings.props))
+        }
         const q = `UPDATE agentsettings SET ${qparams.join(", ")} WHERE name = ?`;
-        //console.log("Q", q);
+        //console.log("Q", q, qparams);
         const stmt = db.prepare(q);
         const updateResult = stmt.run(...qvalues, taskName);
         return updateResult.changes > 0;
     } else {
         const qnames = new Array<string>();
-        const qvalues = new Array<string | number>();
-        if (settings?.model) {
-            qnames.push("model");
-            qvalues.push(settings.model)
-        }
-        if (settings?.ctx) {
-            qnames.push("ctx");
-            qvalues.push(settings.ctx)
-        }
-        if (settings?.max_tokens) {
+        const qvalues = new Array<string | number | null>();
+        qnames.push("model");
+        qvalues.push(settings?.model ?? null)
+        if (settings?.max_tokens !== undefined) {
             qnames.push("max_tokens");
             qvalues.push(settings.max_tokens)
         }
-        if (settings?.top_k) {
+        if (settings?.top_k !== undefined) {
             qnames.push("top_k");
             qvalues.push(settings.top_k)
         }
-        if (settings?.top_p) {
+        if (settings?.top_p !== undefined) {
             qnames.push("top_p");
             qvalues.push(settings.top_p)
         }
-        if (settings?.min_p) {
+        if (settings?.min_p !== undefined) {
             qnames.push("min_p");
             qvalues.push(settings.min_p)
         }
-        if (settings?.temperature) {
+        if (settings?.temperature !== undefined) {
             qnames.push("temperature");
             qvalues.push(settings.temperature)
         }
-        if (settings?.repeat_penalty) {
+        if (settings?.repeat_penalty !== undefined) {
             qnames.push("repeat_penalty");
             qvalues.push(settings.repeat_penalty)
         }
-        if (settings?.presence_penalty) {
+        if (settings?.presence_penalty !== undefined) {
             qnames.push("presence_penalty");
             qvalues.push(settings.presence_penalty)
         }
-        if (settings?.frequency_penalty) {
+        if (settings?.frequency_penalty !== undefined) {
             qnames.push("frequency_penalty");
             qvalues.push(settings.frequency_penalty)
         }
-        if (settings?.backend) {
+        if (settings?.backend !== undefined) {
             qnames.push("backend");
             qvalues.push(settings.backend)
+        }
+        if (settings?.chat_template_kwargs !== undefined) {
+            qnames.push("chat_template_kwargs");
+            qvalues.push(JSON.stringify(settings.chat_template_kwargs))
+        }
+        if (settings?.props !== undefined) {
+            qnames.push("props");
+            qvalues.push(JSON.stringify(settings.props))
         }
         const nq = new Array<string>("?");
         qnames.forEach(n => nq.push("?"));
         const q = `INSERT INTO agentsettings (name, ${qnames.join(", ")}) VALUES (${nq.join(", ")})`;
-        //console.log(q);
+        //console.log("Q2", q);
         //console.log("VALs", qvalues);
         const insertStmt = db.prepare(q);
         insertStmt.run(taskName, ...qvalues);
@@ -448,7 +457,7 @@ function upsertAgentSettings(taskName: string, settings: AgentSettings): boolean
     }
 }
 
-function upsertModelPreset(preset: ModelPreset): boolean {
+function upsertSamplingPreset(preset: SamplingPreset): boolean {
     const stmt1 = db.prepare("SELECT * FROM modelpreset WHERE name = ?");
     const result = stmt1.get(preset.name) as Record<string, any>;
     let hasUpdates = false;
@@ -480,8 +489,8 @@ function upsertModelPreset(preset: ModelPreset): boolean {
             preset.presence_penalty ?? null,
             preset.frequency_penalty ?? null,
             preset.backend ?? null,
-            preset.chat_template_kwargs ?? null,
-            preset.props ?? null,
+            preset?.chat_template_kwargs ? JSON.stringify(preset.chat_template_kwargs) : null,
+            preset?.props ? JSON.stringify(preset.props) : null,
             preset.name
         );
         hasUpdates = true;
@@ -503,21 +512,21 @@ function upsertModelPreset(preset: ModelPreset): boolean {
             preset.presence_penalty ?? null,
             preset.frequency_penalty ?? null,
             preset.backend ?? null,
-            preset.chat_template_kwargs ?? null,
-            preset.props ?? null
+            preset?.chat_template_kwargs ? JSON.stringify(preset.chat_template_kwargs) : null,
+            preset?.props ? JSON.stringify(preset.props) : null,
         );
         hasUpdates = true;
     }
     return hasUpdates
 }
 
-function upsertModelPresets(modelPresets: Array<ModelPreset>): boolean {
+function upsertSamplingPresets(modelPresets: Array<SamplingPreset>): boolean {
     let hasUpdates = false;
 
     // Get all existing model preset names
     const existingStmt = db.prepare("SELECT name FROM modelpreset");
-    const existingModelPresets = existingStmt.all() as Array<{ name: string }>;
-    const existingNames = new Set(existingModelPresets.map(p => p.name));
+    const existingSamplingPresets = existingStmt.all() as Array<{ name: string }>;
+    const existingNames = new Set(existingSamplingPresets.map(p => p.name));
 
     // Create a set of new model preset names for comparison
     const newNames = new Set(modelPresets.map(p => p.name));
@@ -534,7 +543,7 @@ function upsertModelPresets(modelPresets: Array<ModelPreset>): boolean {
 
     // Upsert the new model presets
     for (const preset of modelPresets) {
-        const up = upsertModelPreset(preset);
+        const up = upsertSamplingPreset(preset);
         if (!hasUpdates && up) {
             hasUpdates = up
         }
@@ -560,7 +569,7 @@ function deleteAgentSetting(name: string) {
     deleteStmt.run(name);
 }
 
-function deleteModelPreset(name: string) {
+function deleteSamplingPreset(name: string) {
     const deleteStmt = db.prepare("DELETE FROM modelpreset WHERE name = ?");
     deleteStmt.run(name);
 }
@@ -584,7 +593,7 @@ export {
     deleteAgentSettings,
     deleteAgentSetting,
     deleteWorkspace,
-    upsertModelPresets,
-    upsertModelPreset,
-    deleteModelPreset,
+    upsertSamplingPresets,
+    upsertSamplingPreset,
+    deleteSamplingPreset,
 }
