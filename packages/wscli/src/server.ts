@@ -1,14 +1,18 @@
 import type {
-    ClientFeaturesOptions, ClientFeaturesService, ModelInfo, ToolDefSpec,
-    ConfigFile, AgentState, UserAgentVariables, ServerParams,
     AgentSpec,
+    ClientFeaturesOptions, ClientFeaturesService,
+    ConfigFile,
+    ModelInfo,
+    ServerParams,
+    ToolDefSpec,
+    UserAgentVariables,
     Workspace,
-    ModelPreset
+    SamplingPreset,
 } from "@agent-smith/types";
-import { reactive, ref, toRaw } from "@vue/reactivity";
+import { reactive, ref } from "@vue/reactivity";
 import { api } from "./api.js";
-import { useWsServer } from "./ws.js";
 import { createAwaiter } from "./utils.js";
+import { useWsServer } from "./ws.js";
 
 const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): ClientFeaturesService => {
     //console.log(from, ":", params);
@@ -166,13 +170,13 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         return mi
     }
 
-    const loadModelsPresets = async (): Promise<Record<string, ModelPreset>> => {
-        const res = await api.get<Array<ModelPreset>>("/models/presets");
+    const loadSamplingPresets = async (): Promise<Record<string, SamplingPreset>> => {
+        const res = await api.get<Array<SamplingPreset>>("/models/presets");
         //console.log("SMODELS", res.data);
         if (!res.ok) {
             throw new Error("can not load model presets")
         }
-        const mi: Record<string, ModelPreset> = {};
+        const mi: Record<string, SamplingPreset> = {};
         res.data.forEach(m => mi[m.name] = m)
         return mi
     }
@@ -268,10 +272,11 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         setBackend,
         loadWorkspaces,
         loadSettings,
-        loadModelsPresets,
+        loadSamplingPresets,
     }
 };
 
 export {
-    useClientFeatures,
+    useClientFeatures
 };
+
