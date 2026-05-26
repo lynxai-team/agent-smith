@@ -1,9 +1,10 @@
 import { backend } from '@agent-smith/core';
-import { ModelInfo } from '@agent-smith/types';
+import { db } from '@agent-smith/core';
+import { ModelInfo, type ModelPreset } from '@agent-smith/types';
 import type Router from '@koa/router';
 import type { Next, Context } from 'koa';
 
-function getModelsCmd(r: Router) {
+function getModelsRoute(r: Router) {
     r.get('/models', async (ctx: Context, next: Next) => {
         let mi = new Array<ModelInfo>();
         try {
@@ -19,6 +20,54 @@ function getModelsCmd(r: Router) {
     })
 }
 
+function getModelsPresetsRoute(r: Router) {
+    r.get('/models/presets', async (ctx: Context, next: Next) => {
+        let mp = new Array<ModelPreset>();
+        try {
+            mp = db.readModelPresets()
+            //console.log("M", mi);
+        } catch (e) {
+            ctx.body = "error reading the models presets";
+            ctx.status = 502;
+            return
+        }
+        ctx.body = mp;
+        ctx.status = 200;
+    })
+}
+
+function upsertModelPresetRoute(r: Router) {
+    r.post('/models/preset/update', async (ctx: Context, next: Next) => {
+        const payload = ctx.request.body as ModelPreset;
+        try {
+            db.upsertModelPreset(payload);
+            ctx.status = 204;
+        } catch (e) {
+            const err = `error updating model preset:\n ${e}`;
+            console.error(err);
+            ctx.body = err;
+            ctx.status = 500;
+        }
+    })
+}
+
+function delModelPresetRoute(r: Router) {
+    r.del('/models/preset/delete/:name', async (ctx: Context, next: Next) => {
+        const name = ctx.params?.name;
+        if (!name) {
+            ctx.body = "provide a name to delete model preset";
+            ctx.status = 400
+        } else {
+            const w = db.deleteModelPreset(name);
+            ctx.body = w;
+            ctx.status = 200;
+        }
+    })
+}
+
 export {
-    getModelsCmd,
+    getModelsRoute,
+    getModelsPresetsRoute,
+    upsertModelPresetRoute,
+    delModelPresetRoute,
 }

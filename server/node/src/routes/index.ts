@@ -1,5 +1,5 @@
 import { Router } from "@koa/router";
-import { getModelsCmd } from "./models.js";
+import { getModelsRoute, getModelsPresetsRoute, upsertModelPresetRoute, delModelPresetRoute } from "./models.js";
 import { getAgentSettingsCmd, updateAgentSettingsCmd } from "./agent_settings.js";
 import { getAgentRoute, getAgentsRoute } from "./agents.js";
 import { createConfRoute, getConfRoute } from "./conf.js";
@@ -17,7 +17,8 @@ const baseRoutes = new Array<((r: Router) => void)>(
     getConfRoute,
     getAgentRoute,
     getAgentsRoute,
-    getModelsCmd,
+    getModelsRoute,
+    getModelsPresetsRoute,
     getToolsRoute,
     getAgentSettingsCmd,
     getStateRoute,
@@ -35,6 +36,8 @@ const baseRoutes = new Array<((r: Router) => void)>(
     upsertWorkspaceRoute,
     updateDefaultWorkspaceRoute,
     getSettingsRoute,
+    upsertModelPresetRoute,
+    delModelPresetRoute,
 );
 
 export { baseRoutes }
