@@ -97,6 +97,9 @@ interface InferenceOptions {
     assistant?: string;
     isToolsRouter?: boolean;
     isToolCall?: boolean;
+    propagateModel?: boolean;
+    propagateInferParams?: boolean;
+    variables?: Record<string, any>;
     params?: InferenceParams;
     verbosity?: VerbosityOptions;
 }

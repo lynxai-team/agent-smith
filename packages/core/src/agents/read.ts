@@ -1,7 +1,7 @@
 import path from "path";
 import { Agent } from "@agent-smith/agent";
 import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
-import type { ToolSpec, ToolCallSpec, AgentInferenceOptions, AgentSpec } from "@agent-smith/types";
+import type { ToolSpec, ToolCallSpec, AgentInferenceOptions, AgentSpec, InferenceParams } from "@agent-smith/types";
 import { readFeature, readFeaturesType, readSkillsFromList, readTool } from "../db/read.js";
 import { executeAction } from "../actions/cmd.js";
 import { McpClient } from "../mcp.js";
@@ -28,7 +28,22 @@ async function readAgent(
     const { agentSpec, agentPath } = openAgentSpec(name);
     //console.log("Agent vars:", agentSpec?.variables);
     const agentDir = path.dirname(agentPath);
-    options.params = mergeInferParams(options.params ?? {}, agentSpec.inferParams ?? {});
+    let ip: InferenceParams = {};
+    if (!options?.isToolCall) {
+        if (options?.params) {
+            ip = options.params
+        } else if (agentSpec?.inferParams) {
+            ip = agentSpec.inferParams
+        }
+    } else {
+        if (options?.propagateInferParams) {
+            if (options?.params) {
+                ip = options.params
+            }
+        } else if (agentSpec?.inferParams) {
+            ip = agentSpec.inferParams
+        }
+    }
     // vars
     let vars: Record<string, any> = {};
     if (agentSpec?.variables?.optional) {

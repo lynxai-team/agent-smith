@@ -91,21 +91,47 @@ class Agent {
             });
         }
         let finalPrompt = prompt;
-        //console.log("OPTS MODEL IN", localOptions?.model);
+        /*console.log("Agent", this.name, "TC", localOptions?.isToolCall, localOptions?.model);
+        console.log("ptc:", options?.propagateModel);
+        console.log("pic", options?.propagateInferParams);
+        console.log("SPEC", this?.spec);*/
         if (this?.spec) {
-            if (!localOptions?.model) {
-                if (!this?.spec) {
-                    throw new Error(`${this.name}: provide a model in agent spec or runtime options`)
-                }
-                //console.log("USE SPEC MODEL", this.spec.model);
-                localOptions.model = this.spec.model;
-            }
-            applyVariables(this.spec, localOptions);
+            // model
             if (!options?.isToolCall) {
-                localOptions.params = formatInferParams(this.spec.inferParams ?? {}, localOptions ?? {});
+                if (!localOptions?.model) {
+                    if (!this.spec?.model) {
+                        throw new Error(`${this.name}: provide a model in agent spec or runtime options`)
+                    }
+                    localOptions.model = this.spec.model;
+                }
             } else {
-                localOptions.params = this.spec.inferParams;
+                if (options?.propagateModel) {
+                    if (!localOptions?.model) {
+                        throw new Error(`${this.name}: subagent: no model provided in options while propagateModel is true`)
+                    }
+                } else {
+                    if (!this.spec?.model) {
+                        throw new Error(`${this.name}: provide a model in subagent spec or set propagateModel from main agent to true`)
+                    }
+                    localOptions.model = this.spec.model;
+                }
             }
+            // variables
+            applyVariables(this.spec, localOptions);
+            // infer params
+            if (!options?.isToolCall) {
+                if (!localOptions.params) {
+                    localOptions.params = this.spec.inferParams;
+                }
+                //localOptions.params = formatInferParams(this.spec.inferParams ?? {}, localOptions ?? {});
+            } else {
+                if (!options?.propagateInferParams) {
+                    localOptions.params = this.spec.inferParams;
+                }
+            }
+            //console.log("IPOPTS", localOptions?.params);
+            //console.log("SPECOPTS", this?.spec?.name, this?.spec?.inferParams);
+            // prompt
             finalPrompt = this.spec.prompt.replace("{prompt}", prompt);
             if (this.spec?.description) {
                 localOptions.isToolsRouter = this.spec.description.includes("routing agent")

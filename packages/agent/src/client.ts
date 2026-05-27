@@ -332,7 +332,7 @@ class Lm implements LmProvider {
                 //return_progress: true,
             };
             if (localOptions?.debug) {
-                console.log(`${options?.agentName} ${ip.model} request ---------`);
+                console.log(`-------- ${options?.agentName} [${ip.model}] -------`);
                 //console.log("Model:", ip.model);
                 if (inferenceParams) {
                     let kvparams = new Array<any>();
@@ -340,12 +340,22 @@ class Lm implements LmProvider {
                         kvparams.push(k, v);
                     }
                     console.log("Inference params:", ...kvparams);
-                    console.log("Options:", options);
+                    if (localOptions?.variables) {
+                        console.log("Variables:", localOptions?.variables);
+                    }
+                    if (localOptions?.tools) {
+                        const t = localOptions.tools.map(_t => _t.name);
+                        console.log("Tools:", t)
+                    }
+                    if (localOptions?.isToolsRouter) {
+                        console.log("Tool router:", localOptions.isToolsRouter)
+                    }
                 }
                 if (localOptions?.history && localOptions.history.length > 0) {
-                    console.log(`History: ---------`);
+                    console.log(`-------------------- History -----------------------`);
                     displayMessagesHistory(msgs)
                 } else {
+                    console.log(`-------------------- History -----------------------`);
                     if (localOptions?.system) {
                         console.log(0, "SYSTEM:", formatLimitTxt(localOptions.system));
                     }

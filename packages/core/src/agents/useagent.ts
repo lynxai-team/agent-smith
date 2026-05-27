@@ -20,8 +20,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
     const localOptions = Object.assign({}, options);
     const { agentSpec, vars, mcpServers, agentDir } = await readAgent(name, payload, localOptions, agent);
     agent.spec = agentSpec;
-    //const taskPayload = { ...payload, ...vars };
-    //console.log("PAY", taskPayload);
+    //console.log("USE AGENT SPEC", agent.spec);
     let settings: AgentSettings = {};
 
     const execute = async (): Promise<InferenceResult> => {
@@ -48,11 +47,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
         /*if (localOptions?.debug || localOptions?.backend) {
             console.log("Agent:", color.bold(agent.name));
         }*/
-        if (localOptions?.isToolCall) {
-            localOptions.model = agentSpec.model;
-        }
-        if (!localOptions?.model) {
-            localOptions.model = agentSpec.model;
+        if (!localOptions?.model && !localOptions?.isToolCall) {
             if (hasSettings) {
                 if (settings?.model) {
                     localOptions.model = settings.model;
@@ -74,7 +69,13 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
         if (!localOptions?.params) {
             localOptions.params = {}
         }
-        if (hasSettings) {
+        let applySettings = hasSettings;
+        if (localOptions?.isToolCall) {
+            if (!localOptions?.propagateInferParams) {
+                applySettings = false;
+            }
+        }
+        if (applySettings) {
             if (settings?.max_tokens && !localOptions?.params?.max_tokens) {
                 localOptions.params.max_tokens = settings.max_tokens;
             }
@@ -98,6 +99,9 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
             }
             if (settings?.frequency_penalty && !localOptions?.params?.frequency_penalty) {
                 localOptions.params.frequency_penalty = settings.frequency_penalty;
+            }
+            if (settings?.chat_template_kwargs && !localOptions?.params?.chat_template_kwargs) {
+                localOptions.params.chat_template_kwargs = settings.chat_template_kwargs;
             }
         }
         //console.log("TASK MODEL", model);

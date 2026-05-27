@@ -100,6 +100,7 @@ interface ServerParams extends AllCallbacks {
  * const msgType: WsServerMsgType = 'token';
  */
 type WsServerMsgType = 'error'
+    | 'startemit'
     | 'token'
     | 'thinkingtoken'
     | 'turnstart'
