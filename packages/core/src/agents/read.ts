@@ -15,7 +15,7 @@ import { applyFilePlaceholders } from "./files.js";
 //import { confirmToolUsage } from "../tools.js";
 
 async function readAgent(
-    name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions & Record<string, any>, agent: Agent
+    name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions & Record<string, any>
 ): Promise<{
     agentSpec: AgentSpec;
     vars: Record<string, any>;
@@ -28,6 +28,9 @@ async function readAgent(
     const { agentSpec, agentPath } = openAgentSpec(name);
     //console.log("Agent vars:", agentSpec?.variables);
     const agentDir = path.dirname(agentPath);
+    if (!options?.backend && agentSpec?.backend) {
+        options.backend = agentSpec.backend;
+    }
     let ip: InferenceParams = {};
     if (!options?.isToolCall) {
         if (options?.params) {

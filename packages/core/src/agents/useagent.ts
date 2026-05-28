@@ -1,4 +1,4 @@
-import { Agent } from "@agent-smith/agent";
+import { Agent, type Lm } from "@agent-smith/agent";
 import type { AgentInferenceOptions, AgentSettings, InferenceResult } from "@agent-smith/types";
 import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
 import { backend, backends, listBackends } from "../state/backends.js";
@@ -9,51 +9,76 @@ import { runtimeDataError, runtimeError } from "../utils/user_msgs.js";
 import { readAgent } from "./read.js";
 
 const useAgentExecutor = async (name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions) => {
-    if (!backend.value) {
-        throw new Error("no backend set")
+    const localOptions = Object.assign({}, options);
+    const { agentSpec, vars, mcpServers, agentDir } = await readAgent(name, payload, localOptions);
+    if (!isAgentSettingsInitialized.value) {
+        initAgentSettings()
     }
+    const hasSettings = Object.keys(agentSettings).includes(name);
+    let settings: AgentSettings = {};
+    // backend
+    let backendName = "";
+    if (hasSettings) {
+        settings = agentSettings[name]
+    }
+    //console.log("EA OPTS", localOptions);
+    if (!localOptions?.isToolCall) {
+        if (localOptions?.backend) {
+            backendName = localOptions.backend
+        } else if (settings?.backend) {
+            //console.log("SET AGENT BACKEND TO", backends[localOptions.backend]);
+            backendName = settings.backend
+        } else {
+            if (agentSpec?.backend) {
+                backendName = agentSpec.backend
+            }
+        }
+        if (!backend.value?.name) {
+            throw new Error(`${name} agent executor: set a backend in agent spec of options`)
+        }
+        // use default backend
+        backendName = backend.value?.name;
+    } else {
+        if (localOptions?.propagateModel) {
+            if (!localOptions?.backend) {
+                throw new Error(`${name} agent executor: set a backend in options if propagateModel is false`)
+            }
+            backendName = localOptions.backend
+        } else {
+            if (!agentSpec?.backend) {
+                throw new Error(`${name} agent executor: set a backend in agent spec to use propagateModel`)
+            } else {
+                backendName = agentSpec.backend
+            }
+        }
+    }
+    if (!(backendName in backends)) {
+        const bks = await listBackends(false);
+        runtimeDataError(`The backend ${backendName} is not registered in config. Available backends:\n`, bks)
+        throw new Error()
+    }
+    /*if (localOptions?.debug || localOptions?.backend) {
+        console.log("Agent:", color.bold(agent.name));
+    }*/
+    if (backendName.length == 0) {
+        throw new Error(`${name} agent executor: no backend set in options`)
+    }
+    // check setting for backend
     const agent = new Agent({
         name: name,
-        lm: backend.value,
-    });
-
-    const localOptions = Object.assign({}, options);
-    const { agentSpec, vars, mcpServers, agentDir } = await readAgent(name, payload, localOptions, agent);
-    agent.spec = agentSpec;
+        lm: backends[backendName],
+    }, agentSpec);
     //console.log("USE AGENT SPEC", agent.spec);
-    let settings: AgentSettings = {};
+    if (!localOptions?.model) {
+        if (hasSettings) {
+            if (settings?.model) {
+                localOptions.model = settings.model;
+            }
+        }
+    }
 
     const execute = async (): Promise<InferenceResult> => {
         //console.log("EXEC AGENT OPTS", localOptions);
-        if (!isAgentSettingsInitialized.value) {
-            initAgentSettings()
-        }
-        const hasSettings = Object.keys(agentSettings).includes(name);
-        if (hasSettings) {
-            settings = agentSettings[name]
-        }
-        if (localOptions?.backend) {
-            if (localOptions.backend in backends) {
-                agent.lm = backends[localOptions.backend]
-                //console.log("SET AGENT BACKEND TO", backends[localOptions.backend]);
-            } else {
-                const bks = await listBackends(false);
-                runtimeDataError(`The backend ${localOptions.backend} is not registered in config. Available backends:\n`, bks)
-            }
-        } else if (settings?.backend) {
-            //console.log("SET AGENT BACKEND TO", backends[localOptions.backend]);
-            agent.lm = backends[settings.backend]
-        }
-        /*if (localOptions?.debug || localOptions?.backend) {
-            console.log("Agent:", color.bold(agent.name));
-        }*/
-        if (!localOptions?.model && !localOptions?.isToolCall) {
-            if (hasSettings) {
-                if (settings?.model) {
-                    localOptions.model = settings.model;
-                }
-            }
-        }
         if (localOptions?.verbosity?.mcp && mcpServers.length > 0) {
             console.log("Starting", mcpServers.length, "mcp servers")
         }
@@ -300,11 +325,11 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 runtimeWarning("Error formating stats:", `${e}`)
             }
         }*/
-        if (localOptions?.backend || settings?.backend) {
+        /*if (localOptions?.backend || settings?.backend) {
             //console.log("SET BACK AGENT BACKEND TO", backend.value);
             // set back the default backend
             agent.lm = backend.value!;
-        }
+        }*/
         //console.log("TASK OUT", out);
         //console.log("TASK A", agent);
         return out
