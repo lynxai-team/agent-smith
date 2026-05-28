@@ -105,17 +105,24 @@ class Agent {
                     localOptions.model = this.spec.model;
                 }
             } else {
+                if (!options?.propagateModel) {
+                    if (!this.spec?.model) {
+                        throw new Error(`${this.name} subagent: provide a model in subagent spec or set propagateModel from main agent to true`)
+                    }
+                }
+            }
+            if (options?.isToolCall) {
                 if (options?.propagateModel) {
+                    // model check
                     if (!localOptions?.model) {
                         throw new Error(`${this.name}: subagent: no model provided in options while propagateModel is true`)
                     }
-                } else {
-                    if (!this.spec?.model) {
-                        throw new Error(`${this.name}: provide a model in subagent spec or set propagateModel from main agent to true`)
-                    }
-                    localOptions.model = this.spec.model;
                 }
             }
+            /*console.log("A", this.name, "TC", localOptions?.isToolCall, "P", localOptions?.propagateModel);
+            console.log("M", localOptions?.model);
+            console.log("B", localOptions?.backend);
+            console.log("ASB", this?.spec?.backend);*/
             // variables
             applyVariables(this.spec, localOptions);
             // infer params

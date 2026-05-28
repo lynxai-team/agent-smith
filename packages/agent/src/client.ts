@@ -332,7 +332,7 @@ class Lm implements LmProvider {
                 //return_progress: true,
             };
             if (localOptions?.debug) {
-                console.log(`-------- ${options?.agentName} [${ip.model}] -------`);
+                console.log(`-------- ${localOptions?.agentName} [${ip.model}] ${localOptions?.backend ?? "no backend in options"} -------`);
                 //console.log("Model:", ip.model);
                 if (inferenceParams) {
                     let kvparams = new Array<any>();
