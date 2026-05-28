@@ -1,4 +1,4 @@
-import type { WsClientMsg, FeatureType, ToolCallSpec, WsRawServerMsg, ServerParams, InferenceResult } from "@agent-smith/types";
+import type { WsClientMsg, FeatureType, ToolCallSpec, WsRawServerMsg, ServerParams, InferenceResult, PromptProcessingInProgressStats } from "@agent-smith/types";
 import type { HistoryTurn } from "@agent-smith/types";
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
@@ -39,6 +39,12 @@ const useWsServer = (params: ServerParams) => {
                     console.error(from, msg)
                 }
                 break;
+            case "startemit":
+                if (params?.onStartEmit) {
+                    const m = JSON.parse(msg) as PromptProcessingInProgressStats;
+                    params.onStartEmit(m, from)
+                }
+                break
             case "token":
                 if (params?.onToken) {
                     params.onToken(msg, from);
