@@ -91,6 +91,7 @@ interface InferenceOptions {
     debug?: boolean;
     verbose?: boolean;
     model?: string;
+    backend?: string;
     tools?: Array<ToolSpec>;
     history?: Array<HistoryTurn>;
     system?: string;

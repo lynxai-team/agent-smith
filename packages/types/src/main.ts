@@ -53,7 +53,8 @@ import {
     AgentVariableDef,
     AgentVariables,
     TemplateSpec,
-    UserAgentVariables
+    UserAgentVariables,
+    AgentWorkflow,
 } from "./agent.js";
 import {
     ToolCallSpec,
@@ -203,4 +204,5 @@ export type {
     UiHistoryTurnType,
     InferenceStats,
     SamplingPreset,
+    AgentWorkflow,
 }
