@@ -9,6 +9,14 @@ function buildCallbacks(msg: WsClientMsg, ctx: Context,
     if (!msg?.options) {
         msg.options = {}
     }
+    msg.options.onStartEmit = (p: PromptProcessingProgress, from: string) => {
+        const rsm: WsRawServerMsg = {
+            type: "startemit",
+            from: from,
+            msg: JSON.stringify(p),
+        }
+        ctx.websocket.send(JSON.stringify(rsm));
+    };
     msg.options.onThinkingToken = (t: string, from: string) => {
         const rsm: WsRawServerMsg = {
             type: "thinkingtoken",
@@ -83,7 +91,6 @@ function buildCallbacks(msg: WsClientMsg, ctx: Context,
         }
         ctx.websocket.send(JSON.stringify(rsm));
     };
-
     msg.options.onToolCallToken = (t: string, from: string) => {
         const rsm: WsRawServerMsg = {
             type: "toolcalltoken",
