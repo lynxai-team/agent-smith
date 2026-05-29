@@ -115,7 +115,7 @@ const state = {
 }
 
 export {
-    backend, db, fs, conf, utils, state,
+    db, fs, conf, utils, state,
     executeAction,
     executeWorkflow,
     getAgentPrompt,
