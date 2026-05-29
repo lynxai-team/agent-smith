@@ -1,17 +1,25 @@
-import { backend } from '@agent-smith/core';
+import { state } from '@agent-smith/core';
 import { db } from '@agent-smith/core';
 import type { ModelInfo, SamplingPreset } from '@agent-smith/types';
 import type Router from '@koa/router';
 import type { Next, Context } from 'koa';
 
 function getModelsRoute(r: Router) {
-    r.get('/models', async (ctx: Context, next: Next) => {
+    r.get('/models/:backend', async (ctx: Context, next: Next) => {
+        const backend = ctx.params?.backend;
+        if (!Object.keys(state.backends).includes(backend)) {
+            ctx.body = `backend ${backend} not found in config`;
+            ctx.status = 400
+        }
+        const b = state.backends[backend];
+        //console.log("MB", backend, "/", b);
+        //console.log("SB", state.backends);
         let mi = new Array<ModelInfo>();
         try {
-            mi = await backend.value?.modelsInfo() ?? [];
+            mi = await b.modelsInfo() ?? [];
             //console.log("M", mi);
         } catch (e) {
-            ctx.body = "error reading the models";
+            ctx.body = `error reading the models from backend ${backend}\n${e}`;
             ctx.status = 502;
             return
         }
@@ -21,11 +29,12 @@ function getModelsRoute(r: Router) {
 }
 
 function getModelsPresetsRoute(r: Router) {
-    r.get('/models/presets', async (ctx: Context, next: Next) => {
+    r.get('/models/presets/read', async (ctx: Context, next: Next) => {
         let mp = new Array<SamplingPreset>();
         try {
+            //console.log("READ SP");
             mp = db.readSamplingPresets()
-            //console.log("M", mi);
+            //console.log("M", mp);
         } catch (e) {
             ctx.body = "error reading the models presets";
             ctx.status = 502;
