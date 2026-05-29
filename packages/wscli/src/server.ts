@@ -159,8 +159,8 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         await ws.cancel()
     }
 
-    const loadModels = async (): Promise<Record<string, ModelInfo>> => {
-        const res = await api.get<Array<ModelInfo>>("/models");
+    const loadModels = async (backend: string): Promise<Record<string, ModelInfo>> => {
+        const res = await api.get<Array<ModelInfo>>(`/models/${backend}`);
         //console.log("SMODELS", res.data);
         if (!res.ok) {
             throw new Error("can not load models")
@@ -171,7 +171,7 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
     }
 
     const loadSamplingPresets = async (): Promise<Record<string, SamplingPreset>> => {
-        const res = await api.get<Array<SamplingPreset>>("/models/presets");
+        const res = await api.get<Array<SamplingPreset>>("/models/presets/read");
         //console.log("SMODELS", res.data);
         if (!res.ok) {
             throw new Error("can not load model presets")
