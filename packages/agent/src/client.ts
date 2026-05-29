@@ -332,7 +332,7 @@ class Lm implements LmProvider {
                 //return_progress: true,
             };
             if (localOptions?.debug) {
-                console.log(`-------- ${localOptions?.agentName} [${ip.model}] ${localOptions?.backend ?? "no backend in options"} -------`);
+                console.log(`-------- ${localOptions?.agentName} [${ip.model}] ${this.name} -------`);
                 //console.log("Model:", ip.model);
                 if (inferenceParams) {
                     let kvparams = new Array<any>();
@@ -430,9 +430,9 @@ class Lm implements LmProvider {
                                 events.onPromptProcessingProgress(pr, this.name);
                             }
                         }
-                        if (i == 1) {
+                        if (i == 1 && !payload?.prompt_progress) {
                             if (events.onStartEmit) {
-                                events.onStartEmit(calcPromptProcessingProgress(promptProcessingStats), this.name)
+                                events.onStartEmit(calcPromptProcessingProgress(promptProcessingStats), localOptions?.agentName ?? this.name)
                             }
                         }
                         if (events.onToken) {
@@ -555,7 +555,9 @@ class Lm implements LmProvider {
 
                                 }
                             }
-                            ++i
+                            if (payload?.prompt_progress) {
+                                ++i
+                            }
                             for (const [k, v] of Object.entries(modelRawToolCalls)) {
                                 let args: any;
                                 try {

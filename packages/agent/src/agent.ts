@@ -91,10 +91,8 @@ class Agent {
             });
         }
         let finalPrompt = prompt;
-        /*console.log("Agent", this.name, "TC", localOptions?.isToolCall, localOptions?.model);
-        console.log("ptc:", options?.propagateModel);
-        console.log("pic", options?.propagateInferParams);
-        console.log("SPEC", this?.spec);*/
+        //console.log("Agent", this.name, "OPTS", localOptions);
+        //console.log("Agent", this.name, "SPEC", this.spec);
         if (this?.spec) {
             // model
             if (!options?.isToolCall) {
@@ -109,14 +107,7 @@ class Agent {
                     if (!this.spec?.model) {
                         throw new Error(`${this.name} subagent: provide a model in subagent spec or set propagateModel from main agent to true`)
                     }
-                }
-            }
-            if (options?.isToolCall) {
-                if (options?.propagateModel) {
-                    // model check
-                    if (!localOptions?.model) {
-                        throw new Error(`${this.name}: subagent: no model provided in options while propagateModel is true`)
-                    }
+                    localOptions.model = this.spec.model;
                 }
             }
             /*console.log("A", this.name, "TC", localOptions?.isToolCall, "P", localOptions?.propagateModel);
@@ -159,9 +150,6 @@ class Agent {
         prompt: string,
         localOptions: AgentInferenceOptions,
     ) {
-        if (this?.onTurnStart) {
-            this.onTurnStart(this.name)
-        }
         const verbosity: VerbosityOptions = localOptions?.verbosity ?? { events: true };
         //console.log("START RUN AGENT", this.name);
         const clientEvents: InferenceCallbacks = {
@@ -180,9 +168,13 @@ class Agent {
             onToolCallEnd: localOptions?.onToolCallEnd ?? this.onToolCallEnd,
             onToolsTurnStart: localOptions?.onToolsTurnStart ?? this.onToolsTurnStart,
             onToolsTurnEnd: localOptions?.onToolsTurnEnd ?? this.onToolsTurnEnd,
+            onTurnStart: localOptions?.onTurnStart ?? this.onTurnStart,
             onTurnEnd: localOptions?.onTurnEnd ?? this.onTurnEnd,
             onAssistant: localOptions?.onAssistant ?? this.onAssistant,
             onThink: localOptions?.onThink ?? this.onThink,
+        }
+        if (events?.onTurnStart) {
+            events.onTurnStart(this.name)
         }
         const baseOpts = {
             ...localOptions,
