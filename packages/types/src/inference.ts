@@ -174,6 +174,7 @@ interface PromptProcessingProgress {
     cache: number;
     processed: number;
     time_ms: number;
+    tps: number;
 }
 
 interface PromptProcessingInProgressStats extends PromptProcessingProgress {
