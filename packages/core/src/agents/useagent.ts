@@ -7,6 +7,7 @@ import { processOutput } from "../utils/io.js";
 import { usePerfTimer } from "../utils/perf.js";
 import { runtimeDataError, runtimeError } from "../utils/user_msgs.js";
 import { readAgent } from "./read.js";
+import { toRaw } from "@vue/reactivity";
 
 const useAgentExecutor = async (name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions) => {
     const localOptions = Object.assign({}, options);
@@ -24,31 +25,46 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
     //console.log("EA OPTS", localOptions);
     if (!localOptions?.isToolCall) {
         if (localOptions?.backend) {
+            //console.log("BK from options", localOptions.backend);
             backendName = localOptions.backend
         } else if (settings?.backend) {
-            //console.log("SET AGENT BACKEND TO", backends[localOptions.backend]);
+            //console.log("BK from settings", settings.backend);
             backendName = settings.backend
-        } else {
+        } else
             if (agentSpec?.backend) {
+                //console.log("BK from spec", agentSpec.backend);
                 backendName = agentSpec.backend
+
+            } else {
+                // fallback to default backend
+                if (!backend.value?.name) {
+                    const m = `${name} agent executor: no default backend set`;
+                    console.error(m);
+                    throw new Error(m)
+                }
+                //console.log("BK from default", backend.value.name);
+                // use default backend
+                backendName = backend.value.name;
             }
-        }
-        if (!backend.value?.name) {
-            throw new Error(`${name} agent executor: set a backend in agent spec of options`)
-        }
-        // use default backend
-        backendName = backend.value?.name;
     } else {
         if (localOptions?.propagateModel) {
             if (!localOptions?.backend) {
-                throw new Error(`${name} agent executor: set a backend in options if propagateModel is false`)
+                const m = `${name} agent executor: set a backend in options if propagateModel is false`;
+                console.error(m);
+                throw new Error(m)
             }
             backendName = localOptions.backend
         } else {
-            if (!agentSpec?.backend) {
-                throw new Error(`${name} agent executor: set a backend in agent spec to use propagateModel`)
-            } else {
+            if (agentSpec?.backend) {
                 backendName = agentSpec.backend
+            } else {
+                // if not specified use the default backend
+                if (!backend.value) {
+                    const m = `${name} agent executor: no default backend or agent spec backend specified for propagateModel false.`;
+                    console.error(m, "Default backend:", toRaw(backend), "Backends:", toRaw(backends));
+                    throw new Error(m)
+                }
+                backendName = backend.value.name
             }
         }
     }
@@ -57,18 +73,18 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
         runtimeDataError(`The backend ${backendName} is not registered in config. Available backends:\n`, bks)
         throw new Error()
     }
-    /*if (localOptions?.debug || localOptions?.backend) {
-        console.log("Agent:", color.bold(agent.name));
+    /*if (localOptions?.debug) {
+        console.log("Agent executor:", name, "backend:", backendName);
     }*/
     if (backendName.length == 0) {
         throw new Error(`${name} agent executor: no backend set in options`)
     }
-    // check setting for backend
+    // check setting for backend    
     const agent = new Agent({
         name: name,
         lm: backends[backendName],
     }, agentSpec);
-    //console.log("USE AGENT SPEC", agent.spec);
+    //console.log("AGENT BK", backends[backendName], "\nagb:", agent.lm.name)
     if (!localOptions?.model) {
         if (hasSettings) {
             if (settings?.model) {
