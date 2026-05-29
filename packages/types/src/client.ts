@@ -3,7 +3,8 @@ import type { ConfigFile } from "./conf.js";
 import type { AgentInferenceOptions, SamplingPreset } from "./inference.js";
 import type { ToolDefSpec } from "./tools.js";
 import type { Workspace } from "./workspace.js";
-import type { AgentSpec, UserAgentVariables } from "./agent.js";
+import type { AgentSettings, AgentSpec, UserAgentVariables } from "./agent.js";
+import type { ModelInfo } from "./model.js";
 
 interface ClientFeaturesOptions extends AgentInferenceOptions {
     backend?: string;
@@ -17,8 +18,8 @@ interface ClientFeaturesService {
     variables: Reactive<UserAgentVariables>;
     //inferOptions: Reactive<{ params: InferenceParams, model: string }>;
     mcp: Reactive<{ servers: Record<string, any> }>;
-    loadModels: () => Promise<Record<string, any>>;
-    loadAgentSettings: () => Promise<Record<string, Record<string, any>>>;
+    loadModels: () => Promise<Record<string, ModelInfo>>;
+    loadAgentSettings: () => Promise<Record<string, AgentSettings>>;
     load: (name: string, isAgent?: boolean) => Promise<void>;
     loadWorkflow: (name: string) => Promise<Record<string, any>>;
     loadBackends: () => Promise<Record<string, any>>;

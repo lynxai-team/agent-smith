@@ -157,7 +157,7 @@ interface AgentState {
     uihistory: Array<UiHistoryTurn>,
     history: Array<HistoryTurn>,
     models: Record<string, ModelInfo>,
-    agentsSettings: Record<string, Record<string, any>>,
+    agentsSettings: Record<string, AgentSettings>,
     backends: Record<string, Record<string, any>>,
     currentFeature: { name: string, type: string },
     currentWorkspace: Workspace;
