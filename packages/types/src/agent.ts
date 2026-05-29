@@ -6,6 +6,7 @@ import type { InferenceParams, PromptProcessingInProgressStats, SamplingPreset }
 import type { ModelInfo } from "./model.js";
 import type { ToolSpec } from "./tools.js";
 import type { Workspace } from "./workspace.js";
+import type { InferenceBackend } from "./conf.js";
 
 /**
  * Settings for a agent configuration.
@@ -156,9 +157,9 @@ interface AgentState {
     hasConfig: boolean,
     uihistory: Array<UiHistoryTurn>,
     history: Array<HistoryTurn>,
-    models: Record<string, ModelInfo>,
+    models: Record<string, Record<string, ModelInfo>>,
     agentsSettings: Record<string, AgentSettings>,
-    backends: Record<string, Record<string, any>>,
+    backends: Record<string, InferenceBackend>,
     currentFeature: { name: string, type: string },
     currentWorkspace: Workspace;
     currentModel: ModelInfo;

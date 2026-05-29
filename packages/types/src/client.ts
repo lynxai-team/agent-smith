@@ -18,7 +18,7 @@ interface ClientFeaturesService {
     variables: Reactive<UserAgentVariables>;
     //inferOptions: Reactive<{ params: InferenceParams, model: string }>;
     mcp: Reactive<{ servers: Record<string, any> }>;
-    loadModels: () => Promise<Record<string, ModelInfo>>;
+    loadModels: (backend: string) => Promise<Record<string, ModelInfo>>;
     loadAgentSettings: () => Promise<Record<string, AgentSettings>>;
     load: (name: string, isAgent?: boolean) => Promise<void>;
     loadWorkflow: (name: string) => Promise<Record<string, any>>;
