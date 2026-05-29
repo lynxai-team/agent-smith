@@ -400,7 +400,6 @@ class Lm implements LmProvider {
             }
             let buf = new Array<string>();
             const reader = response.body.getReader();
-            let i = 1;
             let accumulatedToolCalls: Array<{
                 id: string;
                 function: {
@@ -416,8 +415,10 @@ class Lm implements LmProvider {
                 "total": 0,
                 "cache": 0,
                 "processed": 0,
-                "time_ms": 0
+                "time_ms": 0,
+                "tps": 0,
             };
+            let i = 1;
             const parser = createParser({
                 onEvent: (event) => {
                     const done = event.data === '[DONE]';
@@ -426,7 +427,9 @@ class Lm implements LmProvider {
                         //console.log("PL", this?.onPromptProcessingProgress, payload);
                         if (events?.onPromptProcessingProgress) {
                             if (payload?.prompt_progress) {
-                                const pr = calcPromptProcessingProgress(payload.prompt_progress as PromptProcessingProgress);
+                                const rpr = payload.prompt_progress as PromptProcessingProgress;
+                                const pr = calcPromptProcessingProgress(rpr);
+                                promptProcessingStats = rpr;
                                 events.onPromptProcessingProgress(pr, this.name);
                             }
                         }
@@ -555,9 +558,6 @@ class Lm implements LmProvider {
 
                                 }
                             }
-                            if (payload?.prompt_progress) {
-                                ++i
-                            }
                             for (const [k, v] of Object.entries(modelRawToolCalls)) {
                                 let args: any;
                                 try {
@@ -582,7 +582,9 @@ class Lm implements LmProvider {
                         if (payload?.timings) {
                             serverStats = payload.timings
                         }
-                        ++i
+                        if (!payload?.prompt_progress) {
+                            ++i
+                        }
                     } else {
                         reader.cancel();
                         return;

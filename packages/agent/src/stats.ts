@@ -37,12 +37,14 @@ function calcPromptProcessingProgress(progress: PromptProcessingProgress): Promp
     const { total, processed, cache, time_ms } = progress;
     const percent_progress = total === 0 ? 0 : (processed / total) * 100;
     const percent_cache = total === 0 ? 0 : (cache / total) * 100;
+    const tps = (total / time_ms) * 1000;
     const time_humanized = formatDuration(time_ms);
     return {
         ...progress,
         percent_cache,
         percent_progress,
         time_humanized,
+        tps,
     }
 }
 
