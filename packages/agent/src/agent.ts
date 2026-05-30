@@ -248,7 +248,15 @@ class Agent {
                         let toolCallResult: any;
                         let ok = false;
                         try {
-                            toolCallResult = await tool.execute(tc.arguments);
+                            const tlo = Object.assign({}, localOptions);
+                            let toolCallArgs: {
+                                [key: string]: any
+                            } & { toolOptions?: AgentInferenceOptions } | undefined = { ...tc.arguments };
+                            if (tool.type == "agent") {
+                                tlo.history = [];
+                                toolCallArgs.toolOptions = tlo;
+                            }
+                            toolCallResult = await tool.execute(toolCallArgs);
                             //console.log("TCR*******", toolCallResult)
                             //console.log("*************")
                             ok = true;
@@ -323,6 +331,10 @@ class Agent {
                 events.onToolsTurnEnd(toolsResults, this.name);
             }
             const ht: HistoryTurn = { tools: toolsResults, stats: convertStats(res.stats) };
+            console.log(this.name, it, localOptions?.isToolCall, it == 1 && !localOptions?.isToolCall);
+            /*if (it > 1 && !localOptions?.isToolCall) {
+                ht.user = prompt
+            }*/
             if (res.thinkingText) {
                 ht.think = res.thinkingText
             }
@@ -349,7 +361,7 @@ class Agent {
                 }
                 return fres
             }
-            const nit = it + 1;
+
             /*if (nit > 1 && localOptions?.debug) {
                 localOptions.debug = false;
                 localOptions.verbose = true;
@@ -366,11 +378,14 @@ class Agent {
             localOptions.history = this.history;
             //console.log("END LOOP HIST", this.name + ":");
             //console.dir(this.history, { depth: 6 });
-            _res = await this._runAgent(nit, "", localOptions);
+            _res = await this._runAgent(it + 1, "", localOptions);
             //console.log("END RUN AGENT TC", this.name);
         } else {
             //console.log("END RUN AGENT NO TC", this.name);
             const turn: HistoryTurn = { assistant: res.text, stats: convertStats(res.stats) };
+            if (it == 1 && !localOptions?.isToolCall) {
+                turn.user = prompt
+            }
             if (res?.thinkingText) {
                 turn.think = res.thinkingText
             }

@@ -194,23 +194,21 @@ async function readAgent(
                 ...tool,
                 execute: async (params) => {
                     //console.log("EXEC TOOL:", type, toolName, params);
+                    const toolOpts = params?.toolOptions ? params.toolOptions : { ...options };
+                    toolOpts.isToolCall = true;
                     switch (tool.type) {
                         case "action":
-                            const res = await executeAction(toolName, params as { prompt: string & Record<string, any> }, options, quiet);
+                            const res = await executeAction(toolName, params as { prompt: string & Record<string, any> }, toolOpts, quiet);
                             return res
                         case "agent":
-                            options.isToolCall = true;
-                            const agres = await executeAgent(toolName, params as { prompt: string & Record<string, any> }, options);
-                            options.isToolCall = false;
+                            const agres = await executeAgent(toolName, params as { prompt: string & Record<string, any> }, toolOpts);
                             //console.log("WFTRESP", tres.answer.text);
                             if (agres?.text) {
                                 return agres.text
                             }
                             return agres
                         case "workflow":
-                            options.isToolCall = true;
-                            const wres = await executeWorkflow(toolName, params, options);
-                            options.isToolCall = false;
+                            const wres = await executeWorkflow(toolName, params, toolOpts);
                             return wres
                         default:
                             throw new Error(`unknown tool execution function type: ${tool.type} for ${toolName}`)

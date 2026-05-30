@@ -229,7 +229,7 @@ class Lm implements LmProvider {
         if (localOptions?.history) {
             msgs = buildMessagesHistory(localOptions.history, localOptions);
         }
-        //console.log("CLIENT HIST OUT", msgs);
+        //console.log("\nCLIENT HIST OUT", localOptions?.agentName ?? this.name, localOptions?.isToolCall, msgs);
         //console.log("AGENT IP", inferenceParams);
         if (inferenceParams?.images) {
             const usermsgs = new Array<ChatCompletionContentPart>();
@@ -332,7 +332,7 @@ class Lm implements LmProvider {
                 //return_progress: true,
             };
             if (localOptions?.debug) {
-                console.log(`-------- ${localOptions?.agentName} [${ip.model}] ${this.name} -------`);
+                console.log(`\n-------- ${localOptions?.agentName} [${ip.model}] ${this.name} -------`);
                 //console.log("Model:", ip.model);
                 if (inferenceParams) {
                     let kvparams = new Array<any>();
@@ -352,10 +352,10 @@ class Lm implements LmProvider {
                     }
                 }
                 if (localOptions?.history && localOptions.history.length > 0) {
-                    console.log(`-------------------- History -----------------------`);
+                    console.log(`-------------------- History ${localOptions?.agentName} -----------------------`);
                     displayMessagesHistory(msgs)
                 } else {
-                    console.log(`-------------------- History -----------------------`);
+                    console.log(`-------------------- History ${localOptions?.agentName} -----------------------`);
                     if (localOptions?.system) {
                         console.log(0, "SYSTEM:", formatLimitTxt(localOptions.system));
                     }

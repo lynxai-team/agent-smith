@@ -1,3 +1,5 @@
+import type { AgentInferenceOptions } from "./inference.js";
+
 /**
  * Specification for a tool that can be used within the conversation.
  *
@@ -70,7 +72,10 @@ interface ToolDefSpec {
 interface ToolSpec extends ToolDefSpec {
     type: string;
     parallelCalls: boolean;
-    execute: <O = any>(args: { [key: string]: string; } | undefined) => Promise<O>;
+    execute: <O = any>(args: {
+        [key: string]: any
+    } & { toolOptions?: AgentInferenceOptions } | undefined
+    ) => Promise<O>;
     canRun?: (tool: ToolCallSpec) => Promise<boolean>;
 }
 
