@@ -23,7 +23,8 @@
  */
 
 import type { HistoryTurn, ToolTurn } from "./history.js";
-import type { InferenceResult, PromptProcessingInProgressStats, PromptProcessingProgress } from "./inference.js";
+import type { InferenceResult } from "./inference.js";
+import type { PromptProcessingInProgressStats } from "./stats.js";
 import type { ToolCallSpec } from "./tools.js";
 
 /**

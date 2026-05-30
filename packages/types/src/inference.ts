@@ -169,19 +169,7 @@ interface SamplingPreset {
     props?: Record<string, any>;
 }
 
-interface PromptProcessingProgress {
-    total: number;
-    cache: number;
-    processed: number;
-    time_ms: number;
-    tps: number;
-}
 
-interface PromptProcessingInProgressStats extends PromptProcessingProgress {
-    percent_progress: number;
-    percent_cache: number;
-    time_humanized: string;
-}
 
 export {
     AgentInferenceOptions,
@@ -189,8 +177,6 @@ export {
     InferenceOptions,
     InferenceParams,
     InferenceResult,
-    PromptProcessingProgress,
-    PromptProcessingInProgressStats,
     SamplingPreset,
 };
 

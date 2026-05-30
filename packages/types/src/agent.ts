@@ -2,11 +2,12 @@ import type { AllCallbacks } from "./callbacks.js";
 import type { LmProvider } from "./lm.js";
 import type { McpServerSpec } from "./core.js";
 import type { HistoryTurn, UiHistoryTurn } from "./history.js";
-import type { InferenceParams, PromptProcessingInProgressStats, SamplingPreset } from "./inference.js";
+import type { InferenceParams, SamplingPreset } from "./inference.js";
 import type { ModelInfo } from "./model.js";
 import type { ToolSpec } from "./tools.js";
 import type { Workspace } from "./workspace.js";
 import type { InferenceBackend } from "./conf.js";
+import type { PromptProcessingInProgressStats } from "./stats.js";
 
 /**
  * Settings for a agent configuration.

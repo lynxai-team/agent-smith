@@ -18,8 +18,6 @@ import {
     InferenceResult,
     AgentInferenceOptions,
     ClientInferenceOptions,
-    PromptProcessingProgress,
-    PromptProcessingInProgressStats,
     SamplingPreset,
 } from "./inference.js";
 import {
@@ -109,6 +107,8 @@ import {
 import {
     InferenceStats,
     PerformanceMetrics,
+    PromptProcessingProgress,
+    PromptProcessingInProgressStats,
 } from "./stats.js";
 import {
     ClientFeaturesOptions,

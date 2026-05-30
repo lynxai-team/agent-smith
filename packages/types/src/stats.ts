@@ -30,15 +30,31 @@ interface PerformanceMetrics {
     draft_n_accepted: number;
 }
 
-interface CtxStats {
+interface PromptProcessingProgress {
+    total: number;
+    cache: number;
+    processed: number;
+    time_ms: number;
+    tps: number;
+}
+
+interface PromptProcessingInProgressStats extends PromptProcessingProgress {
+    percent_progress: number;
+    percent_cache: number;
+    time_humanized: string;
+}
+
+/*interface CtxStats {
     total: number;
     consumedPercent: number;
     emittedTokens: number;
     tps: number;
     pps: number;
-}
+}*/
 
 export {
     InferenceStats,
     PerformanceMetrics,
+    PromptProcessingProgress,
+    PromptProcessingInProgressStats,
 }

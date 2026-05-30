@@ -1,7 +1,6 @@
 
 import type { ChatCompletionMessageToolCall, ChatCompletionRole } from "openai/resources/index.js";
-import type { PromptProcessingInProgressStats } from "./inference.js";
-import type { InferenceStats } from "./stats.js";
+import type { InferenceStats, PromptProcessingInProgressStats } from "./stats.js";
 import type { ToolCallSpec } from "./tools.js";
 
 interface HistoryTurn {
