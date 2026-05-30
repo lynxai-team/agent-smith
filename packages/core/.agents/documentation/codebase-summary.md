@@ -1,153 +1,51 @@
-# Agent Smith Core
+# @agent-smith/core
 
 ## Summary
+Central runtime engine for Agent Smith. Manages SQLite database (17 tables), configuration, feature discovery from filesystem directories, tool execution, MCP client integration, and reactive state management via Vue.
 
-Agent Smith Core is the central package of the Agent Smith framework, providing the foundation for building and executing AI agents. It manages configuration, database storage (SQLite), feature discovery (agents, actions, workflows, adaptaters, commands, skills), tool execution, MCP (Model Context Protocol) integration, and state management. The package serves as the runtime engine that orchestrates agent inference, tool calls, and workflow execution.
+## Dependencies
+- `@agent-smith/types` — all shared interfaces (`FeatureSpec`, `ToolSpec`, `AgentParams`, etc.).
+- External: `better-sqlite3`, `@vue/reactivity`, `python-shell`, `restmix`.
 
-## File Structure
+## Used By
+- `@agent-smith/cli` — for DB operations, config, feature loading, agent/workflow execution.
+- `server` — for DB access, configuration, and feature management.
 
-```
-src/
-├── main.ts                          # Main entry point - exports all public APIs
-├── conf.ts                          # Configuration management (paths, config file handling)
-├── const.ts                         # Constants (local backends defaults)
-├── mcp.ts                           # MCP client implementation for external tool servers
-├── tools.ts                         # Tool documentation extraction utilities
-├── updateconf.ts                    # Configuration and feature update commands
-├── actions/
-│   ├── cmd.ts                       # Action execution engine (JS, PY, YML)
-│   └── read.ts                      # JS action factory function
-├── adaptaters/
-│   └── cmd.ts                       # Adaptater execution (JS only)
-├── agents/
-│   ├── cmd.ts                       # Agent execution entry point
-│   ├── conf.ts                      # Inference parameters merging
-│   ├── files.ts                     # File placeholder resolution in agent specs
-│   ├── read.ts                      # Agent spec reading and tool setup
-│   └── useagent.ts                  # Agent executor with MCP, settings, streaming
-├── db/
-│   ├── db.ts                        # SQLite database initialization
-│   ├── schemas.ts                   # Database schema definitions (17 tables)
-│   ├── read.ts                      # Database read operations
-│   └── write.ts                     # Database write/upsert operations
-├── features/
-│   ├── adaptaters/prequery.ts       # (feature file)
-│   ├── agents/infer.yml             # (feature file)
-│   └── workflows/q.yml              # (feature file)
-├── state/
-│   ├── state.ts                     # Core state management (Vue reactivity)
-│   ├── features.ts                  # Feature discovery and spec reading
-│   ├── backends.ts                  # Inference backend management
-│   ├── plugins.ts                   # Plugin path resolution
-│   └── tasks.ts                     # Agent settings management
-├── utils/
-│   ├── io.ts                        # I/O utilities (clipboard, prompt files)
-│   ├── perf.ts                      # Performance timer utilities
-│   ├── text.ts                      # Text extraction utilities
-│   ├── user_msgs.ts                 # Runtime error/warning message helpers
-│   └── sys/
-│       ├── clipboard.ts             # Clipboard read/write operations
-│       ├── delete_file.ts           # File deletion utility
-│       ├── dirs.ts                  # Directory creation utility
-│       ├── execute.ts               # Shell command execution (spawn)
-│       ├── read.ts                  # File reading utilities
-│       ├── read_agent.ts            # Agent YAML file reading
-│       ├── read_cmds.ts             # User command module loading
-│       ├── read_conf.ts             # Config YAML file reading
-│       ├── read_features.ts         # Feature directory scanning
-│       ├── read_yml_file.ts         # Generic YAML file reading
-│       └── run_python.ts            # Python script execution wrapper
-└── workflows/
-    ├── cmd.ts                       # Workflow execution engine (multi-step)
-    └── read.ts                      # Workflow spec reading and parsing
-```
+## Entry Point
+- `src/main.ts` — Aggregates and exports all public APIs: DB ops, config, state, agent/action/workflow execution.
 
-## File Descriptions
+## Key Files
+| File | Purpose |
+|------|---------|
+| `src/conf.ts` | Configuration management: platform-specific paths, YAML config parsing, backend/feature/plugin processing |
+| `src/mcp.ts` | MCP (Model Context Protocol) client for external tool servers with authorization controls |
+| `src/tools.ts` | Tool documentation extraction from JS/Python/YAML files; parses `ToolSpec` and agent variables |
+| `src/updateconf.ts` | Orchestrates config updates: feature discovery, DB sync, config file processing |
+| `src/db/db.ts` | SQLite initialization via better-sqlite3; creates tables on first run |
+| `src/db/schemas.ts` | 17 table schemas: features, agents, workflows, actions, tools, backends, settings, workspaces, etc. |
+| `src/db/read.ts` | Read operations for all entities (features, backends, plugins, tools, settings, workspaces) |
+| `src/db/write.ts` | Write/upsert operations for all entities including feature management and backend config |
+| `src/agents/cmd.ts` | Agent execution entry point: generates prompt, delegates to `useagent.ts` |
+| `src/agents/read.ts` | Reads agent YAML specs, resolves variables, sets up MCP servers, loads tools |
+| `src/agents/useagent.ts` | Full agent executor: backend selection, inference params, grammar compilation, streaming, error handling |
+| `src/actions/cmd.ts` | Action execution engine: JavaScript (dynamic import), Python (python-shell), YAML (shell commands) |
+| `src/workflows/cmd.ts` | Multi-step workflow executor: chains agent/action/adaptater/cmd steps with result passing |
+| `src/state/state.ts` | Reactive state (Vue `ref`): modes, filepaths, data directory, initialization flow |
+| `src/state/features.ts` | Feature discovery: scans directories for agents/, workflows/, actions/, adaptaters/, cmds/, skills/ |
+| `src/state/backends.ts` | Inference backend management: init from config, probe connectivity, switch active backend |
 
-### Core Files
+## Architecture
+- **Feature-Based**: Agents, actions, workflows, adaptaters, commands, skills are "features" discovered from filesystem and registered in SQLite.
+- **Database-Driven Config**: SQLite stores all configuration, features, backends, settings. Features scanned from disk but looked up from DB.
+- **Reactive State**: Vue `ref`/`reactive` for cross-module state (no Redux).
+- **Tool Abstraction**: Actions, agents, workflows unified as `ToolSpec` — callable interchangeably in workflows and agent prompts.
+- **MCP Integration**: External tool servers via Model Context Protocol with authorization controls.
+- **Multi-Language Actions**: JS (ESM), Python (python-shell), YAML (shell commands).
+- **Workflow Orchestration**: YAML-defined pipelines chaining multiple step types with result passing.
+- **Backend Agnostic**: Multiple inference backends (OpenAI-compatible, local llamacpp) with per-agent selection.
 
-- **main.ts**: Main entry point that aggregates and exports all public APIs including database operations, filesystem helpers, configuration utilities, state management, and execution functions for agents, actions, and workflows.
-
-- **conf.ts**: Manages application configuration paths (platform-specific: Linux ~/.config, macOS ~/Library/Application Support, Windows %APPDATA%). Handles config file creation, parsing, and processing of backends, features, plugins, agents, and workspaces from YAML config.
-
-- **const.ts**: Defines default local inference backends (llamacpp with OpenAI-compatible API).
-
-- **mcp.ts**: Implements MCP (Model Context Protocol) client for connecting to external tool servers. Supports authorized tools, user-confirmation workflows, and dynamic tool extraction.
-
-- **tools.ts**: Extracts tool documentation from JS (/* */), Python (""" """), and YAML files. Parses tool specifications and agent variables.
-
-- **updateconf.ts**: Orchestrates configuration updates including feature discovery, database synchronization, and config file processing.
-
-### Database Layer (db/)
-
-- **db.ts**: Initializes SQLite database using better-sqlite3. Creates tables on first run.
-
-- **schemas.ts**: Defines 17 database tables: filepath, featurespath, plugin, agent, workflow, action, adaptater, skill, cmd, tool, aliases, backend, agentsettings, workspace, setting, modelpreset.
-
-- **read.ts**: Read operations for all entities - features, backends, plugins, tools, settings, workspaces, sampling presets.
-
-- **write.ts**: Write/upsert operations for all entities including feature management, backend configuration, agent settings, and workspace management.
-
-### Agent System (agents/)
-
-- **cmd.ts**: Entry point for agent execution. Generates prompt and delegates to useagent.ts.
-
-- **conf.ts**: Merges user-provided inference parameters with agent-defined defaults.
-
-- **files.ts**: Resolves {file:path} placeholders in agent prompts and templates by reading file contents.
-
-- **read.ts**: Reads agent specifications, resolves variables, sets up MCP servers, loads tools (actions, agents, workflows), and applies file placeholders.
-
-- **useagent.ts**: Full agent executor with backend selection, MCP server management, inference parameter application, grammar compilation, streaming output, and error handling for HTTP errors (502, 404, 400).
-
-### Execution Engines
-
-- **actions/cmd.ts**: Executes actions in three formats: JavaScript (dynamic import), Python (python-shell), and YAML (shell command execution).
-
-- **adaptaters/cmd.ts**: Executes JS-based adaptaters with input handling.
-
-- **workflows/cmd.ts**: Multi-step workflow executor supporting agent, action, adaptater, and cmd step types. Passes results between steps.
-
-### State Management (state/)
-
-- **state.ts**: Core reactive state using Vue's reactivity system. Manages modes (input/output/format), filepaths, data directory, and initialization flow.
-
-- **features.ts**: Discovers features from directories by scanning subdirectories (agents/, workflows/, actions/, adaptaters/, cmds/, skills/).
-
-- **backends.ts**: Manages inference backends (Lm instances). Initializes backends from config, probes connectivity, allows switching.
-
-- **plugins.ts**: Resolves global npm plugin paths for feature loading.
-
-- **tasks.ts**: Manages agent-specific settings (model, tokens, temperature, etc.) loaded from database.
-
-### Utilities (utils/)
-
-- **io.ts**: Clipboard operations, prompt file reading, input extraction from options, agent prompt generation.
-
-- **perf.ts**: Performance timer with measurements, percentages, and formatted duration output.
-
-- **text.ts**: Extracts content between XML-like tags.
-
-- **user_msgs.ts**: Colored runtime error/warning/info message helpers with exit on critical errors.
-
-- **sys/execute.ts**: Shell command execution via Node.js spawn with stdout/stderr handling.
-
-- **sys/run_python.ts**: Python script execution wrapper using python-shell library.
-
-## Architectural Patterns
-
-1. **Feature-Based Architecture**: The system is organized around "features" - agents, actions, workflows, adaptaters, commands, and skills. Each feature type has its own directory structure and execution pipeline.
-
-2. **Database-Driven Configuration**: SQLite stores all configuration, features, backends, and settings. Features are discovered from filesystem directories but registered in the database for fast lookup.
-
-3. **Reactive State Management**: Uses Vue's reactivity system (ref, reactive) for state management instead of traditional Redux-style patterns.
-
-4. **Tool Abstraction**: Tools (actions, agents, workflows) are abstracted into a unified ToolSpec interface with execute functions, enabling them to be called interchangeably within workflows and agent prompts.
-
-5. **MCP Integration**: Supports Model Context Protocol for external tool servers, allowing agents to use tools from external services with authorization controls.
-
-6. **Multi-Language Support**: Actions can be written in JavaScript (ES modules), Python (via python-shell), or YAML (shell commands).
-
-7. **Workflow Orchestration**: Workflows are YAML-defined pipelines that chain multiple step types (agent, action, adaptater, cmd) with result passing between steps.
-
-8. **Backend Agnostic**: Supports multiple inference backends (OpenAI-compatible, local llamacpp) with configurable defaults and per-agent backend selection.
+## Related
+- See `packages/types` — provides all shared interfaces used throughout core.
+- See `packages/agent` — core's agent execution (`useagent.ts`) uses the `Agent` class from the agent package.
+- See `packages/cli` — cli depends on core for DB, config, and feature execution.
+- See `server` — server depends on core for DB access and configuration.

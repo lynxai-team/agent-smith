@@ -1,35 +1,28 @@
-# @agent-smith/tmem - Transient Memory Module
+# @agent-smith/tmem
 
 ## Summary
-A TypeScript library providing a transient memory module API for creating human-friendly agents. It wraps [localForage](https://localforage.github.io/localForage/) to offer a simple key-value store interface backed by IndexedDB.
+Transient key-value memory for agents. Wraps localForage (IndexedDB backend) with a simple typed API: `init`, `set`, `get`, `del`, `keys`, `all`.
 
-## File Structure
-```
-packages/tmem/
-├── package.json              # Package configuration and dependencies
-├── tsconfig.json             # TypeScript compiler configuration
-├── rollup.config.js          # Rollup bundler configuration for ESM and IIFE builds
-├── src/
-│   ├── main.ts               # Entry point - re-exports Tmem interface and useTmem function
-│   ├── tmem.ts               # Core implementation of the useTmem hook
-│   └── tmeminterfaces.ts     # TypeScript interfaces (Tmem)
-```
+## Dependencies
+- External: `localforage` (IndexedDB wrapper).
 
-## File Descriptions
+## Used By
+- `@agent-smith/core` — for transient state persistence.
+- Browser-based agent apps needing lightweight key-value storage.
 
-| File | Description |
-|------|-------------|
-| `package.json` | Defines the package (`@agent-smith/tmem` v0.0.4), build scripts, dependencies (localforage), and exports configuration for ESM modules. |
-| `tsconfig.json` | TypeScript configuration targeting ES2020 with strict mode, declaration file generation, and output to `./dist`. |
-| `rollup.config.js` | Bundles the source into two formats: ESM (`api.es.js`) and minified IIFE (`api.min.js`) under the global name `$agentbrain`. |
-| `src/main.ts` | Entry point that re-exports the `Tmem` interface and `useTmem` function for consumers. |
-| `src/tmem.ts` | Core implementation. The `useTmem` generic function creates a localForage instance and returns an object with `init`, `set`, `get`, `del`, `keys`, and `all` methods for persistent key-value storage. |
-| `src/tmeminterfaces.ts` | Declares the `Tmem<S>` interface defining the shape of the returned memory module. |
+## Entry Point
+- `src/main.ts` — Re-exports `Tmem` interface and `useTmem` function.
 
-## Architecture & Patterns
+## Key Files
+| File | Purpose |
+|------|---------|
+| `src/tmem.ts` | `useTmem<S>()` generic factory: creates localForage instance, returns typed store with init/set/get/del/keys/all |
+| `src/tmeminterfaces.ts` | `Tmem<S>` interface defining the memory module shape |
 
-- **Generic Factory Pattern**: `useTmem<S>()` is a generic function that creates a typed transient memory instance for a given store name and initial data.
-- **Wrapper Pattern**: Wraps localForage (IndexedDB backend) to provide a simplified, consistent API for key-value operations.
-- **Async/Await**: All storage operations are asynchronous, leveraging localForage's promise-based API.
-- **Initialization on Demand**: The `init()` method populates the store with initial data only if the store is empty, enabling reproducible agent state.
-- **Dual Build Output**: Supports both module-based imports (ESM) and script tag usage (IIFE).
+## Architecture
+- **Generic Factory**: `useTmem<S>()` creates a typed instance for a named store with optional initial data.
+- **Wrapper Pattern**: Simplifies localForage's API to consistent async key-value operations.
+- **Init on Demand**: `init()` populates store only if empty, enabling reproducible agent state.
+
+## Related
+- See `packages/smem` — complementary semantic (vector) memory; tmem handles simple key-value persistence.
