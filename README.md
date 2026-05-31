@@ -1,27 +1,27 @@
 # Agent Smith
 
-An api to create local first human friendly agents in the browser or Nodejs
+A toolkit to create local first human friendly agents in the browser or terminal
 
 ![Agent Smith](docsite/public/img/agentsmith.png)
 
 <details>
 <summary>:books: Read the <a href="https://synw.github.io/agent-smith">documentation</a></summary>
 
+ - [Architecture](https://synw.github.io/agent-smith/architecture)
  - [Libraries](https://synw.github.io/agent-smith/libraries)
      - [Agent](https://synw.github.io/agent-smith/libraries/agent)
         - [Get started](https://synw.github.io/agent-smith/libraries/agent/get_started)
         - [Tools](https://synw.github.io/agent-smith/libraries/agent/tools)
         - [Templates](https://synw.github.io/agent-smith/libraries/agent/templates)
         - [Supervision](https://synw.github.io/agent-smith/libraries/agent/supervision)
-     - [Task](https://synw.github.io/agent-smith/libraries/task)
-        - [Get started](https://synw.github.io/agent-smith/libraries/task/get_started)
-        - [Specification](https://synw.github.io/agent-smith/libraries/task/specification)
-        - [Use tasks](https://synw.github.io/agent-smith/libraries/task/use_tasks)
-        - [Models](https://synw.github.io/agent-smith/libraries/task/models)
-        - [Templates](https://synw.github.io/agent-smith/libraries/task/templates)
-        - [Variables](https://synw.github.io/agent-smith/libraries/task/variables)
-        - [Tools](https://synw.github.io/agent-smith/libraries/task/tools)
-        - [Fragments](https://synw.github.io/agent-smith/libraries/task/fragments)
+     - [Core](https://synw.github.io/agent-smith/libraries/core)
+        - [Get started](https://synw.github.io/agent-smith/libraries/core/get_started)
+        - [Configuration](https://synw.github.io/agent-smith/libraries/core/configuration)
+        - [Feature discovery](https://synw.github.io/agent-smith/libraries/core/feature_discovery)
+        - [Tool execution](https://synw.github.io/agent-smith/libraries/core/tool_execution)
+     - [Types](https://synw.github.io/agent-smith/libraries/types)
+        - [Get started](https://synw.github.io/agent-smith/libraries/types/get_started)
+        - [Interfaces](https://synw.github.io/agent-smith/libraries/types/interfaces)
      - [Transient memory](https://synw.github.io/agent-smith/libraries/transient_memory)
         - [Get started](https://synw.github.io/agent-smith/libraries/transient_memory/get_started)
         - [Usage](https://synw.github.io/agent-smith/libraries/transient_memory/usage)
@@ -31,20 +31,22 @@ An api to create local first human friendly agents in the browser or Nodejs
         - [Initialize](https://synw.github.io/agent-smith/libraries/semantic_memory/initialize)
         - [Write operations](https://synw.github.io/agent-smith/libraries/semantic_memory/write_operations)
         - [Read operations](https://synw.github.io/agent-smith/libraries/semantic_memory/read_operations)
+     - [WebSocket client](https://synw.github.io/agent-smith/libraries/wscli)
+        - [Get started](https://synw.github.io/agent-smith/libraries/wscli/get_started)
+        - [Usage](https://synw.github.io/agent-smith/libraries/wscli/usage)
  - [Terminal client](https://synw.github.io/agent-smith/terminal_client)
     - [Install](https://synw.github.io/agent-smith/terminal_client/install)
     - [Overview](https://synw.github.io/agent-smith/terminal_client/overview)
     - [Config](https://synw.github.io/agent-smith/terminal_client/config)
-    - [Tasks](https://synw.github.io/agent-smith/terminal_client/tasks)
-    - [Actions](https://synw.github.io/agent-smith/terminal_client/actions)
-    - [Workflows](https://synw.github.io/agent-smith/terminal_client/workflows)
-    - [Commands](https://synw.github.io/agent-smith/terminal_client/commands)
-     - [Agents](https://synw.github.io/agent-smith/terminal_client/agents)
+    - [Agents](https://synw.github.io/agent-smith/terminal_client/agents)
         - [Overview](https://synw.github.io/agent-smith/terminal_client/agents/overview)
         - [Tools call](https://synw.github.io/agent-smith/terminal_client/agents/tools_call)
         - [Mcp](https://synw.github.io/agent-smith/terminal_client/agents/mcp)
         - [Subagents](https://synw.github.io/agent-smith/terminal_client/agents/subagents)
         - [Tools routing](https://synw.github.io/agent-smith/terminal_client/agents/tools_routing)
+    - [Actions](https://synw.github.io/agent-smith/terminal_client/actions)
+    - [Workflows](https://synw.github.io/agent-smith/terminal_client/workflows)
+    - [Commands](https://synw.github.io/agent-smith/terminal_client/commands)
  - [Plugins](https://synw.github.io/agent-smith/plugins)
     - [Overview](https://synw.github.io/agent-smith/plugins/overview)
     - [Inference](https://synw.github.io/agent-smith/plugins/inference)
@@ -60,12 +62,12 @@ An api to create local first human friendly agents in the browser or Nodejs
 
 Check the :computer: [examples](examples)
 
-## What is an agent?
+## What is an Agent?
 
 An agent is a language model that can take decisions. It can:
 
 - **Think**: use language model servers to perform inference queries
-- **Work**: manage long running workflows with multiple tasks, using tools
+- **Work**: manage long running workflows with multiple steps, using tools
 - **Remember**: use semantic memory to store data
 - **Interact**: perform interactions with the user
 
@@ -73,11 +75,14 @@ An agent is a language model that can take decisions. It can:
 
 | Version | Name | Description | Nodejs | Browser |
 | --- | --- | --- | --- | --- |
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/cli)](https://www.npmjs.com/package/@agent-smith/cli) | [@agent-smith/cli](https://github.com/synw/agent-smith/tree/main/packages/cli) | Terminal client | :white_check_mark: | :x:
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/agent)](https://www.npmjs.com/package/@agent-smith/agent) | [@agent-smith/agent](https://github.com/synw/agent-smith/tree/main/packages/agent) | Agent | :white_check_mark: | :white_check_mark:
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/task)](https://www.npmjs.com/package/@agent-smith/task) | [@agent-smith/task](https://github.com/synw/agent-smith/tree/main/packages/task) | Task | :white_check_mark: | :white_check_mark:
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/smem)](https://www.npmjs.com/package/@agent-smith/smem) | [@agent-smith/smem](https://github.com/synw/agent-smith/tree/main/packages/smem) | Semantic memory | :white_check_mark: | :x:
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/tfm)](https://www.npmjs.com/package/@agent-smith/tfm) | [@agent-smith/tfm](https://github.com/synw/agent-smith/tree/main/packages/tfm) | Templates for models | :white_check_mark: | :white_check_mark:
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/cli)](https://www.npmjs.com/package/@agent-smith/cli) | [@agent-smith/cli](https://github.com/synw/agent-smith/tree/main/packages/cli) | Terminal client | :white_check_mark: | :x: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/agent)](https://www.npmjs.com/package/@agent-smith/agent) | [@agent-smith/agent](https://github.com/synw/agent-smith/tree/main/packages/agent) | Agent runtime | :white_check_mark: | :white_check_mark: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/core)](https://www.npmjs.com/package/@agent-smith/core) | [@agent-smith/core](https://github.com/synw/agent-smith/tree/main/packages/core) | Runtime engine | :white_check_mark: | :white_check_mark: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/types)](https://www.npmjs.com/package/@agent-smith/types) | [@agent-smith/types](https://github.com/synw/agent-smith/tree/main/packages/types) | Shared interfaces | :white_check_mark: | :white_check_mark: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/smem)](https://www.npmjs.com/package/@agent-smith/smem) | [@agent-smith/smem](https://github.com/synw/agent-smith/tree/main/packages/smem) | Semantic memory | :white_check_mark: | :x: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/tmem)](https://www.npmjs.com/package/@agent-smith/tmem) | [@agent-smith/tmem](https://github.com/synw/agent-smith/tree/main/packages/tmem) | Transient memory | :white_check_mark: | :white_check_mark: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/wscli)](https://www.npmjs.com/package/@agent-smith/wscli) | [@agent-smith/wscli](https://github.com/synw/agent-smith/tree/main/packages/wscli) | WebSocket client | :white_check_mark: | :white_check_mark: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/server)](https://www.npmjs.com/package/@agent-smith/server) | [@agent-smith/server](https://github.com/synw/agent-smith/tree/main/server) | Koa server | :white_check_mark: | :x: |
 
 [Terminal client plugins](https://github.com/synw/agent-smith-plugins)
 
@@ -92,11 +97,9 @@ An agent is a language model that can take decisions. It can:
 Supported inference servers:
 
 - [Llama.cpp](https://github.com/ggerganov/llama.cpp)
-- [Koboldcpp](https://github.com/LostRuins/koboldcpp)
-- [Ollama](https://github.com/ollama/ollama)
-- Any server that supports an Openai compatible api
+- Any OpenAI-compatible API server
 
-## Example
+## Examples
 
 ### Terminal client
 
@@ -122,115 +125,44 @@ lm commit
 
 Plugins for the terminal client are available: [terminal client plugins](https://github.com/synw/agent-smith-plugins)
 
-## Nodejs example: using an agent with local tools
+## Node.js Example: Using an Agent with Local Tools
 
 ```js
-import { Agent } from "@agent-smith/agent";
-import { Lm } from "@locallm/api";
+import { Agent, Lm } from "@agent-smith/agent";
 
-let model;
-const serverUrl = "http://localhost:8080/v1"; // Local Llama.cpp
-const apiKey = "";
-const system = "You are a helpful touristic assistant";
-const _prompt = `I am landing in Barcelona in one hour: I plan to reach my hotel and then go for outdoor sport. 
-How are the conditions in the city?`;
-
-function run_get_current_weather(args) {
-    console.log("Running the get_current_weather tool with args", args);
-    return '{ "temp": 20.5, "weather": "rain" }'
-}
-
-function run_get_current_traffic(args) {
-    console.log("Running the get_current_traffic tool with args", args);
-    return '{ "trafic": "normal" }'
-}
-
-const get_current_weather = {
-    "name": "get_current_weather",
-    "description": "Get the current weather",
-    "arguments": {
-        "location": {
-            "description": "The city and state, e.g. San Francisco, CA",
-            "required": true
-        }
-    },
-    execute: run_get_current_weather
-};
-
-const get_current_traffic = {
-    "name": "get_current_traffic",
-    "description": "Get the current road traffic conditions",
-    "arguments": {
-        "location": {
-            "description": "The city and state, e.g. San Francisco, CA",
-            "required": true
-        }
-    },
-    execute: run_get_current_traffic
-};
-
-async function main() {
-    const lm = new Lm({
-        providerType: "openai",
-        serverUrl: serverUrl,
-        apiKey: apiKey,
-        onToken: (t) => process.stdout.write(t),
-    });
-    const agent = new Agent(lm);
-    await agent.run(_prompt,
-        //inference params
-        {
-            model: model ?? "",
-            temperature: 0.5,
-            top_k: 40,
-            top_p: 0.95,
-            min_p: 0,
-            max_tokens: 4096,
-        },
-        // query options
-        {
-            debug: false,
-            verbose: true,
-            system: system,
-            tools: [get_current_weather, get_current_traffic]
-        });
-}
-
-(async () => {
-    await main();
-})();
-```
-
-## Server api example
-
-To execute a task using the server http api:
-
-```js
-import { useServer } from "@agent-smith/apicli";
-
-const api = useServer({
-    apiKey: "server_api_key",
-    onToken: (t) => {
-        // handle the streamed tokens here
-        process.stdout.write(t)
-    }
+const lm = new Lm({
+    name: "openai",
+    serverUrl: "http://localhost:8080/v1",
+    apiKey: "",
+    onToken: (t) => process.stdout.write(t),
 });
-await api.executeTask(
-    "translate", 
-    "Which is the largest planet of the solar system?", 
-    { lang: "german" }
-)
+
+const agent = new Agent({
+    name: "my-agent",
+    lm,
+    onToken: (t) => process.stdout.write(t),
+});
+
+await agent.run("Hello, how are you?", {
+    system: "You are a helpful assistant",
+    tools: [weatherTool, trafficTool],
+});
 ```
 
-## Libraries
+## Server API Example
 
-The cli is powered by:
+To execute an agent using the server WebSocket API:
 
-- [Locallm](https://github.com/synw/locallm) for the inference api servers management
-- [Modprompt](https://github.com/synw/modprompt) for the prompt templates management
+```js
+import { useWsServer } from "@agent-smith/wscli";
 
-The server is powered by:
+const ws = useWsServer({
+    url: "ws://localhost:5184/ws",
+    onToken: (t) => process.stdout.write(t),
+});
 
-- [Echo](https://github.com/labstack/echo)
+await ws.connect();
+await ws.executeAgent("my-agent", "Translate to German: Hello world");
+```
 
 ![Agent Smith](docsite/public/img/job.jpg)

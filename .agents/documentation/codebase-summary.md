@@ -55,3 +55,5 @@ Agent Smith is a TypeScript monorepo framework for building local-first AI agent
 ## Documentation
 
 Each packages has an `.agents/documentation/codebase-summary.md` file with detailled information for the package
+
+The documentation files for the project are located in `docsite/public/doc`
