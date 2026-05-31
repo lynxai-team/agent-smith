@@ -27,6 +27,7 @@ interface UiHistoryTurn extends HistoryTurn {
     from: string;
     type: UiHistoryTurnType;
     state: UiHistoryTurnState;
+    agentTurn: number;
 }
 
 /**
