@@ -1,5 +1,5 @@
 import { db, fs } from '@agent-smith/core';
-import type { FeatureSpec } from '@agent-smith/types';
+import type { AgentSpec, FeatureSpec } from '@agent-smith/types';
 import type Router from '@koa/router';
 import type { Next, Context } from 'koa';
 import { excludedTaskTypes } from '../utils.js';
@@ -27,7 +27,18 @@ function getAgentsRoute(r: Router) {
 function getAgentRoute(r: Router) {
     r.get('/agent/:id', async (ctx: Context, next: Next) => {
         //console.log(ctx.params.id)
-        const spec = fs.openAgentSpec(ctx.params.id);
+        let spec: {
+            agentSpec: AgentSpec;
+            agentPath: string;
+        };
+        try {
+            spec = fs.openAgentSpec(ctx.params.id);
+        }
+        catch (e) {
+            ctx.body = `error reading the agent spec file ${ctx.params.id}`;
+            ctx.status = 500;
+            return
+        }
         ctx.body = spec.agentSpec;
         ctx.status = 200;
         //await next()
