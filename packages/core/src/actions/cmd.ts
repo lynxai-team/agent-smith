@@ -2,8 +2,7 @@ import { FeatureExecutor, FeatureType } from "@agent-smith/types";
 import { pathToFileURL } from 'url';
 import { getFeatureSpec } from '../state/features.js';
 import { pyShell } from "../state/state.js";
-import { processOutput, readPromptFile, getInputFromOptions } from "../utils/io.js";
-import { readClipboard } from "../utils/sys/clipboard.js";
+import { getInputFromOptions, processOutput } from "../utils/io.js";
 import { execute } from "../utils/sys/execute.js";
 import { readYmlFile } from "../utils/sys/read_yml_file.js";
 import { runPyScript } from "../utils/sys/run_python.js";
@@ -143,6 +142,6 @@ function pythonAction(
 export {
     executeAction,
     pythonAction,
-    systemAction,
+    systemAction
 };
 

@@ -15,6 +15,13 @@ async function getUserCmdsData(feats: Features): Promise<Features> {
     for (const feat of feats.cmd) {
         const cmdPath = path.join(feat.path, feat.name + "." + feat.ext);
         const { found, userCmd } = await readUserCmd(feat.name, cmdPath);
+        //console.log("READ CMD", userCmd);
+        if (!userCmd?.name) {
+            throw new Error(`provide a name for the ${feat.path} command`)
+        }
+        if (!userCmd?.description) {
+            throw new Error(`provide a description for the ${feat.path} command`)
+        }
         if (found) {
             feat.variables = {
                 description: userCmd.description,
