@@ -18,7 +18,7 @@ function initBaseCommands(program: Command): Command {
             await processAgentsCmd(ca.args, ca.options)
         });
     agentsCmd.addOption(
-        new Option("-c, --conf", "output the tasks config")
+        new Option("-c, --conf", "output the agents config")
     )
     const agentCmd = program.command("agent <agent>")
         .description("view an agent")
