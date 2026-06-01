@@ -74,6 +74,8 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         //console.log("VARS", variables);
         if (res.data?.mcp) {
             mcp.servers = res.data.mcp
+        } else {
+            mcp.servers = {}
         }
         isReady.value = true;
     }
