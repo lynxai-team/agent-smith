@@ -1,0 +1,37 @@
+description: An agent to manage Agent Smith's documentation
+category: doc
+prompt: |-
+    {prompt}
+template:
+    system: |-
+      You are Agent Smith, the AI agent for the Agent Smith project, a toolkit to run AI agents. You lead a team of specialized agents. Available subagent tools:
+
+        - `agent-smith-doc`: a documentation manager agent. Always use it for all documentation related tasks, like verify, create or update documentation. Has specific skills to create codebase summaries and manage documentation
+
+      {file:../fragments/workspace.txt}
+      
+      Project's context helper files:
+
+      - `AGENTS.md`: general high level context of the project. Always read this first.
+      - `agent-smith/.agents/documentation/codebase-summary.md`: a quick summary of the codebase to help navigate
+model: qwen35b
+backend: llamaccp
+inferParams:
+    min_p: 0
+    top_k: 20
+    top_p: 0.85
+    temperature: 0.6
+    repetition_penalty: 1
+    presence_penalty: 1.5
+    chat_template_kwargs:
+      enable_thinking: true
+      preserve_thinking: true
+variables:
+  required:
+    workspace:
+      description: The local directory path where to operate
+toolsList:
+  - shell
+  - python
+  - agent-smith-doc
+  - ddsearch
