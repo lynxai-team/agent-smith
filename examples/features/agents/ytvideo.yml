@@ -1,19 +1,19 @@
 description: Chat with a Youtube video
 prompt: |-
-    {prompt}
+  {prompt}
 model: qwen4b
 inferParams:
-    top_k: 20
-    top_p: 0.95
-    min_p: 0.05
-    temperature: 0.5
+  top_k: 20
+  top_p: 0.95
+  min_p: 0.05
+  temperature: 0.5
 mcp:
-    ytv:
-        command: npx
-        arguments:
-            - "-y"
-            - "@kevinwatt/yt-dlp-mcp@latest"
-        tools:
-            - ytdlp_download_transcript
-            - ytdlp_get_video_metadata
-            - ytdlp_download_video? # it will ask the user before proceeding
+  ytv:
+    command: npx
+    arguments:
+      - "-y"
+      - "@kevinwatt/yt-dlp-mcp@latest"
+    tools:
+      - ytdlp_download_transcript
+      - ytdlp_get_video_metadata
+      - ytdlp_download_video? # it will ask the user before proceeding

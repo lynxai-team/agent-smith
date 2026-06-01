@@ -1,3 +1,4 @@
+# needs the plugins @agent-smith/feat-fs and @agent-smith/feat-shell
 description: "General agent: sandboxed shell access and filesystem write, web search subagents"
 category: system
 prompt: |-

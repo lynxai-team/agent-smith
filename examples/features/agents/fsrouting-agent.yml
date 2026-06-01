@@ -15,3 +15,7 @@ inferParams:
   temperature: 0.3
 toolsList:
   - fs-light-routing-agent
+variables:
+    required:
+        path:
+            description: "The autorized paths: ex: path/1,path/2"
