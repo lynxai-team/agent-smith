@@ -67,6 +67,17 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 backendName = backend.value.name
             }
         }
+        if (localOptions?.system) {
+            // in context agent
+            if (!agentSpec?.template) {
+                agentSpec.template = { system: localOptions.system }
+            } else {
+                agentSpec.template.system = localOptions.system
+            }
+        }
+    }
+    if (agentSpec?.template?.system) {
+        localOptions.system = agentSpec.template.system
     }
     if (!(backendName in backends)) {
         const bks = await listBackends(false);
@@ -201,21 +212,10 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
             localOptions.onToken = processToken;
         }
         localOptions.baseDir = agentDir;
-        /*if (localOptions?.history) {
-            let addParentAgentHistory = true;
-            if (localOptions.isToolCall) {
-                if (name !== "run-worker") {
-                    addParentAgentHistory = false
-                }
-            }
-            if (addParentAgentHistory) {
-                agent.history = localOptions.history;
-            }
-        }
-        console.log("AGENT O", localOptions?.isToolCall, localOptions?.history)
-        console.log("AGENT H", localOptions?.isToolCall, agent?.history)*/
         localOptions.variables = vars;
-        localOptions.tools = agentSpec.tools;
+        if (!localOptions?.tools) {
+            localOptions.tools = agentSpec.tools;
+        }
         let out: InferenceResult;
         //console.log("CLI EXEC AGENT", payload.prompt, "\nOPTS", localOptions)
         try {

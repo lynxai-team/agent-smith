@@ -1,6 +1,6 @@
 name: infer
 description: Run a raw inference query
-type: "builtin"
+type: builtin
 prompt: |-
     {prompt}
 model: qwen4b

@@ -137,6 +137,7 @@ function readTool(name: string): { found: boolean, tool: ToolSpec } {
     const q = `SELECT id, name, type, spec FROM tool WHERE name='${name}'`;
     const stmt = db.prepare(q);
     const result = stmt.get() as Record<string, string>;
+    //console.log("db tool", result);
     if (result?.id) {
         const tool = JSON.parse(result.spec);
         tool.type = result.type;

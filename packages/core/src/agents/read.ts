@@ -194,7 +194,12 @@ async function readAgent(
                 ...tool,
                 execute: async (params) => {
                     //console.log("EXEC TOOL:", type, toolName, params);
-                    const toolOpts = params?.toolOptions ? params.toolOptions : { ...options };
+                    let toolOpts = { ...options };
+                    if (params?.toolOptions) {
+                        toolOpts = params.toolOptions;
+                        //console.log("EXECTOOL CALLER", toolOpts?.caller)
+                        delete params.toolOptions
+                    }
                     toolOpts.isToolCall = true;
                     switch (tool.type) {
                         case "action":

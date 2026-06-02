@@ -221,15 +221,33 @@ function upsertTool(name: string, type: FeatureType, toolDoc: string) {
     }
 }
 
-function updateFeatures(feats: Features) {
+function updateFeatures(feats: Features, isVerbose = false) {
     //console.log("FEATS", feats);
     upsertAndCleanFeatures(feats.agent, "agent");
+    let items: Record<string, {
+        agents: Array<string>,
+        actions: Array<string>,
+        workflows: Array<string>,
+        tools: Array<string>,
+    }> = {};
     feats.agent.forEach((feat) => {
         const { toolDoc, variables, type, category } = extractAgentToolDocAndVariables(feat.name, feat.ext, feat.path);
         //const { found, toolDoc } = extractToolDoc(feat.name, feat.ext, feat.path);
         //console.log(`TASK ${feat.name} TOOL DOC`, toolDoc);
         if (toolDoc.length > 0) {
-            upsertTool(feat.name, "agent", toolDoc)
+            upsertTool(feat.name, "agent", toolDoc);
+        }
+        if (isVerbose) {
+            const dirp = feat.path.split("/");
+            dirp.pop();
+            const p = dirp.join("/");
+            if (!(p in items)) {
+                items[p] = { agents: [], actions: [], workflows: [], tools: [] };
+            }
+            items[p].agents.push(feat.name);
+            if (toolDoc.length > 0) {
+                items[p].tools.push(feat.name)
+            }
         }
         if (Object.keys(variables.required).length > 0 || Object.keys(variables.optional).length > 0 || type !== null || category !== null) {
             //console.log("UPDATE VARS", feat.name, ":", variables)
@@ -239,9 +257,21 @@ function updateFeatures(feats: Features) {
     upsertAndCleanFeatures(feats.action, "action");
     feats.action.forEach((feat) => {
         const { found, toolDoc } = extractToolDoc(feat.name, feat.ext, feat.path);
-        //console.log(`ACTION ${feat.name} TOOL DOC`, found, toolDoc);
+        //console.log(`ACTION ${feat.name} TOOL DOC`, found);
         if (found) {
             upsertTool(feat.name, "action", toolDoc)
+        }
+        if (isVerbose) {
+            const dirp = feat.path.split("/");
+            dirp.pop();
+            const p = dirp.join("/");
+            if (!(p in items)) {
+                items[p] = { agents: [], actions: [], workflows: [], tools: [] };
+            }
+            items[p].actions.push(feat.name);
+            if (toolDoc.length > 0) {
+                items[p].tools.push(feat.name)
+            }
         }
     });
     upsertAndCleanFeatures(feats.workflow, "workflow");
@@ -251,7 +281,36 @@ function updateFeatures(feats: Features) {
         if (found) {
             upsertTool(feat.name, "workflow", toolDoc)
         }
+        if (isVerbose) {
+            const dirp = feat.path.split("/");
+            dirp.pop();
+            const p = dirp.join("/");
+            if (!(p in items)) {
+                items[p] = { agents: [], actions: [], workflows: [], tools: [] };
+            }
+            items[p].actions.push(feat.name);
+            if (toolDoc.length > 0) {
+                items[p].tools.push(feat.name)
+            }
+        }
     });
+    if (isVerbose) {
+        for (const [k, v] of Object.entries(items)) {
+            console.log("📂", k);
+            if (v.actions.length > 0) {
+                console.log("- actions:", v.actions.join(", "))
+            }
+            if (v.workflows.length > 0) {
+                console.log("- workflows:", v.workflows.join(", "))
+            }
+            if (v.agents.length > 0) {
+                console.log("- agents:", v.agents.join(", "))
+            }
+            if (v.tools.length > 0) {
+                console.log("- tools:", v.tools.join(", "))
+            }
+        }
+    }
     upsertAndCleanFeatures(feats.adaptater, "adaptater");
     upsertAndCleanFeatures(feats.cmd, "cmd");
     upsertAndCleanFeatures(feats.skill, "skill");
