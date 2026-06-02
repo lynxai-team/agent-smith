@@ -91,7 +91,7 @@ class Agent {
             });
         }
         let finalPrompt = prompt;
-        //console.log("Agent", this.name, "OPTS", localOptions);
+        //console.log("================= Agent", this.name, "OPTS", localOptions);
         //console.log("Agent", this.name, "SPEC", this.spec);
         if (this?.spec) {
             // model
@@ -251,11 +251,23 @@ class Agent {
                             const tlo = Object.assign({}, localOptions);
                             let toolCallArgs: {
                                 [key: string]: any
-                            } & { toolOptions?: AgentInferenceOptions } | undefined = { ...tc.arguments };
+                            } | undefined = { ...tc.arguments };
+                            //console.log("TC TYPE", tool.name, tool.type, "/", tool?.agentType);
+                            //console.log("TLO", tlo);
                             if (tool.type == "agent") {
-                                tlo.history = [];
+                                if (!(tool?.agentType == "worker")) {
+                                    // discard history
+                                    tlo.history = []
+                                }
+                                tlo.caller = this.name;
                                 toolCallArgs.toolOptions = tlo;
+                            } else {
+                                if (tool?.agentType == "worker") {
+                                    tlo.caller = this.name;
+                                    toolCallArgs.toolOptions = tlo;
+                                }
                             }
+                            //console.log("EXEC TC OPTs", tc.name, tool?.type, tool?.agentType, "c=" + toolCallArgs.toolOptions?.caller);
                             toolCallResult = await tool.execute(toolCallArgs);
                             //console.log("TCR*******", toolCallResult)
                             //console.log("*************")
@@ -275,10 +287,6 @@ class Agent {
                             console.log("[x] Executed tool", tool.name + ":\n", toolCallResult);
                         }
                         toolsResults.push({ call: tc, response: toolCallResult, from: this.name, type: tool.type });
-                        if (tool.type == "agent") {
-                            //console.log("AGENT TC RES", this.name, localOptions?.isToolCall, toolCallResult);
-                            //console.log(this.history)
-                        }
                         if (events?.onAssistant && tool.type == "agent") {
                             if (typeof toolCallResult == "object") {
                                 const ln = Object.keys(toolCallResult).length;
