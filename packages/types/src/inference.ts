@@ -111,6 +111,7 @@ interface ClientInferenceOptions extends InferenceOptions, InferenceCallbacks {
 
 interface AgentInferenceOptions extends InferenceOptions, AllCallbacks {
     baseDir?: string;
+    caller?: string;
     isChatMode?: boolean;
     showTokens?: boolean;
     nocli?: boolean;

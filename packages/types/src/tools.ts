@@ -71,6 +71,7 @@ interface ToolDefSpec {
  */
 interface ToolSpec extends ToolDefSpec {
     type: string;
+    agentType?: string;
     parallelCalls: boolean;
     execute: <O = any>(args: {
         [key: string]: any
