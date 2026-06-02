@@ -91,7 +91,7 @@ Main project documentation hosted in the docsite.
 
 Documentation for the agent system itself.
 
-- [`agent-smith/.agents/codebase-summary.md`](agent-smith/.agents/codebase-summary.md)
+- [`agent-smith/.agents/documentation/codebase-summary.md`](agent-smith/.agents/documentation/codebase-summary.md)
 - [`agent-smith/.agents/documentation-map.md`](agent-smith/.agents/documentation-map.md)
 
 ---
@@ -100,7 +100,7 @@ Documentation for the agent system itself.
 
 Documentation for the core package.
 
-- [`agent-smith/packages/core/.agents/codebase-summary.md`](agent-smith/packages/core/.agents/codebase-summary.md)
+- [`agent-smith/packages/core/.agents/documentation/codebase-summary.md`](agent-smith/packages/core/.agents/documentation/codebase-summary.md)
 
 ---
 
@@ -109,7 +109,7 @@ Documentation for the core package.
 Documentation for the agent package.
 
 - [`agent-smith/packages/agent/.agents/CODEBASE_OVERVIEW.md`](agent-smith/packages/agent/.agents/CODEBASE_OVERVIEW.md)
-- [`agent-smith/packages/agent/.agents/codebase-summary.md`](agent-smith/packages/agent/.agents/codebase-summary.md)
+- [`agent-smith/packages/agent/.agents/documentation/codebase-summary.md`](agent-smith/packages/agent/.agents/documentation/codebase-summary.md)
 - [`agent-smith/packages/agent/.agents/OVERVIEW.md`](agent-smith/packages/agent/.agents/OVERVIEW.md)
 
 ---
@@ -118,7 +118,7 @@ Documentation for the agent package.
 
 Documentation for the cli package.
 
-- [`agent-smith/packages/cli/.agents/codebase-summary.md`](agent-smith/packages/cli/.agents/codebase-summary.md)
+- [`agent-smith/packages/cli/.agents/documentation/codebase-summary.md`](agent-smith/packages/cli/.agents/documentation/codebase-summary.md)
 
 ---
 
@@ -126,7 +126,7 @@ Documentation for the cli package.
 
 Documentation for the wscli package.
 
-- [`agent-smith/packages/wscli/.agents/codebase-summary.md`](agent-smith/packages/wscli/.agents/codebase-summary.md)
+- [`agent-smith/packages/wscli/.agents/documentation/codebase-summary.md`](agent-smith/packages/wscli/.agents/documentation/codebase-summary.md)
 
 ---
 
@@ -134,7 +134,7 @@ Documentation for the wscli package.
 
 Documentation for the types package.
 
-- [`agent-smith/packages/types/.agents/codebase-summary.md`](agent-smith/packages/types/.agents/codebase-summary.md)
+- [`agent-smith/packages/types/.agents/documentation/codebase-summary.md`](agent-smith/packages/types/.agents/documentation/codebase-summary.md)
 
 ---
 
@@ -142,7 +142,7 @@ Documentation for the types package.
 
 Documentation for the smem package.
 
-- [`agent-smith/packages/smem/.agents/codebase-summary.md`](agent-smith/packages/smem/.agents/codebase-summary.md)
+- [`agent-smith/packages/smem/.agents/documentation/codebase-summary.md`](agent-smith/packages/smem/.agents/documentation/codebase-summary.md)
 
 ---
 
@@ -150,7 +150,7 @@ Documentation for the smem package.
 
 Documentation for the tmem package.
 
-- [`agent-smith/packages/tmem/.agents/codebase-summary.md`](agent-smith/packages/tmem/.agents/codebase-summary.md)
+- [`agent-smith/packages/tmem/.agents/documentation/codebase-summary.md`](agent-smith/packages/tmem/.agents/documentation/codebase-summary.md)
 
 ---
 
