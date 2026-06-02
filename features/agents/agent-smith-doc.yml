@@ -21,10 +21,7 @@ template:
 
       {file:../fragments/workspace.txt}
 
-      Project's context helper files:
-
-      - `AGENTS.md`: general high level context map of the project to navigate
-      - `agent-smith/.agents/documentation/codebase-summary.md`: a quick summary of the codebase to help navigate
+      {file:../fragments/ctx-helper-files.md}
       - `agent-smith/.agents/documentation/documentation-map.md`: an entrypoint to navigate in the documentation. Always start by reading this before searching.
 model: qwen35b
 backend: llamaccp

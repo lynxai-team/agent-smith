@@ -1,0 +1,41 @@
+tool:
+  name: agent-smith-search
+  description: An agent to run web search
+  arguments:
+      prompt:
+          description: the web search to perform or question about a web page
+          required: true
+description: An agent to run web search
+category: doc
+prompt: |-
+    {prompt}
+template:
+    system: |-
+      You are a web search agent for the Agent Smith project, a toolkit to run AI agents.
+
+      {file:../fragments/workspace.txt}
+
+      Project's context helper files:
+
+      - `AGENTS.md`: general high level context map of the project to navigate
+model: qwen35b
+backend: llamaccp
+inferParams:
+    min_p: 0
+    top_k: 20
+    top_p: 0.85
+    temperature: 0.6
+    repetition_penalty: 1
+    presence_penalty: 1.5
+    chat_template_kwargs:
+      enable_thinking: true
+      preserve_thinking: true
+variables:
+  required:
+    workspace:
+      description: The local directory path where to operate
+toolsList:
+  - shell
+  - python
+  - ddsearch
+  - open_page
