@@ -7,7 +7,7 @@ import { writeToClipboard } from "./utils/sys/clipboard.js";
 import { execute, runShellCmd } from "./utils/sys/execute.js";
 import { readConf } from "./utils/sys/read_conf.js";
 import { confDir, createConfigFileIfNotExists, dbPath, getConfigPath, processConfPath, updateConfigFile } from "./conf.js";
-import { initDb } from "./db/db.js";
+import { initDb, db as cdb } from "./db/db.js";
 import { usePerfTimer } from "./utils/perf.js";
 import { deleteFileIfExists } from "./utils/sys/delete_file.js";
 import { getAgentPrompt, getInputFromOptions, openAgentSpec } from "./utils/io.js";
@@ -59,6 +59,7 @@ const db = {
     init: initDb,
     ...dbw,
     ...dbr,
+    db: cdb,
 };
 
 const fs = {

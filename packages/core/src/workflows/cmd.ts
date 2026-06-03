@@ -50,6 +50,7 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
                         throw new Error(`Workflow ${wname} step ${i + 1}: provide a prompt for the task ${step.name}`)
                     }
                     options.isAgent = true;
+                    //console.log("WF EXEC AGENT", step.name, tdata, options);
                     const tr = await executeAgent(step.name, tdata, options);
                     options.isAgent = false;
                     taskRes = { ...tr, ...taskRes };
