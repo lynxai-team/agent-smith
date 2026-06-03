@@ -6,8 +6,9 @@ description: use this to create comprehensive README file for a given package
 ## Workflow: Package README Creation
 
 ### Phase 1: Discovery
-1. Read `/workspace/AGENTS.md` and `/workspace/agent-smith/.agents/documentation/codebase-summary.md` to understand project structure
-2. Locate target package in the codebase summary (note its position, dependencies, and purpose)
+1. Read `/workspace/AGENTS.md` and `/workspace/.agents/documentation/project-nav.md` to understand project structure
+2. Read `/workspace/agent-smith/.agents/documentation/codebase-summary.md` and `/workspace/agent-smith/.agents/documentation/dpcumentation-map.md`
+3. Locate target package in the codebase summary (note its position, dependencies, and purpose)
 
 ### Phase 2: Deep Dive
 3. Navigate to package directory: `/workspace/agent-smith/packages/{package-name}/`
