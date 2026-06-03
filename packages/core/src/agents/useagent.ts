@@ -8,9 +8,28 @@ import { usePerfTimer } from "../utils/perf.js";
 import { runtimeDataError, runtimeError } from "../utils/user_msgs.js";
 import { readAgent } from "./read.js";
 import { toRaw } from "@vue/reactivity";
+import { readAllSkills } from "../db/read.js";
+import { default as fm } from "front-matter";
+import { readFile } from "../utils/sys/read.js";
 
 const useAgentExecutor = async (name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions) => {
     const localOptions = Object.assign({}, options);
+    // skill loader
+    if (payload.prompt.includes("%")) {
+        const skills = readAllSkills();
+        for (const [k, v] of Object.entries(skills)) {
+            //console.log("S", k, payload.prompt.includes("%" + k));
+            if (payload.prompt.includes("%" + k)) {
+                const fc = readFile(v.path);
+                const data = fm(fc);
+                payload.prompt = payload.prompt.replace("%" + k, data.body);
+                if (localOptions?.debug) {
+                    console.log(`loading skill ${k} in prompt`)
+                }
+                break;
+            }
+        }
+    }
     const { agentSpec, vars, mcpServers, agentDir } = await readAgent(name, payload, localOptions);
     if (!isAgentSettingsInitialized.value) {
         initAgentSettings()

@@ -70,6 +70,41 @@ function readFeaturesType(type: FeatureType, innerType?: string, names?: Array<s
     return res
 }
 
+/*function readSkill(name: string): { found: boolean, feature: FeatureSpec } {
+    const q = `SELECT name, path, ext, variables FROM skill WHERE name='${name}`;
+    const stmt = db.prepare(q);
+    const result = stmt.get() as Record<string, string>;
+    let res: FeatureSpec;
+    if (result?.id) {
+        const vars = result?.variables ? JSON.parse(result.variables) as Record<string, any> : {};
+        res = {
+            name: result.name,
+            path: result.path,
+            ext: result.ext as FeatureExtension,
+            variables: vars,
+        };
+        return { found: true, feature: res }
+    }
+    return { found: false, feature: {} as FeatureSpec }
+}*/
+
+function readAllSkills(): Record<string, FeatureSpec> {
+    const q = `SELECT name, path, ext, variables FROM skill`;
+    const stmt = db.prepare(q);
+    const data = stmt.all() as Array<Record<string, any>>;
+    const res: Record<string, FeatureSpec> = {};
+    data.forEach((row) => {
+        const vars = row?.variables ? JSON.parse(row.variables) as Record<string, any> : {};
+        res[row.name] = {
+            name: row.name,
+            path: row.path,
+            ext: row.ext,
+            variables: vars,
+        };
+    });
+    return res;
+}
+
 function readSkillsFromList(names: Array<string>): Record<string, FeatureSpec> {
     if (names.length === 0) return {};
     const placeholders = names.map(() => '?').join(',');
@@ -263,5 +298,6 @@ function readSamplingPresets(): Array<SamplingPreset> {
 export {
     readAgentSettings, readAliases, readBackends, readFeature, readFeaturePaths, readFeatures, readFeaturesType, readFilePath,
     readFilePaths, readPlugins, readSetting, readSettings, readSkillsFromList, readAgentSetting, readTool, readWorkspaces,
-    readSamplingPreset, readSamplingPresets
+    readSamplingPreset, readSamplingPresets, readAllSkills,
+    //readSkill
 };
