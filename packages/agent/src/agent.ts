@@ -254,7 +254,7 @@ class Agent {
                             } | undefined = { ...tc.arguments };
                             //console.log("TC TYPE", tool.name, tool.type, "/", tool?.agentType);
                             //console.log("TLO", tlo);
-                            if (tool.type == "agent") {
+                            if (["agent", "workflow"].includes(tool.type)) {
                                 if (!(tool?.agentType == "worker")) {
                                     // discard history
                                     tlo.history = []

@@ -341,7 +341,7 @@ class Lm implements LmProvider {
                     }
                     console.log("Inference params:", ...kvparams);
                     if (localOptions?.variables) {
-                        console.log("Variables:", localOptions?.variables);
+                        console.log("Variables:", Object.keys(localOptions.variables));
                     }
                     if (localOptions?.tools) {
                         const t = localOptions.tools.map(_t => _t.name);
