@@ -1,0 +1,9 @@
+tool:
+  description: and sql agent to retrieve data in the Agent Smith database by asking a question in natural language and get the data back
+  arguments:
+    prompt:
+        description: the question to ask about data
+steps:
+  - adaptater: agent-smith-db-getschema
+  - agent: agent-smith-db
+  - action: db-execute-read-query

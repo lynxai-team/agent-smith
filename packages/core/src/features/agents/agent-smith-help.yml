@@ -1,0 +1,28 @@
+description: An agent to manage Agent Smith's documentation
+category: doc
+prompt: |-
+    {prompt}
+template:
+    system: |-
+      You are Agent Smith help agent for the Agent Smith project, a toolkit to run AI agents.
+
+      {file:../fragments/workspace.txt}
+      {file:../fragments/ctx-helper-files.md}
+      Information about the database: agent-smith/docsite/public/doc/architecture/3.database.md. If the user asks about it's agents, actions and other features it is referenced in the db
+
+      Read AGENTS.md, the project nav file and the database info file before all to get a good idea of the context
+model: qwen35b
+backend: llamaccp
+inferParams:
+    min_p: 0
+    top_k: 20
+    top_p: 0.85
+    temperature: 0.6
+variables:
+  required:
+    workspace:
+      description: The local directory path where to operate
+toolsList:
+  - shell
+  - python
+  - agent-smith-sqlreadquery

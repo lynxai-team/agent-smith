@@ -1,0 +1,30 @@
+tool:
+    description: Create a database query for Agent Smith database
+    arguments:
+        prompt: 
+            description: The user question to create a query from
+description: Create an sql query
+prompt: |-
+    Schema:
+    {schema}
+    
+    Question: {prompt}
+
+    Important: output ONLY raw SQL code. Example: SELECT * FROM tablename
+model: text2sql
+template:
+    system: |-
+        You are given a database schema and a natural language question. Generate the SQL query that answers the question.
+
+        - Use only tables and columns from the provided schema
+        - Use uppercase SQL keywords (SELECT, FROM, WHERE, etc.)
+        - Use SQLite-compatible syntax
+    assistant: "```sql\n"
+    stop: 
+        - "```"
+inferParams:
+    temperature: 0
+variables:
+    required:
+        schema:
+            description: the database sql schema
