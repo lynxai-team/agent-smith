@@ -260,6 +260,12 @@ class Agent {
                                     tlo.history = []
                                 }
                                 tlo.caller = this.name;
+                                if (tlo?.tools) {
+                                    delete tlo.tools
+                                }
+                                if (tlo?.system) {
+                                    delete tlo.system
+                                }
                                 toolCallArgs.toolOptions = tlo;
                             } else {
                                 if (tool?.agentType == "worker") {
