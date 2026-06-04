@@ -5,58 +5,69 @@ A toolkit to create local first human friendly agents in the browser or terminal
 ![Agent Smith](docsite/public/img/agentsmith.png)
 
 <details>
-<summary>:books: Read the <a href="https://synw.github.io/agent-smith">documentation</a></summary>
+<summary>:books: Read the <a href="https://lynxai-team.github.io/agent-smith">documentation</a></summary>
 
- - [Architecture](https://synw.github.io/agent-smith/architecture)
- - [Libraries](https://synw.github.io/agent-smith/libraries)
-     - [Agent](https://synw.github.io/agent-smith/libraries/agent)
-        - [Get started](https://synw.github.io/agent-smith/libraries/agent/get_started)
-        - [Tools](https://synw.github.io/agent-smith/libraries/agent/tools)
-        - [Templates](https://synw.github.io/agent-smith/libraries/agent/templates)
-        - [Supervision](https://synw.github.io/agent-smith/libraries/agent/supervision)
-     - [Core](https://synw.github.io/agent-smith/libraries/core)
-        - [Get started](https://synw.github.io/agent-smith/libraries/core/get_started)
-        - [Configuration](https://synw.github.io/agent-smith/libraries/core/configuration)
-        - [Feature discovery](https://synw.github.io/agent-smith/libraries/core/feature_discovery)
-        - [Tool execution](https://synw.github.io/agent-smith/libraries/core/tool_execution)
-     - [Types](https://synw.github.io/agent-smith/libraries/types)
-        - [Get started](https://synw.github.io/agent-smith/libraries/types/get_started)
-        - [Interfaces](https://synw.github.io/agent-smith/libraries/types/interfaces)
-     - [Transient memory](https://synw.github.io/agent-smith/libraries/transient_memory)
-        - [Get started](https://synw.github.io/agent-smith/libraries/transient_memory/get_started)
-        - [Usage](https://synw.github.io/agent-smith/libraries/transient_memory/usage)
-        - [Api](https://synw.github.io/agent-smith/libraries/transient_memory/api)
-     - [Semantic memory](https://synw.github.io/agent-smith/libraries/semantic_memory)
-        - [Get started](https://synw.github.io/agent-smith/libraries/semantic_memory/get_started)
-        - [Initialize](https://synw.github.io/agent-smith/libraries/semantic_memory/initialize)
-        - [Write operations](https://synw.github.io/agent-smith/libraries/semantic_memory/write_operations)
-        - [Read operations](https://synw.github.io/agent-smith/libraries/semantic_memory/read_operations)
-     - [WebSocket client](https://synw.github.io/agent-smith/libraries/wscli)
-        - [Get started](https://synw.github.io/agent-smith/libraries/wscli/get_started)
-        - [Usage](https://synw.github.io/agent-smith/libraries/wscli/usage)
- - [Terminal client](https://synw.github.io/agent-smith/terminal_client)
-    - [Install](https://synw.github.io/agent-smith/terminal_client/install)
-    - [Overview](https://synw.github.io/agent-smith/terminal_client/overview)
-    - [Config](https://synw.github.io/agent-smith/terminal_client/config)
-    - [Agents](https://synw.github.io/agent-smith/terminal_client/agents)
-        - [Overview](https://synw.github.io/agent-smith/terminal_client/agents/overview)
-        - [Tools call](https://synw.github.io/agent-smith/terminal_client/agents/tools_call)
-        - [Mcp](https://synw.github.io/agent-smith/terminal_client/agents/mcp)
-        - [Subagents](https://synw.github.io/agent-smith/terminal_client/agents/subagents)
-        - [Tools routing](https://synw.github.io/agent-smith/terminal_client/agents/tools_routing)
-    - [Actions](https://synw.github.io/agent-smith/terminal_client/actions)
-    - [Workflows](https://synw.github.io/agent-smith/terminal_client/workflows)
-    - [Commands](https://synw.github.io/agent-smith/terminal_client/commands)
- - [Plugins](https://synw.github.io/agent-smith/plugins)
-    - [Overview](https://synw.github.io/agent-smith/plugins/overview)
-    - [Inference](https://synw.github.io/agent-smith/plugins/inference)
-    - [Vision](https://synw.github.io/agent-smith/plugins/vision)
-    - [Filesystem](https://synw.github.io/agent-smith/plugins/filesystem)
-     - [Code](https://synw.github.io/agent-smith/plugins/code)
-        - [Git](https://synw.github.io/agent-smith/plugins/code/git)
- - [Server](https://synw.github.io/agent-smith/server)
-    - [Get started](https://synw.github.io/agent-smith/server/get_started)
-    - [Api](https://synw.github.io/agent-smith/server/api)
+ - [Terminal client](https://lynxai-team.github.io/agent-smith/terminal_client)
+    - [Quickstart](https://lynxai-team.github.io/agent-smith/terminal_client/quickstart)
+    - [Install](https://lynxai-team.github.io/agent-smith/terminal_client/install)
+    - [Overview](https://lynxai-team.github.io/agent-smith/terminal_client/overview)
+    - [Config](https://lynxai-team.github.io/agent-smith/terminal_client/config)
+    - [Tasks](https://lynxai-team.github.io/agent-smith/terminal_client/tasks)
+    - [Actions](https://lynxai-team.github.io/agent-smith/terminal_client/actions)
+    - [Workflows](https://lynxai-team.github.io/agent-smith/terminal_client/workflows)
+    - [Commands](https://lynxai-team.github.io/agent-smith/terminal_client/commands)
+     - [Agents](https://lynxai-team.github.io/agent-smith/terminal_client/agents)
+        - [Overview](https://lynxai-team.github.io/agent-smith/terminal_client/agents/overview)
+        - [Tools call](https://lynxai-team.github.io/agent-smith/terminal_client/agents/tools_call)
+        - [Mcp](https://lynxai-team.github.io/agent-smith/terminal_client/agents/mcp)
+        - [Subagents](https://lynxai-team.github.io/agent-smith/terminal_client/agents/subagents)
+        - [Tools routing](https://lynxai-team.github.io/agent-smith/terminal_client/agents/tools_routing)
+ - [Architecture](https://lynxai-team.github.io/agent-smith/architecture)
+    - [Overview](https://lynxai-team.github.io/agent-smith/architecture/overview)
+    - [Feature-discovery](https://lynxai-team.github.io/agent-smith/architecture/feature-discovery)
+    - [Database](https://lynxai-team.github.io/agent-smith/architecture/database)
+    - [Tool-abstraction](https://lynxai-team.github.io/agent-smith/architecture/tool-abstraction)
+    - [Callbacks](https://lynxai-team.github.io/agent-smith/architecture/callbacks)
+ - [Libraries](https://lynxai-team.github.io/agent-smith/libraries)
+     - [Types](https://lynxai-team.github.io/agent-smith/libraries/types)
+        - [Get started](https://lynxai-team.github.io/agent-smith/libraries/types/get_started)
+        - [Interfaces](https://lynxai-team.github.io/agent-smith/libraries/types/interfaces)
+     - [Core](https://lynxai-team.github.io/agent-smith/libraries/core)
+        - [Get started](https://lynxai-team.github.io/agent-smith/libraries/core/get_started)
+        - [Configuration](https://lynxai-team.github.io/agent-smith/libraries/core/configuration)
+        - [Feature-discovery](https://lynxai-team.github.io/agent-smith/libraries/core/feature-discovery)
+        - [Tool-execution](https://lynxai-team.github.io/agent-smith/libraries/core/tool-execution)
+        - [Mcp](https://lynxai-team.github.io/agent-smith/libraries/core/mcp)
+     - [Agent](https://lynxai-team.github.io/agent-smith/libraries/agent)
+        - [Get started](https://lynxai-team.github.io/agent-smith/libraries/agent/get_started)
+        - [Tools](https://lynxai-team.github.io/agent-smith/libraries/agent/tools)
+        - [Templates](https://lynxai-team.github.io/agent-smith/libraries/agent/templates)
+        - [Supervision](https://lynxai-team.github.io/agent-smith/libraries/agent/supervision)
+     - [Transient memory](https://lynxai-team.github.io/agent-smith/libraries/transient_memory)
+        - [Get started](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/get_started)
+        - [Usage](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/usage)
+        - [Api](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/api)
+     - [Semantic memory](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory)
+        - [Get started](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/get_started)
+        - [Initialize](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/initialize)
+        - [Write operations](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/write_operations)
+        - [Read operations](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/read_operations)
+     - [Wscli](https://lynxai-team.github.io/agent-smith/libraries/wscli)
+        - [Get started](https://lynxai-team.github.io/agent-smith/libraries/wscli/get_started)
+        - [Api](https://lynxai-team.github.io/agent-smith/libraries/wscli/api)
+ - [Plugins](https://lynxai-team.github.io/agent-smith/plugins)
+    - [Overview](https://lynxai-team.github.io/agent-smith/plugins/overview)
+    - [Filesystem](https://lynxai-team.github.io/agent-smith/plugins/filesystem)
+    - [Search](https://lynxai-team.github.io/agent-smith/plugins/search)
+    - [Shell](https://lynxai-team.github.io/agent-smith/plugins/shell)
+     - [Code](https://lynxai-team.github.io/agent-smith/plugins/code)
+        - [Git](https://lynxai-team.github.io/agent-smith/plugins/code/git)
+        - [Sqlite](https://lynxai-team.github.io/agent-smith/plugins/code/sqlite)
+ - [Server](https://lynxai-team.github.io/agent-smith/server)
+    - [Get started](https://lynxai-team.github.io/agent-smith/server/get_started)
+    - [Api](https://lynxai-team.github.io/agent-smith/server/api)
+    - [Client-usage](https://lynxai-team.github.io/agent-smith/server/client-usage)
+    - [Deployment](https://lynxai-team.github.io/agent-smith/server/deployment)
 
 </details>
 
@@ -75,16 +86,16 @@ An agent is a language model that can take decisions. It can:
 
 | Version | Name | Description | Nodejs | Browser |
 | --- | --- | --- | --- | --- |
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/cli)](https://www.npmjs.com/package/@agent-smith/cli) | [@agent-smith/cli](https://github.com/synw/agent-smith/tree/main/packages/cli) | Terminal client | :white_check_mark: | :x: |
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/agent)](https://www.npmjs.com/package/@agent-smith/agent) | [@agent-smith/agent](https://github.com/synw/agent-smith/tree/main/packages/agent) | Agent runtime | :white_check_mark: | :white_check_mark: |
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/core)](https://www.npmjs.com/package/@agent-smith/core) | [@agent-smith/core](https://github.com/synw/agent-smith/tree/main/packages/core) | Runtime engine | :white_check_mark: | :white_check_mark: |
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/types)](https://www.npmjs.com/package/@agent-smith/types) | [@agent-smith/types](https://github.com/synw/agent-smith/tree/main/packages/types) | Shared interfaces | :white_check_mark: | :white_check_mark: |
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/smem)](https://www.npmjs.com/package/@agent-smith/smem) | [@agent-smith/smem](https://github.com/synw/agent-smith/tree/main/packages/smem) | Semantic memory | :white_check_mark: | :x: |
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/tmem)](https://www.npmjs.com/package/@agent-smith/tmem) | [@agent-smith/tmem](https://github.com/synw/agent-smith/tree/main/packages/tmem) | Transient memory | :white_check_mark: | :white_check_mark: |
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/wscli)](https://www.npmjs.com/package/@agent-smith/wscli) | [@agent-smith/wscli](https://github.com/synw/agent-smith/tree/main/packages/wscli) | WebSocket client | :white_check_mark: | :white_check_mark: |
-| [![pub package](https://img.shields.io/npm/v/@agent-smith/server)](https://www.npmjs.com/package/@agent-smith/server) | [@agent-smith/server](https://github.com/synw/agent-smith/tree/main/server) | Koa server | :white_check_mark: | :x: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/cli)](https://www.npmjs.com/package/@agent-smith/cli) | [@agent-smith/cli](https://github.com/lynxai-team/agent-smith/tree/main/packages/cli) | Terminal client | :white_check_mark: | :x: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/agent)](https://www.npmjs.com/package/@agent-smith/agent) | [@agent-smith/agent](https://github.com/lynxai-team/agent-smith/tree/main/packages/agent) | Agent runtime | :white_check_mark: | :white_check_mark: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/core)](https://www.npmjs.com/package/@agent-smith/core) | [@agent-smith/core](https://github.com/lynxai-team/agent-smith/tree/main/packages/core) | Runtime engine | :white_check_mark: | :white_check_mark: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/types)](https://www.npmjs.com/package/@agent-smith/types) | [@agent-smith/types](https://github.com/lynxai-team/agent-smith/tree/main/packages/types) | Shared interfaces | :white_check_mark: | :white_check_mark: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/smem)](https://www.npmjs.com/package/@agent-smith/smem) | [@agent-smith/smem](https://github.com/lynxai-team/agent-smith/tree/main/packages/smem) | Semantic memory | :white_check_mark: | :x: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/tmem)](https://www.npmjs.com/package/@agent-smith/tmem) | [@agent-smith/tmem](https://github.com/lynxai-team/agent-smith/tree/main/packages/tmem) | Transient memory | :white_check_mark: | :white_check_mark: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/wscli)](https://www.npmjs.com/package/@agent-smith/wscli) | [@agent-smith/wscli](https://github.com/lynxai-team/agent-smith/tree/main/packages/wscli) | WebSocket client | :white_check_mark: | :white_check_mark: |
+| [![pub package](https://img.shields.io/npm/v/@agent-smith/server)](https://www.npmjs.com/package/@agent-smith/server) | [@agent-smith/server](https://github.com/lynxai-team/agent-smith/tree/main/server) | Koa server | :white_check_mark: | :x: |
 
-[Terminal client plugins](https://github.com/synw/agent-smith-plugins)
+[Terminal client plugins](https://github.com/lynxai-team/agent-smith-plugins)
 
 ## Philosophy
 
@@ -99,31 +110,13 @@ Supported inference servers:
 - [Llama.cpp](https://github.com/ggerganov/llama.cpp)
 - Any OpenAI-compatible API server
 
-## Examples
+## Getting started
 
-### Terminal client
-
-Simple inference query (using the [inference](https://synw.github.io/agent-smith/plugins/inference) plugin):
-
-```bash
-lm q list the planets of the solar system
-```
-
-Compare images (using the [vision](https://synw.github.io/agent-smith/plugins/vision) plugin):
-
-```bash
-lm vision img1.jpg img2.jpg "Compare the images"
-```
-
-Generate a commit message in a git repository (using the [git](https://synw.github.io/agent-smith/plugins/code/git) plugin):
-
-```bash
-lm commit
-```
+Terminal client [quick start doc](https://lynxai-team.github.io/agent-smith/terminal_client/quickstart)
 
 ## Terminal client plugins
 
-Plugins for the terminal client are available: [terminal client plugins](https://github.com/synw/agent-smith-plugins)
+Plugins for the terminal client are available: [terminal client plugins](https://github.com/lynxai-team/agent-smith-plugins)
 
 ## Node.js Example: Using an Agent with Local Tools
 
