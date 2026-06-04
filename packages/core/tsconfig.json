@@ -15,7 +15,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "types": [
-      "node"
+      "node",
+      "better-sqlite3"
     ],
     "lib": [
       "ES2022",

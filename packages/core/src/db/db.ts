@@ -1,10 +1,10 @@
 // @ts-ignore
-import DatabaseConstructor, { Database } from "better-sqlite3";
+import DatabaseConstructor from "better-sqlite3";
 import { schemas } from "./schemas.js";
 import { createDirectoryIfNotExists } from "../utils/sys/dirs.js";
 import { confDir, dbPath } from "../conf.js";
 
-let db: Database;
+let db: any;
 const debugDb = false;
 
 function initDb(isVerbose: boolean, execSchema: boolean) {
