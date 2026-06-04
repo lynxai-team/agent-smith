@@ -15,49 +15,27 @@
       </div>
     </div>
     <div class="ml-8">
-      <div class="flex flex-col mt-5">
-        <div>Quick example:</div>
-        <static-code-block :hljs="hljs" :code="code" lang="typescript"
-          class="not-prose mt-5 max-w-screen-lg"></static-code-block>
+      <div class="flex flex-col items-start mt-5 space-y-5">
+        <div class="text-xl">Quickstart</div>
+        <div>
+          Start here:<br /><button class="mt-5 btn success" @click="router.push('/terminal_client/quickstart')">Terminal
+            client quick
+            start</button>
+        </div>
+        <div class="text-xl">Agent loop</div>
+        <div>
+          <img src="/doc/agent-flow.png" alt="agent flow" />
+        </div>
       </div>
       <div>
-        <button class="mt-5 btn" @click="router.push('/terminal_client/install')">Next: terminal client</button>
+        <button class="mt-5 btn" @click="router.push('/terminal_client/quickstart')">Next: terminal client</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { hljs } from "@/conf";
-import { StaticCodeBlock } from "@docdundee/vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-
-const code = `import { Agent } from "@agent-smith/agent";
-import { Lm } from "@locallm/api";
-
-const lm = new Lm({
-    providerType: "openai",
-    serverUrl: serverUrl,
-    apiKey: apiKey,
-    onToken: (t) => process.stdout.write(t),
-});
-
-const agent = new Agent(lm);
-await agent.run(_prompt,
-    //inference params
-    {
-        temperature: 0.5,
-        top_k: 40,
-        top_p: 0.95,
-        min_p: 0,
-        max_tokens: 4096,
-        model: { name: "qwen4b" }
-    },
-    // query options
-    {
-        verbose: true,
-        system: "You are a helpful assistant",
-    });`;
 </script>
