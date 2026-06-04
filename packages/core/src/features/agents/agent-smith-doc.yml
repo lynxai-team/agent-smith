@@ -42,7 +42,9 @@ variables:
 toolsList:
   - shell
   - python
+  - notify-user
 skills:
   - update-doc-map
   - update-codebase-summary
   - document-plugin
+  - create-package-readme
