@@ -4,7 +4,7 @@
   "description": "Agent Smith core",
   "repository": "https://github.com/synw/agent-smith",
   "scripts": {
-    "build": "rm -rf dist/* && tsc && cp -r src/features/agents dist/features && cp -r src/features/workflows dist/features && cp -r src/features/fragments dist/features"
+    "build": "rm -rf dist/* && tsc && cp -r src/features/agents dist/features && cp -r src/features/workflows dist/features && cp -r src/features/fragments dist/features && cp -r src/features/skills dist/features"
   },
   "dependencies": {
     "@agent-smith/agent": "file:../agent",
@@ -14,6 +14,7 @@
     "better-sqlite3": "^12.10.0",
     "clipboardy": "^5.3.1",
     "front-matter": "^4.0.2",
+    "node-notifier": "^10.0.1",
     "python-shell": "^5.0.0",
     "yaml": "^2.9.0"
   },
@@ -21,6 +22,7 @@
     "@agent-smith/types": "file:../types",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.9.1",
+    "@types/node-notifier": "^8.0.5",
     "tslib": "^2.8.1",
     "typescript": "^6.0.3"
   },
