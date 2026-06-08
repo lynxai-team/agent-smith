@@ -81,6 +81,7 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
     }
 
     const _exec = async (prompt: string, opts: ClientFeaturesOptions, isSync = false) => {
+        //console.log("WS EXEC OPTS", opts);
         if (isSync) {
             let oir = params?.onTurnEnd;
             initAwaiter();
@@ -115,10 +116,10 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         }
         //console.log("SRV OPTS VARS", agentvars);
         const payload = { prompt: prompt };
-        opts = { ...opts, variables: agentvars };
+        const _opts = { ...opts, variables: agentvars };
         //console.log("==> OPTS", options);
 
-        ws.executeAgent(agentSpec.value?.name, payload, opts);
+        ws.executeAgent(agentSpec.value?.name, payload, _opts);
         if (isSync) {
             await awaiter;
         }
