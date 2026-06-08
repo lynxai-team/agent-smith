@@ -6,7 +6,7 @@ tool:
           description: the web search to perform or question about a web page
           required: true
 description: An agent to run web search
-category: doc
+category: internal
 prompt: |-
     {prompt}
 template:
