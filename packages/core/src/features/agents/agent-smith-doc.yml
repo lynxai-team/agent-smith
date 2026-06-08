@@ -46,5 +46,5 @@ toolsList:
 skills:
   - update-doc-map
   - update-codebase-summary
-  - document-plugin
+  - document-package
   - create-package-readme

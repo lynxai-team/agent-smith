@@ -1,17 +1,17 @@
 ---
-name: document-plugin
-description: use when asked to create or update plugin documentation in the docsite
+name: document-package
+description: use when asked to create or update package documentation in the docsite
 ---
 
-This skill describes the workflow to document a plugin for the Agent Smith CLI.
+This skill describes the workflow to document a package for the Agent Smith CLI.
 
 ## Workflow
 
 Execute this one step after the other:
 
-1. **Locate the plugin** — Read `agent-smith-plugins/.agents/documentation/codebase-summary.md` to find the plugin path
+1. **Locate the package** — Read `.agents/documentation/codebase-summary.md` to find the package path
 
-2. **Read codebase summary** — Read `[plugin-path].agents/documentation/codebase-summary.md` (e.g., `agent-smith-plugins/system/shell/.agents/documentation/codebase-summary.md`). This provides a quick overview of tools, agents, dependencies, and architecture.
+2. **Read codebase summary** — Read `[package-path].agents/documentation/codebase-summary.md` (e.g., `agent-smith-plugins/system/shell/.agents/documentation/codebase-summary.md`). This provides a quick overview of tools, agents, dependencies, and architecture.
 
 3. **Read source code** — Inspect `src/actions/`, `dist/agents/*.yml`, `dist/tasks/*.yml` to identify tools, agents, and capabilities.
 
@@ -20,11 +20,11 @@ Execute this one step after the other:
 5. **Write the doc** at `agent-smith/docsite/public/doc/plugins/<N>.<name>.md` using this exact structure:
 
 ```markdown
-# <PluginName>
+# <PackageName>
 
 ![pub package](https://img.shields.io/npm/v/@agent-smith/feat-<name>)
 
-One-line description of what the plugin does.
+One-line description of what the package does.
 
 ## Install
 
@@ -32,7 +32,7 @@ One-line description of what the plugin does.
 npm i -g @agent-smith/feat-<name>
 ```
 
-Add the plugin to your `config.yml` file and run the `conf` command:
+Add the package to your `config.yml` file and run the `conf` command:
 
 ```yml
 plugins:
@@ -68,9 +68,9 @@ toolsList:
   - agent-name # this tool is a subagent
 ```
 
-## Security
+## Links
 
-Brief note on sandboxing, network isolation, volume mounting if applicable.
+Add a next page link. All internal links must be of this form:
 
 <a href="javascript:openLink('/plugins/overview')">Back: Overview</a>
 ```
@@ -80,4 +80,4 @@ Brief note on sandboxing, network isolation, volume mounting if applicable.
 - Keep it short and information-dense — match the style of `6.filesystem.md` and `8.search.md`
 - Use `<kbd>tool-name</kbd>` for all tools/agents
 - Use backticks `for tool names in prose
-- End with navigation link to overview (or next plugin if known)
+- End with navigation link to overview (or next package if known)
