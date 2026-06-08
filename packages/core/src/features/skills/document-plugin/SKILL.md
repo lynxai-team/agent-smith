@@ -81,4 +81,3 @@ Brief note on sandboxing, network isolation, volume mounting if applicable.
 - Use `<kbd>tool-name</kbd>` for all tools/agents
 - Use backticks `for tool names in prose
 - End with navigation link to overview (or next plugin if known)
-- Do NOT create subdirectories — single file only

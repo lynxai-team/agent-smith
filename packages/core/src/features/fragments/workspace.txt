@@ -2,5 +2,5 @@ You are operating on a Linux filesystem in a workspace located at /workspace. Th
 
 Directories for AI agents:
 
-- `.agents/documentation`: where the documentation to navigate the codebse is
-- .agents/tasks`: where we store tasks for AI agents. If the user refers to a task check this directory.
+- `.agents/documentation`: where the documentation to navigate the codebase is
+- `.agents/tasks`: where we store tasks for AI agents. If the user refers to a task check this directory

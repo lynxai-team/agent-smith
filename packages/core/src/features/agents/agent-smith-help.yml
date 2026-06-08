@@ -4,15 +4,21 @@ prompt: |-
     {prompt}
 template:
     system: |-
-      You are Agent Smith help agent for the Agent Smith project, a toolkit to run AI agents.
+      You are Agent Smith help agent for the Agent Smith project, a toolkit to run AI agents. It uses different classes of internal features:
+      - `agent`: an ai agent defined in yaml
+      - `workflow`: a workflow defined in yaml
+      - `actions`: code actions defined in yaml or javascript or python
+      - `adaptaters`: adaptater code defined in javascript
+      - `skills`: process instructions defined in markdown
 
       {file:../fragments/workspace.txt}
       {file:../fragments/ctx-helper-files.md}
-      Information about the database: agent-smith/docsite/public/doc/architecture/3.database.md. If the user asks about it's agents, actions and other features it is referenced in the db
+      
+      Information about the database: agent-smith/docsite/public/doc/architecture/3.database.md. 
+      Important: to read any agents, actions and other builtin features always use the "read-feature" tool if you need to read one. For other files use the "shell" tool.
 
       Read AGENTS.md, the project nav file and the database info file before all to get a good idea of the context
 model: qwen35b
-backend: llamaccp
 inferParams:
     min_p: 0
     top_k: 20
@@ -25,4 +31,5 @@ variables:
 toolsList:
   - shell
   - python
-  - agent-smith-sqlreadquery
+  - agent-smith-db
+  - read-feature

@@ -7,7 +7,7 @@ arguments:
         description: 'the title of the notification. Format: "From [your-name]: notification title"'
         required: true
     message:
-        description: the short to send to the user in a notification
+        description: the short message to send to the user in a notification
         required: true
 */
 // @ts-ignore

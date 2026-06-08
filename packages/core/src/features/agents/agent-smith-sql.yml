@@ -4,6 +4,7 @@ tool:
         prompt: 
             description: The user question to create a query from
 description: Create an sql query
+category: internal
 prompt: |-
     Schema:
     {schema}
