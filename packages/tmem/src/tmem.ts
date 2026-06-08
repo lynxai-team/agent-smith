@@ -1,6 +1,7 @@
-import * as localForage from "localforage";
+import localforage from "localforage";
 import { Tmem } from "./tmeminterfaces.js";
 
+const localForage = localforage;
 const useTmem = <S extends Record<string, any> = Record<string, any>>(
     name: string, initial: S, verbose = false
 ): Tmem<S> => {
@@ -23,24 +24,23 @@ const useTmem = <S extends Record<string, any> = Record<string, any>>(
         }
     };
 
-    const set = async (k: string, v: any) => {
+    const set = async <T extends keyof S>(k: T, v: S[T]) => {
         await db.ready();
-        await db.setItem(k, v);
+        await db.setItem<S[T]>(k as string, v);
     };
 
-    const get = async <T>(k: string): Promise<T> => {
-        //console.log("TMEM GET", k);
+    const get = async <T extends keyof S>(k: T): Promise<S[T]> => {
         await db.ready();
-        const v = await db.getItem<T>(k);
+        const v = await db.getItem<T>(k as string);
         if (v === null) {
-            throw new Error(`Key ${k} not found`)
+            throw new Error(`Key ${k as string} not found`)
         }
-        return v
+        return v as S[T]
     };
 
-    const del = async (k: string) => {
+    const del = async <T extends keyof S>(k: T) => {
         await db.ready();
-        await db.removeItem(k);
+        await db.removeItem(k as string);
     };
 
     const keys = async (): Promise<Array<string>> => {
