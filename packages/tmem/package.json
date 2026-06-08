@@ -1,6 +1,6 @@
 {
   "name": "@agent-smith/tmem",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "An api to ceate human friendly agents: the transient memory module",
   "repository": "https://github.com/synw/agent-smith",
   "scripts": {
