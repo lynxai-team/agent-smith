@@ -1,0 +1,1 @@
+import{o as c,c as r,a}from"./index-6Q7ZgM2y.js";const l=(e,t)=>{const o=e.__vccOpts||e;for(const[s,n]of t)o[s]=n;return o},f={},_={class:"flex justify-around h-full w-full"};function d(e,t){return c(),r("div",_,[...t[0]||(t[0]=[a("div",{class:"text-3xl"},"Page not found",-1)])])}const i=l(f,[["render",d]]);export{i as default};
