@@ -14,7 +14,7 @@ The central runtime engine for the [Agent Smith toolkit](https://github.com/lynx
 - 📡 **Reactive State** — Vue `ref`/`reactive` for cross-module state management
 - 🔄 **Backend Agnostic** — Multiple inference backends (OpenAI-compatible, local llamacpp) with per-agent selection
 
-## 📚 Documentation
+## Documentation
 
 ### For AI Agents
 - [Codebase Summary](.agents/documentation/codebase-summary.md) — Architecture, key files, and patterns for the core package

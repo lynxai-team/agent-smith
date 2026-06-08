@@ -24,11 +24,10 @@ Vector-based semantic memory using LanceDB + Xenova embeddings (384-dim `all-Min
 - [Read Operations](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/semantic_memory/4.read_operations.md) — search, filter, vector embeddings
 
 ### For Humans
-- [Complete Documentation](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/) — Full guide to semantic memory
-  - [Overview & Quick Start](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/1.get_started)
-  - [Initialize a Database](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/2.initialize)
-  - [Write Operations](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/3.write_operations)
-  - [Read Operations](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/4.read_operations)
+- [Overview & Quick Start](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/1.get_started) — Overview and quick start
+- [Initialize a Database](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/2.initialize) — Schema definition, database initialization, and node creation
+- [Write Operations](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/3.write_operations) — add, upsert, insertIfNotExists, raw operations
+- [Read Operations](https://lynxai-team.github.io/agent-smith/libraries/semantic_memory/4.read_operations) — search, filter, vector embeddings
 
 ## Installation
 

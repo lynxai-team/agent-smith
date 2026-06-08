@@ -17,13 +17,16 @@
 
 ### For AI Agents
 - [Codebase Summary](.agents/documentation/codebase-summary.md) — Architecture, key files, and patterns for the agent package
-- [Get Started](https://lynxai-team.github.io/agent-smith/libraries/agent/1.get_started.md) — Installation and basic usage
-- [Tools](https://lynxai-team.github.io/agent-smith/libraries/agent/2.tools.md) — Defining and configuring tools for agents
-- [Templates](https://lynxai-team.github.io/agent-smith/libraries/agent/3.templates.md) — System prompts, YAML specs, and few-shot examples
-- [Supervision](https://lynxai-team.github.io/agent-smith/libraries/agent/4.supervision.md) — Human-in-the-loop tool authorization
+- [Get Started](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/agent/1.get_started.md) — Installation and basic usage
+- [Tools](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/agent/2.tools.md) — Defining and configuring tools for agents
+- [Templates](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/agent/3.templates.md) — System prompts, YAML specs, and few-shot examples
+- [Supervision](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/agent/4.supervision.md) — Human-in-the-loop tool authorization
 
 ### For Humans
-- [Complete doc](https://lynxai-team.github.io/agent-smith/libraries/agent/)
+- [Get Started](https://lynxai-team.github.io/agent-smith/libraries/agent/) — Overview and usage guide
+- [Tools](https://lynxai-team.github.io/agent-smith/libraries/agent/tools) — Defining and configuring tools for agents
+- [Templates](https://lynxai-team.github.io/agent-smith/libraries/agent/templates) — System prompts, YAML specs, and few-shot examples
+- [Supervision](https://lynxai-team.github.io/agent-smith/libraries/agent/supervision) — Human-in-the-loop tool authorization
 
 ## Installation
 

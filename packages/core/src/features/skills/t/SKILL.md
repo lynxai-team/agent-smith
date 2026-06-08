@@ -17,9 +17,9 @@ Check if an `.agents/tasks/[task-name]` directory exists, if not create it. You 
 
 ## Execute or continue a task
 
-Check what is remaining to do. Avoid verifying previous phases and execute the relevant phase(s) directly
+Check what is remaining to do. Avoid verifying previous phases and execute the next phase directly. Always execute the phases one by one. Update the sate after each phase to mark it done.
 
-## To do after a task is executed or created
+## After a task is executed or created: manage the state
 
 If the task is completed ask the user to confirm if everything is all right. If yes delete the task directory.
 

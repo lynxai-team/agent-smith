@@ -12,17 +12,18 @@ A lightweight key-value store wrapping [localForage](https://localforage.github.
 - 🌐 **Browser-only** — designed for client-side agent state management
 - 🔄 **Lazy initialization** — initial data populated only when store is empty
 
-## 📖 Documentation
+## Documentation
 
 ### For AI Agents
-- [Codebase Summary](.agents/documentation/codebase-summary.md) — Architecture, key files, and patterns
-- [Source: tmem.ts](src/tmem.ts) — Factory implementation
-- [Source: tmeminterfaces.ts](src/tmeminterfaces.ts) — Type definitions
+- [Codebase Summary](.agents/documentation/codebase-summary.md) — Architecture, key files, and patterns for the transient memory package
+- [Get Started](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/transient_memory/1.get_started.md) — Installation and quick start
+- [Usage Guide](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/transient_memory/2.usage.md) — Patterns and examples
+- [API Reference](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/transient_memory/3.api.md) — Complete API surface
 
 ### For Humans
-- [Get Started](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/1.get_started.md) — Installation and quick start
-- [Usage Guide](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/2.usage.md) — Patterns and examples
-- [API Reference](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/3.api.md) — Complete API surface
+- [Get Started](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/1.get_started) — Installation and quick start
+- [Usage Guide](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/2.usage) — Patterns and examples
+- [API Reference](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/3.api) — Complete API surface
 
 ## 📦 Installation
 
