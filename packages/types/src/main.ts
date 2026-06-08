@@ -11,6 +11,7 @@ import {
     ImgData,
     UiHistoryTurnState,
     UiHistoryTurnType,
+    ChatCompletionHistoryTurn,
 } from "./history.js";
 import {
     InferenceParams,
@@ -205,4 +206,5 @@ export type {
     InferenceStats,
     SamplingPreset,
     AgentWorkflow,
+    ChatCompletionHistoryTurn,
 }

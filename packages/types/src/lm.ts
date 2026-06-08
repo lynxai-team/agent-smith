@@ -4,6 +4,8 @@ import type { InferenceResult } from "./inference.js";
 import type { ModelInfo } from "./model.js";
 import type { InferenceCallbacks } from "./callbacks.js";
 import type { ToolSpec } from "./tools.js";
+import type { ChatCompletionContentPart, ChatCompletionMessageToolCall, ChatCompletionRole } from "openai/resources/index.js";
+import type { ChatCompletionHistoryTurn } from "./history.js";
 
 /**
  * Represents the basic progress of a load operation.
@@ -166,6 +168,7 @@ interface LmProvider extends InferenceCallbacks {
     unloadModel: (name: string) => Promise<void>;
     tokenize(text: string): Promise<Array<number>>;
     detokenize(tokens: Array<number>): Promise<string>;
+    applyTemplate(messages: Array<ChatCompletionHistoryTurn>, modelName: string): Promise<{ prompt: string }>;
     infer: (prompt: string, options?: InferenceOptions) => Promise<InferenceResult>;
     abort: () => Promise<void>;
     defaults?: LmDefaults;

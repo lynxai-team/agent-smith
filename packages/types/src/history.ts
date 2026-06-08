@@ -1,5 +1,5 @@
 
-import type { ChatCompletionMessageToolCall, ChatCompletionRole } from "openai/resources/index.js";
+import type { ChatCompletionContentPart, ChatCompletionMessageToolCall, ChatCompletionRole } from "openai/resources/index.js";
 import type { InferenceStats, PromptProcessingInProgressStats } from "./stats.js";
 import type { ToolCallSpec } from "./tools.js";
 
@@ -66,11 +66,18 @@ interface ImgData {
     data: string;
 }
 
-interface InferenceClientHistoryMessage {
+/*interface InferenceClientHistoryMessage {
     role: ChatCompletionRole;
     content?: string;
     reasoning_content?: string;
     tool_calls: Array<ChatCompletionMessageToolCall>;
+}*/
+
+interface ChatCompletionHistoryTurn {
+    role: ChatCompletionRole;
+    content?: string | Array<ChatCompletionContentPart>;
+    reasoning_content?: string;
+    tool_calls?: Array<ChatCompletionMessageToolCall>;
 }
 
 type UiHistoryTurnType = "unknown" | "user" | "assistant" | "think" | "tools";
@@ -82,4 +89,5 @@ export {
     ImgData,
     UiHistoryTurnState,
     UiHistoryTurnType,
+    ChatCompletionHistoryTurn,
 }
