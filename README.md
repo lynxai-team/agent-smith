@@ -1,10 +1,8 @@
 # Agent Smith
 
-<table>
-<tr>
-<td width="60%">
+![Agent Smith](docsite/public/img/agentsmith.png)
 
-### A toolkit to create local-first human-friendly agents in the browser or terminal
+A toolkit to create local-first human-friendly agents in the browser or terminal
 
 | Feature | Description |
 |---------|-------------|
@@ -20,15 +18,6 @@
 - **Explicit** — simple and under user control, no hidden magic
 
 📚 [Documentation](https://lynxai-team.github.io/agent-smith) | 🧩 [Plugins](https://github.com/synw/agent-smith-plugins) | 🎨 [UI](https://github.com/synw/agent-smith-ui)
-
-</td>
-<td width="40%">
-
-![Agent Smith](docsite/public/img/agentsmith.png)
-
-</td>
-</tr>
-</table>
 
 ## Quickstart
 
