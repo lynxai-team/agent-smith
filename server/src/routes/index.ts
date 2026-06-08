@@ -12,6 +12,7 @@ import { getBackendsRoute, setBackendRoute } from "./backends.js";
 import { getOrCreateAppConfigFileRoute, updateAppConfigFileRoute } from "./apps.js";
 import { getWorkspaceRoute, updateDefaultWorkspaceRoute, upsertWorkspaceRoute } from "./workspace.js";
 import { getSettingsRoute } from "./settings.js";
+import { applyTemplateRoute } from "./templates.js";
 
 const baseRoutes = new Array<((r: Router) => void)>(
     getConfRoute,
@@ -38,6 +39,7 @@ const baseRoutes = new Array<((r: Router) => void)>(
     getSettingsRoute,
     upsertModelPresetRoute,
     delModelPresetRoute,
+    applyTemplateRoute,
 );
 
 export { baseRoutes }

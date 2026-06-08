@@ -45,6 +45,8 @@ app.ws.use((ctx: Context, next: Next) => {
 function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
   //state.init();
   const router = useRouter(routes);
+  //console.log(router.apiRouter.stack.map(i => i.path));
+  //console.log(router.baseRouter.stack.map(i => i.path));
 
   const confirmToolCalls: Record<string, (value: boolean) => void> = {};
 
@@ -181,7 +183,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
     .use(apiRouter.routes()).use(apiRouter.allowedMethods());
 
   // 404 middleware - runs after router
-  app.use((ctx) => {
+  /*app.use((ctx) => {
     if (!ctx.matched || ctx.matched.length === 0) {
       ctx.redirect('/')
       ctx.status = 301
@@ -191,9 +193,9 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
       ctx.body = {
         error: 'Not Found',
         path: ctx.path
-      };*/
+      };
     }
-  });
+  });*/
 
   app.listen(5184, () => {
     console.log('Please open url http://localhost:5184 in a browser');
