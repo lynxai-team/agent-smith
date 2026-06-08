@@ -1,17 +1,18 @@
-import type {
-    ClientInferenceOptions,
-    InferenceCallbacks,
-    InferenceResult,
-    LmProvider,
-    LmProviderParams,
-    ModelInfo,
-    OnLoadProgress,
-    PerformanceMetrics,
-    PromptProcessingInProgressStats,
-    PromptProcessingProgress,
-    ToolCallSpec,
-    ToolSpec,
-    VerbosityOptions,
+import {
+    ChatCompletionHistoryTurn,
+    type ClientInferenceOptions,
+    type InferenceCallbacks,
+    type InferenceResult,
+    type LmProvider,
+    type LmProviderParams,
+    type ModelInfo,
+    type OnLoadProgress,
+    type PerformanceMetrics,
+    type PromptProcessingInProgressStats,
+    type PromptProcessingProgress,
+    type ToolCallSpec,
+    type ToolSpec,
+    type VerbosityOptions,
 } from "@agent-smith/types";
 import { createParser } from 'eventsource-parser';
 import type {
@@ -220,12 +221,7 @@ class Lm implements LmProvider {
             draft_n: 0,
             draft_n_accepted: 0
         };
-        let msgs = new Array<{
-            role: ChatCompletionRole,
-            content?: string | Array<ChatCompletionContentPart>,
-            reasoning_content?: string,
-            tool_calls?: Array<ChatCompletionMessageToolCall>
-        }>();
+        let msgs = new Array<ChatCompletionHistoryTurn>();
         if (localOptions?.history) {
             msgs = buildMessagesHistory(localOptions.history, localOptions);
         }
@@ -618,6 +614,32 @@ class Lm implements LmProvider {
             events.onEndEmit(ir, localOptions?.agentName ?? "")
         }
         return ir
+    }
+
+    async applyTemplate(messages: Array<ChatCompletionHistoryTurn>, modelName: string): Promise<{ prompt: string; }> {
+        const baseUrl = this.serverUrl.replace("/v1", "");
+        const api = useApi({
+            serverUrl: baseUrl,
+            credentials: "omit",
+        });
+        api.addHeader('Content-Type', 'application/json')
+        if (this.apiKey.length > 0) {
+            api.addHeader("Authorization", `Bearer ${this.apiKey}`);
+        }
+        const res = await api.post<{ prompt: string; }>("/apply-template", {
+            messages: messages,
+            model: modelName,
+        });
+        if (!res.ok) {
+            const m = `applying template ${res.status} ${res.statusText} ${res.text}`
+            if (this.onError) {
+                console.warn(m);
+                this.onError(m, this.name)
+            } else {
+                throw new Error(m)
+            }
+        }
+        return res.data
     }
 
     /**

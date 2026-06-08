@@ -4,7 +4,6 @@ import { Lm } from "./client.js";
 import { convertStats } from "./stats.js";
 import YAML from 'yaml';
 import { applyVariables } from "./variables.js";
-import { formatInferParams } from "./params.js";
 
 class Agent {
     name: string = "unamed";
@@ -181,6 +180,12 @@ class Agent {
         };
         baseOpts.tools = Object.values(this.tools);
         baseOpts.history = this.history;
+        // check start assistant message
+        if (this.spec?.template?.assistant) {
+            baseOpts.history.push({
+                assistant: this.spec.template.assistant
+            })
+        }
         //console.log("AGENT OPTS", baseOpts);
         localOptions = { ...baseOpts, ...clientEvents, ...events };
         const clientOpts = { ...localOptions, agentName: this.name };
