@@ -32,6 +32,7 @@
 - [`agent-smith/docsite/public/doc/libraries/agent/4.supervision.md`](agent-smith/docsite/public/doc/libraries/agent/4.supervision.md)
 - [`agent-smith/docsite/public/doc/libraries/core/4.tool-execution.md`](agent-smith/docsite/public/doc/libraries/core/4.tool-execution.md)
 - [`agent-smith/docsite/public/doc/libraries/core/5.mcp.md`](agent-smith/docsite/public/doc/libraries/core/5.mcp.md)
+- [`agent-smith/docsite/public/doc/libraries/core/6.skills.md`](agent-smith/docsite/public/doc/libraries/core/6.skills.md)
 
 ### plugins
 
@@ -52,18 +53,20 @@
 ### terminal_client
 
 - [`agent-smith/docsite/public/doc/terminal_client/0.quickstart.md`](agent-smith/docsite/public/doc/terminal_client/0.quickstart.md)
+- [`agent-smith/docsite/public/doc/terminal_client/1.quickstart-agent.md`](agent-smith/docsite/public/doc/terminal_client/1.quickstart-agent.md)
 - [`agent-smith/docsite/public/doc/terminal_client/1.install.md`](agent-smith/docsite/public/doc/terminal_client/1.install.md)
 - [`agent-smith/docsite/public/doc/terminal_client/agents/1.overview.md`](agent-smith/docsite/public/doc/terminal_client/agents/1.overview.md)
 - [`agent-smith/docsite/public/doc/terminal_client/2.overview.md`](agent-smith/docsite/public/doc/terminal_client/2.overview.md)
 - [`agent-smith/docsite/public/doc/terminal_client/agents/2.tools_call.md`](agent-smith/docsite/public/doc/terminal_client/agents/2.tools_call.md)
 - [`agent-smith/docsite/public/doc/terminal_client/3.config.md`](agent-smith/docsite/public/doc/terminal_client/3.config.md)
 - [`agent-smith/docsite/public/doc/terminal_client/agents/3.mcp.md`](agent-smith/docsite/public/doc/terminal_client/agents/3.mcp.md)
+- [`agent-smith/docsite/public/doc/terminal_client/4.agents.md`](agent-smith/docsite/public/doc/terminal_client/4.agents.md)
 - [`agent-smith/docsite/public/doc/terminal_client/agents/4.subagents.md`](agent-smith/docsite/public/doc/terminal_client/agents/4.subagents.md)
-- [`agent-smith/docsite/public/doc/terminal_client/4.tasks.md`](agent-smith/docsite/public/doc/terminal_client/4.tasks.md)
 - [`agent-smith/docsite/public/doc/terminal_client/agents/5.tools_routing.md`](agent-smith/docsite/public/doc/terminal_client/agents/5.tools_routing.md)
 - [`agent-smith/docsite/public/doc/terminal_client/6.actions.md`](agent-smith/docsite/public/doc/terminal_client/6.actions.md)
 - [`agent-smith/docsite/public/doc/terminal_client/7.workflows.md`](agent-smith/docsite/public/doc/terminal_client/7.workflows.md)
 - [`agent-smith/docsite/public/doc/terminal_client/8.commands.md`](agent-smith/docsite/public/doc/terminal_client/8.commands.md)
+- [`agent-smith/docsite/public/doc/terminal_client/93.skills.md`](agent-smith/docsite/public/doc/terminal_client/93.skills.md)
 
 ## 🤖 Root Agent Documentation
 
