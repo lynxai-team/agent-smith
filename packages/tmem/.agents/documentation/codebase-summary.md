@@ -23,6 +23,20 @@ Transient key-value memory for agents. Wraps localForage (IndexedDB backend) wit
 - **Generic Factory**: `useTmem<S>()` creates a typed instance for a named store with optional initial data.
 - **Wrapper Pattern**: Simplifies localForage's API to consistent async key-value operations.
 - **Init on Demand**: `init()` populates store only if empty, enabling reproducible agent state.
+- **Type Inference**: TypeScript generics infer value types from keys — `get("count")` returns the inferred type without explicit type parameters.
+
+## API Surface
+```typescript
+interface Tmem<S extends Record<string, any>> {
+    db: LocalForage;
+    init(): Promise<void>;
+    set<T extends keyof S>(k: T, v: S[T]): Promise<void>;
+    get<T extends keyof S>(k: T): Promise<S[T]>;
+    del<T extends keyof S>(k: T): Promise<void>;
+    keys(): Promise<Array<string>>;
+    all<T = any>(): Promise<Record<string, T>>;
+}
+```
 
 ## Related
 - See `packages/smem` — complementary semantic (vector) memory; tmem handles simple key-value persistence.

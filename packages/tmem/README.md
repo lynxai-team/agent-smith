@@ -1,64 +1,59 @@
-[![npm package](https://img.shields.io/npm/v/@agent-smith/tmem)](https://www.npmjs.com/package/@agent-smith/tmem)
+[![npm version](https://img.shields.io/npm/v/@agent-smith/tmem)](https://www.npmjs.com/package/@agent-smith/tmem)
 
-# @agent-smith/tmem — Transient Key-Value Memory
+# @agent-smith/tmem — Transient Memory for AI Agents
 
-Lightweight transient key-value store wrapping localForage/IndexedDB for agent state persistence. Part of the [Agent Smith](https://github.com/lynxai-team/agent-smith) toolkit.
+A lightweight key-value store wrapping [localForage](https://localforage.github.io/localForage/) (IndexedDB backend) with a simple typed async API. Part of the [Agent Smith toolkit](https://github.com/lynxai-team/agent-smith).
 
-## Features
+## ✨ Features
 
-- 🗄️ **IndexedDB-backed** persistent storage that survives page reloads
-- 🏭 **Generic factory** — `useTmem<S>()` creates typed stores with any shape
-- 🔄 **Init-on-demand** — initial data populated only if the store is empty
-- ⚡ **Async API** — consistent `set/get/del/keys/all` interface over IndexedDB
-- 🔍 **Verbose mode** — optional console logging during initialization
-- 🌐 **Browser-only** — works in any modern browser with IndexedDB support
+- 🗄️ **IndexedDB-backed persistence** — data survives page reloads via localForage
+- 🔤 **TypeScript generics** — typed stores with automatic type inference from keys
+- ⚡ **Simple API** — `init`, `set`, `get`, `del`, `keys`, `all` operations
+- 🌐 **Browser-only** — designed for client-side agent state management
+- 🔄 **Lazy initialization** — initial data populated only when store is empty
 
-## Documentation
+## 📖 Documentation
 
 ### For AI Agents
-- [Codebase Summary](.agents/documentation/codebase-summary.md) — Architecture, key files, and patterns for the tmem package
-- [Get Started](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/transient_memory/1.get_started.md) — Installation and basic usage
-- [Usage](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/transient_memory/2.usage.md) — Practical usage patterns
-- [API Reference](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/transient_memory/3.api.md) — Complete API surface
+- [Codebase Summary](.agents/documentation/codebase-summary.md) — Architecture, key files, and patterns
+- [Source: tmem.ts](src/tmem.ts) — Factory implementation
+- [Source: tmeminterfaces.ts](src/tmeminterfaces.ts) — Type definitions
 
 ### For Humans
-- [Get Started](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/get_started) — Installation and basic usage
-- [Usage](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/usage) — Practical usage patterns
-- [API Reference](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/api) — Complete API surface
+- [Get Started](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/1.get_started.md) — Installation and quick start
+- [Usage Guide](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/2.usage.md) — Patterns and examples
+- [API Reference](https://lynxai-team.github.io/agent-smith/libraries/transient_memory/3.api.md) — Complete API surface
 
-## Installation
+## 📦 Installation
 
 ```bash
 npm i @agent-smith/tmem
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ```typescript
 import { useTmem } from "@agent-smith/tmem";
 
-const tmem = useTmem("myStore", { greeting: "hello", count: 0 });
+const store = useTmem("myStore", { greeting: "hello", count: 0 });
+await store.init();
 
-await tmem.init();
+// Write
+await store.set("greeting", "world");
 
-// Store a new value
-await tmem.set("greeting", "world");
-
-// Read a value (throws if key doesn't exist)
-const greeting = await tmem.get<string>("greeting");
+// Read (type inferred from key)
+const greeting = await store.get("greeting");
 console.log(greeting); // "world"
 
-// Delete and list keys
-await tmem.del("count");
-const keys = await tmem.keys();
+// Delete and list
+await store.del("count");
+const keys = await store.keys();
 console.log(keys); // ["greeting"]
 ```
 
-## Usage
+## 📝 Usage
 
 ### Creating a Store
-
-Use the `useTmem` factory to create a named store with optional initial data:
 
 ```typescript
 import { useTmem } from "@agent-smith/tmem";
@@ -70,17 +65,17 @@ const prefs = useTmem("userPrefs", {
 });
 ```
 
-The `initial` object is written **only if the store is empty** (i.e., `keys()` returns zero entries). Subsequent calls to `init()` will not overwrite existing data.
+The `initial` object is written only if the store is empty. Subsequent `init()` calls won't overwrite existing data.
 
 ### Initialization
 
-Always call `init()` before performing any read or write operations:
+Always call `init()` before any read/write operations:
 
 ```typescript
 await prefs.init();
 ```
 
-`init()` waits for the underlying IndexedDB instance to be ready, then populates it with the initial data if empty.
+`init()` waits for IndexedDB readiness and populates initial data if the store is empty.
 
 ### Verbose Mode
 
@@ -94,29 +89,28 @@ await prefs.init();
 
 ### Reading and Writing
 
-All operations are asynchronous — use `await` with every call:
+All operations are asynchronous:
 
 ```typescript
 // Write
 await prefs.set("theme", "light");
 
-// Read (throws if key is missing)
-const theme = await prefs.get<string>("theme");
+// Read (type inferred from key)
+const theme = await prefs.get("theme");
 console.log(theme); // "light"
 
-// Get all values at once
+// Get all values
 const allPrefs = await prefs.all();
-console.log(allPrefs);
 // { theme: "light", language: "en", fontSize: 14 }
 ```
 
 ### Error Handling
 
-The `get()` method throws an `Error` when the requested key does not exist:
+`get()` throws if the key doesn't exist:
 
 ```typescript
 try {
-    const value = await prefs.get<string>("nonexistent");
+    const value = await prefs.get("nonexistent");
 } catch (e) {
     console.error(e.message); // "Key nonexistent not found"
 }
@@ -124,15 +118,11 @@ try {
 
 ### Deleting Keys
 
-Remove a single key from the store:
-
 ```typescript
 await prefs.del("fontSize");
 ```
 
 ### Accessing the Underlying localForage Instance
-
-The returned `Tmem` object exposes the `db` property for advanced operations:
 
 ```typescript
 // Clear the entire store
@@ -144,7 +134,7 @@ await prefs.db.iterate((value, key) => {
 });
 ```
 
-## Complete Example
+## 🔧 Complete Example
 
 ```typescript
 import { useTmem } from "@agent-smith/tmem";
@@ -158,9 +148,9 @@ async function main() {
     await store.set("version", 2);
     await store.set("tokens", ["abc", "def"]);
 
-    // 3. Read values
-    const version = await store.get<number>("version");
-    const tokens = await store.get<string[]>("tokens");
+    // 3. Read values (types inferred from keys)
+    const version = await store.get("version");
+    const tokens = await store.get("tokens");
     console.log(`Version: ${version}, Tokens: ${tokens.join(", ")}`);
 
     // 4. List all keys
@@ -175,7 +165,7 @@ async function main() {
 main();
 ```
 
-## API Reference
+## 📚 API Reference
 
 ### Factory Function: `useTmem`
 
@@ -187,19 +177,11 @@ function useTmem<S extends Record<string, any> = Record<string, any>>(
 ): Tmem<S>
 ```
 
-Creates a new transient memory store.
-
-#### Parameters
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `name` | `string` | The name of the localForage store instance. Determines the IndexedDB object store name. |
-| `initial` | `S` (extends `Record<string, any>`) | An object containing initial key-value pairs. Written only if the store is empty. |
-| `verbose` | `boolean` (optional) | If `true`, logs a message to `console` when initial data is populated. Default: `false`. |
-
-#### Return Value
-
-Returns an object conforming to the `Tmem<S>` interface.
+| `name` | `string` | Name of the localForage store (determines IndexedDB object store name) |
+| `initial` | `S` | Initial key-value pairs. Written only if store is empty |
+| `verbose` | `boolean` (optional) | Enable console logging during init. Default: `false` |
 
 ### Interface: `Tmem<S>`
 
@@ -207,40 +189,32 @@ Returns an object conforming to the `Tmem<S>` interface.
 interface Tmem<S extends Record<string, any>> {
     db: LocalForage;
     init(): Promise<void>;
-    set(k: string, v: any): Promise<void>;
-    get<T>(k: string): Promise<T>;
-    del(k: string): Promise<void>;
+    set<T extends keyof S>(k: T, v: S[T]): Promise<void>;
+    get<T extends keyof S>(k: T): Promise<S[T]>;
+    del<T extends keyof S>(k: T): Promise<void>;
     keys(): Promise<Array<string>>;
     all<T = any>(): Promise<Record<string, T>>;
 }
 ```
 
-All methods are **asynchronous** and return Promises.
+### Method Summary
 
-#### Property: `db`
+| Method | Signature | Returns | Description |
+|--------|-----------|---------|-------------|
+| `init()` | `() => Promise<void>` | — | Initialize store with initial data if empty |
+| `set(k, v)` | `(k: keyof S, v: S[keyof S]) => Promise<void>` | — | Store a key-value pair |
+| `get(k)` | `(k: keyof S) => Promise<S[keyof S]>` | Value | Retrieve value by key (throws if missing) |
+| `del(k)` | `(k: keyof S) => Promise<void>` | — | Remove a key from the store |
+| `keys()` | `() => Promise<string[]>` | Array | List all keys in the store |
+| `all()` | `() => Promise<Record<string, any>>` | Object | Get all key-value pairs |
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `db` | `LocalForage` | The underlying localForage instance. Use it for advanced operations like `clear()` or `iterate()`. |
+## ⚠️ Important Notes
 
-#### Method Summary
+- **Browser-only**: Uses IndexedDB via localForage — not suitable for Node.js/server-side use
+- **Server alternative**: Use `@agent-smith/smem` (LanceDB) for persistent memory on the server side
+- **Async operations**: All methods return Promises — always use `await`
+- **Type inference**: Generic types are inferred from keys, not provided by the user
 
-| Method | Signature | Returns |
-|--------|-----------|---------|
-| `init()` | `() => Promise<void>` | — |
-| `set(k, v)` | `(k: string, v: any) => Promise<void>` | — |
-| `get<T>(k)` | `(k: string) => Promise<T>` | Value of type `T` |
-| `del(k)` | `(k: string) => Promise<void>` | — |
-| `keys()` | `() => Promise<Array<string>>` | Array of keys |
-| `all<T>()` | `() => Promise<Record<string, T>>` | Key-value object |
-
-## Important Notes
-
-- 🌐 **Browser-only**: `tmem` uses IndexedDB through localForage, so it only works in browser environments. It is not suitable for Node.js server-side use.
-- 📦 **Complementary to smem**: For server-side persistent memory, use `@agent-smith/smem` (LanceDB-based semantic memory).
-- ⚠️ **`get()` throws**: Unlike `localStorage.getItem()`, `get()` throws an `Error` if the key does not exist. Handle with try/catch.
-- 🔒 **Typed stores**: The generic parameter `S` lets TypeScript infer the shape of your initial data for type-safe access.
-
-## License
+## 📄 License
 
 MIT
