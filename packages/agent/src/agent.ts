@@ -259,25 +259,26 @@ class Agent {
                             } | undefined = { ...tc.arguments };
                             //console.log("TC TYPE", tool.name, tool.type, "/", tool?.agentType);
                             //console.log("TLO", tlo);
-                            if (["agent", "workflow"].includes(tool.type)) {
-                                if (!(tool?.agentType == "worker")) {
-                                    // discard history
-                                    tlo.history = []
-                                }
-                                tlo.caller = this.name;
-                                if (tlo?.tools) {
-                                    delete tlo.tools
-                                }
+                            //if (["agent", "workflow"].includes(tool.type)) {
+                            if (tool?.agentType == "worker") {
+                                // discard history
+                                tlo.history = []
+                            } else {
                                 if (tlo?.system) {
                                     delete tlo.system
                                 }
-                                toolCallArgs.toolOptions = tlo;
-                            } else {
+                                if (tlo?.tools) {
+                                    delete tlo.tools
+                                }
+                            }
+                            tlo.caller = this.name;
+                            toolCallArgs.toolOptions = tlo;
+                            /*} else {
                                 if (tool?.agentType == "worker") {
                                     tlo.caller = this.name;
                                     toolCallArgs.toolOptions = tlo;
                                 }
-                            }
+                            }*/
                             //console.log("EXEC TC OPTs", tc.name, tool?.type, tool?.agentType, "c=" + toolCallArgs.toolOptions?.caller);
                             toolCallResult = await tool.execute(toolCallArgs);
                             //console.log("TCR*******", toolCallResult)
