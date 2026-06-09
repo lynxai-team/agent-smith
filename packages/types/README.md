@@ -20,7 +20,7 @@
 ## Documentation
 
 ### For AI Agents
-- [Codebase Summary](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/.agents/documentation/codebase-summary.md) — Architecture, key files, and patterns for the Agent Smith libraries
+- [Codebase Summary](.agents/documentation/codebase-summary.md) — Architecture, key files, and patterns for the Agent Smith libraries
 - [Get Started](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/types/1.get_started.md) — Overview and installation
 - [Interfaces](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/docsite/public/doc/libraries/types/2.interfaces.md) — Complete API reference of all exported types
 
