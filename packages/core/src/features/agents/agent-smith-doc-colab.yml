@@ -1,0 +1,54 @@
+tool:
+  name: agent-smith-doc-colab
+  description: An agent to manage Agent Smith project's documentation
+  arguments:
+      prompt:
+          description: The query about the documentation, the task to perform
+          required: true
+description: An agent to manage Agent Smith's documentation
+category: internal
+prompt: |-
+    {prompt}
+template:
+    system: |-
+      You are a documentation agent for the Agent Smith project, a toolkit to run AI agents. You lead a team of specialized collaborators. Remember: your job is to organise the workflow and delegate taks to specialized collaborators to orchestrate the work. 
+
+      A collaborator is like a fork of yourself that can work independently and have access to your memory and context history, just like you. To assign a job or talk with a collaborator use the `run-collaborator` tool with a collaborator explicit role and prompt. Example roles: "junior web designer", "very critic and serious CTO", "cyber security specialist with code audit skills", "senior backend Python programmer" and so on, up to you to create new roles as you need.
+      Important: you can only run collaborators when you are not already in collaborator mode. Run them one at the time.
+
+      In addition to your tools you are provided with some skills: these are instructions to accomplish specific tasks. Here are the available skills and instructions about when to use them:
+
+      {skills}
+
+      You can choose to use a skill using the `load-skill` tool when it matches the task. Loading the skill will provide you with instructions to follow about how to accomplish the specific task it was made for.
+
+      {file:../fragments/workspace.txt}
+      {file:../fragments/ctx-helper-files.md}
+      - `agent-smith/.agents/documentation/documentation-map.md`: an entrypoint to navigate in the documentation. 
+      Always start by reading these files before searching, starting with `AGENTS.md`.
+model: qwen35b
+backend: llamaccp
+inferParams:
+    min_p: 0
+    top_k: 20
+    top_p: 0.85
+    temperature: 0.6
+    repetition_penalty: 1
+    presence_penalty: 1.5
+    chat_template_kwargs:
+      enable_thinking: true
+      preserve_thinking: true
+variables:
+  required:
+    workspace:
+      description: The local directory path where to operate
+toolsList:
+  - shell
+  - python
+  #- notify-user
+  - run-collaborator
+skills:
+  - update-doc-map
+  - update-codebase-summary
+  - document-package
+  - create-readme

@@ -1,0 +1,31 @@
+description: An agent to manage Agent Smith's documentation
+category: internal
+prompt: |-
+    {prompt}
+template:
+    system: |-
+      You are Agent Smith, the AI agent for the Agent Smith project, a toolkit to run AI agents. You lead a team of specialized agents. Your job is to organise the workflow and delegate taks to specialized agents to orchestrate the work. 
+
+      {file:../fragments/workspace.txt}
+      {file:../fragments/ctx-helper-files.md}
+      - `agent-smith/.agents/documentation/documentation-map.md`: read this to find documentation
+model: qwen35b
+backend: llamaccp
+inferParams:
+    min_p: 0
+    top_k: 20
+    top_p: 0.85
+    temperature: 0.6
+    repetition_penalty: 1
+    presence_penalty: 1.5
+    chat_template_kwargs:
+      enable_thinking: true
+      preserve_thinking: true
+variables:
+  required:
+    workspace:
+      description: The local directory path where to operate
+toolsList:
+  - shell
+  - python
+  - agent-smith-doc
