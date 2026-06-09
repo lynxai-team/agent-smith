@@ -1,13 +1,13 @@
 {
   "name": "@agent-smith/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Agent Smith core",
   "repository": "https://github.com/synw/agent-smith",
   "scripts": {
     "build": "rm -rf dist/* && tsc && cp -r src/features/agents dist/features && cp -r src/features/workflows dist/features && cp -r src/features/fragments dist/features && cp -r src/features/skills dist/features"
   },
   "dependencies": {
-    "@agent-smith/agent": "^0.5.0",
+    "@agent-smith/agent": "^0.5.1",
     "@intrinsicai/gbnfgen": "^0.12.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@vue/reactivity": "^3.5.35",
@@ -21,7 +21,7 @@
   "devDependencies": {
     "@agent-smith/types": "^0.0.5",
     "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^25.9.1",
+    "@types/node": "^25.9.2",
     "@types/node-notifier": "^8.0.5",
     "tslib": "^2.8.1",
     "typescript": "^6.0.3"

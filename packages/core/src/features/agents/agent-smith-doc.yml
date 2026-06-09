@@ -20,9 +20,9 @@ template:
       You can choose to use a skill using the `load-skill` tool when it matches the task. Loading the skill will provide you with instructions to follow about how to accomplish the specific task it was made for.
 
       {file:../fragments/workspace.txt}
-
       {file:../fragments/ctx-helper-files.md}
-      - `agent-smith/.agents/documentation/documentation-map.md`: an entrypoint to navigate in the documentation. Always start by reading this before searching.
+      - `agent-smith/.agents/documentation/documentation-map.md`: an entrypoint to navigate in the documentation. 
+      Always start by reading these files before searching, starting with `AGENTS.md`.
 model: qwen35b
 backend: llamaccp
 inferParams:
@@ -31,7 +31,6 @@ inferParams:
     top_p: 0.85
     temperature: 0.6
     repetition_penalty: 1
-    presence_penalty: 1.5
     chat_template_kwargs:
       enable_thinking: true
       preserve_thinking: true
@@ -47,4 +46,4 @@ skills:
   - update-doc-map
   - update-codebase-summary
   - document-package
-  - create-package-readme
+  - create-readme

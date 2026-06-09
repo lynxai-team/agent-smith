@@ -11,9 +11,11 @@ The tasks are located in an `.agents/tasks` directory, or `[project-name].agents
 
 Read `.agents/tasks/[task-name]` to list the task files. If a `state.md` file is there read it: it details the task progression.
 
-## Write to a task
+## Create or update a task
 
 Check if an `.agents/tasks/[task-name]` directory exists, if not create it. You can write markdown files in it.
+
+When asked to create a task do it and then report to the user before executing the task
 
 ## Execute or continue a task
 

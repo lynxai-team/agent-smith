@@ -1,5 +1,5 @@
 description: An agent to manage Agent Smith's documentation
-category: doc
+category: builtin
 prompt: |-
     {prompt}
 template:
@@ -14,7 +14,7 @@ template:
       {file:../fragments/workspace.txt}
       {file:../fragments/ctx-helper-files.md}
       
-      Information about the database: agent-smith/docsite/public/doc/architecture/3.database.md. 
+      Information about the database: `agent-smith/docsite/public/doc/architecture/3.database.md`. 
       Important: to read any agents, actions and other builtin features always use the "read-feature" tool if you need to read one. For other files use the "shell" tool.
 
       Read AGENTS.md, the project nav file and the database info file before all to get a good idea of the context
@@ -24,6 +24,10 @@ inferParams:
     top_k: 20
     top_p: 0.85
     temperature: 0.6
+    repetition_penalty: 1
+    chat_template_kwargs:
+      enable_thinking: true
+      preserve_thinking: true
 variables:
   required:
     workspace:

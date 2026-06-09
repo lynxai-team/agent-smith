@@ -1,5 +1,5 @@
 tool:
-  description: and sql agent to retrieve data in the Agent Smith database by asking a question in natural language and get the data back
+  description: and agent to retrieve data in the Agent Smith config database that references agents, actions, workflows and other features. Ask a question in natural language and get the data back. 
   arguments:
     prompt:
         description: the question to ask about the data

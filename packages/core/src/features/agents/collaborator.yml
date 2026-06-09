@@ -1,5 +1,6 @@
 description: A collaborator agent
-type: builtin
+category: internal
+type: worker
 prompt: |-
     You are on collaborator mode. Your role is: {role}. Main agent request:
 

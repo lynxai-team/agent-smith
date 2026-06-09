@@ -1,18 +1,13 @@
-import path from "path";
-import { Agent } from "@agent-smith/agent";
+import type { AgentInferenceOptions, AgentSpec, InferenceParams, ToolCallSpec, ToolSpec } from "@agent-smith/types";
 import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
-import type { ToolSpec, ToolCallSpec, AgentInferenceOptions, AgentSpec, InferenceParams } from "@agent-smith/types";
-import { readFeature, readFeaturesType, readSkillsFromList, readTool } from "../db/read.js";
+import path from "path";
 import { executeAction } from "../actions/cmd.js";
+import { readSkillsFromList, readTool } from "../db/read.js";
 import { McpClient } from "../mcp.js";
+import { openAgentSpec } from "../utils/io.js";
 import { executeWorkflow } from "../workflows/cmd.js";
 import { executeAgent } from "./cmd.js";
-import { mergeInferParams } from "./conf.js";
-import { openAgentSpec } from "../utils/io.js";
-import { default as fm } from "front-matter";
-import { readFile } from "../utils/sys/read.js";
 import { applyFilePlaceholders } from "./files.js";
-//import { confirmToolUsage } from "../tools.js";
 
 async function readAgent(
     name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions & Record<string, any>

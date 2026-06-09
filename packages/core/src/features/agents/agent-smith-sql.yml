@@ -1,8 +1,8 @@
 tool:
-    description: Create a database query for Agent Smith database
+    description: retrieve data from the Agent Smith config database that references agents, actions, workflows and other features
     arguments:
         prompt: 
-            description: The user question to create a query from
+            description: the question about the config or data to retrieve
 description: Create an sql query
 category: internal
 prompt: |-
