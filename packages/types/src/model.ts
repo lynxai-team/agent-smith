@@ -1,14 +1,42 @@
 /**
- * Model information structure.
+ * @file Defines TypeScript interfaces and types for model information, status tracking,
+ * and API responses related to AI model management.
+ *
+ * This module provides type definitions for:
+ * - Model metadata and configuration
+ * - Model loading states (unloaded, loading, loaded, failed)
+ * - Server model state representation
+ * - API response structures for model data
+ *
+ * @example
+ * import { ModelInfo, ModelData, ModelStatusLoaded } from './model';
+ *
+ * // Creating a model info object
+ * const modelInfo: ModelInfo = {
+ *   id: "qwen4b",
+ *   status: 'loaded',
+ *   ctx: 31768,
+ *   hasVision: true
+ * };
+ *
+ * // Creating a loaded model status
+ * const loadedStatus: ModelStatusLoaded = {
+ *   value: "loaded",
+ *   args: ["--model", "qwen4b"]
+ * };
+ */
+
+/**
+ * Represents detailed information about an AI model.
  *
  * @interface ModelInfo
- * @param {string} id - The model id
- * @param {string} status - The status of the model.
- * @param {number} ctx - Context window size.
- * @param {boolean} hasVision - If the model can process images 
+ * @property {string} id - The unique identifier of the model.
+ * @property {string} status - The current status of the model.
+ * @property {number} ctx - The context window size in tokens.
+ * @property {boolean} hasVision - Whether the model can process image inputs.
  * @example
  * const modelInfo: ModelInfo = {
- *   id: "qwen4b"
+ *   id: "qwen4b",
  *   status: 'loaded',
  *   ctx: 31768,
  *   hasVision: true
@@ -22,11 +50,11 @@ interface ModelInfo {
 }
 
 /**
- * Template information for model.
+ * Represents a template configuration for model loading.
  *
  * @interface ModelTemplate
- * @param {string} name - The name of the template.
- * @param {number | undefined} ctx - The context window size for the model.
+ * @property {string} name - The name of the template.
+ * @property {number | undefined} ctx - The context window size for the model. Optional; defaults to model's default if not specified.
  * @example
  * const modelTemplate: ModelTemplate = {
  *   name: 'default_template',
@@ -39,13 +67,13 @@ interface ModelTemplate {
 }
 
 /**
- * Represents the state of the available models on server.
+ * Represents the aggregate state of all available models on the server.
  *
  * @interface ModelState
- * @param {Record<string, ModelTemplate>} models - The models info object (name, template name, context window size).
- * @param {boolean} isModelLoaded - Indicates whether a model is loaded or not.
- * @param {string} loadedModel - The loaded model name, empty if no model is loaded.
- * @param {number | undefined} ctx - The loaded model context window size, 0 if no model is loaded.
+ * @property {Record<string, ModelTemplate>} models - A map of model names to their template configurations.
+ * @property {boolean} isModelLoaded - Indicates whether any model is currently loaded.
+ * @property {string} loadedModel - The name of the currently loaded model; empty string if no model is loaded.
+ * @property {number | undefined} ctx - The context window size of the loaded model; undefined if no model is loaded.
  * @example
  * const modelState: ModelState = {
  *   models: { gpt3: { name: 'qwen4b', ctx: 2048 } },
@@ -62,10 +90,11 @@ interface ModelState {
 }
 
 /**
- * Represents the unloaded model status.
+ * Represents an unloaded model status.
+ * This is a discriminated union member with `value` set to `"unloaded"`.
  *
  * @interface ModelStatusUnloaded
- * @param {"unloaded"} value - The status value indicating the model is unloaded.
+ * @property {"unloaded"} value - The discriminator value indicating the model is not loaded.
  * @example
  * const unloadedStatus: ModelStatusUnloaded = {
  *   value: "unloaded"
@@ -76,11 +105,12 @@ interface ModelStatusUnloaded {
 }
 
 /**
- * Represents the loading model status.
+ * Represents a model currently in the loading state.
+ * This is a discriminated union member with `value` set to `"loading"`.
  *
  * @interface ModelStatusLoading
- * @param {"loading"} value - The status value indicating the model is loading.
- * @param {string[]} args - Arguments used during the loading process.
+ * @property {"loading"} value - The discriminator value indicating the model is loading.
+ * @property {string[]} args - The command-line arguments used during the loading process.
  * @example
  * const loadingStatus: ModelStatusLoading = {
  *   value: "loading",
@@ -93,13 +123,14 @@ interface ModelStatusLoading {
 }
 
 /**
- * Represents the failed model status.
+ * Represents a model that failed to load.
+ * This is a discriminated union member with `value` set to `"failed"`.
  *
  * @interface ModelStatusFailed
- * @param {"failed"} value - The status value indicating the model failed to load.
- * @param {string[]} args - Arguments used during the loading process.
- * @param {true} failed - Indicates that the model loading failed.
- * @param {number} exit_code - The exit code from the failed loading process.
+ * @property {"failed"} value - The discriminator value indicating the model loading failed.
+ * @property {string[]} args - The command-line arguments used during the attempted loading process.
+ * @property {true} failed - A literal `true` flag confirming the failure.
+ * @property {number} exit_code - The exit code returned by the failed loading process.
  * @example
  * const failedStatus: ModelStatusFailed = {
  *   value: "failed",
@@ -116,11 +147,12 @@ interface ModelStatusFailed {
 }
 
 /**
- * Represents the loaded model status.
+ * Represents a successfully loaded model.
+ * This is a discriminated union member with `value` set to `"loaded"`.
  *
  * @interface ModelStatusLoaded
- * @param {"loaded"} value - The status value indicating the model is loaded.
- * @param {string[]} args - Arguments used during the loading process.
+ * @property {"loaded"} value - The discriminator value indicating the model is loaded and ready.
+ * @property {string[]} args - The command-line arguments used during the loading process.
  * @example
  * const loadedStatus: ModelStatusLoaded = {
  *   value: "loaded",
@@ -133,23 +165,37 @@ interface ModelStatusLoaded {
 }
 
 /**
- * Represents the status of a model.
+ * Represents the current status of a model as a discriminated union.
+ *
+ * This type combines all possible model states: unloaded, loading, loaded, and failed.
+ * The `value` property acts as the discriminator to narrow down the specific state.
+ *
+ * @typedef {ModelStatusUnloaded | ModelStatusLoading | ModelStatusFailed | ModelStatusLoaded} ModelStatus
  * @example
- * const status: ModelStatus = {
+ * // Example of a loaded model status
+ * const loadedStatus: ModelStatus = {
  *   value: "loaded",
  *   args: ["--model", "qwen4b"]
+ * };
+ *
+ * // Example of a failed model status
+ * const failedStatus: ModelStatus = {
+ *   value: "failed",
+ *   args: ["--model", "qwen4b"],
+ *   failed: true,
+ *   exit_code: 1
  * };
  */
 type ModelStatus = ModelStatusUnloaded | ModelStatusLoading | ModelStatusFailed | ModelStatusLoaded;
 
 /**
- * Represents data about a model.
+ * Represents comprehensive data about a model instance.
  *
  * @interface ModelData
- * @param {string} id - The unique identifier of the model.
- * @param {boolean} in_cache - Indicates if the model is in cache.
- * @param {string} path - The file path of the model.
- * @param {ModelStatus} status - The current status of the model.
+ * @property {string} id - The unique identifier of the model.
+ * @property {boolean} in_cache - Indicates whether the model is cached locally.
+ * @property {string} path - The file system path where the model is stored.
+ * @property {ModelStatus} status - The current loading status of the model.
  * @example
  * const modelData: ModelData = {
  *   id: "model-123",
@@ -166,10 +212,10 @@ interface ModelData {
 }
 
 /**
- * Represents the API response for model data.
+ * Represents the standardized API response structure for model data queries.
  *
  * @interface ModelApiResponse
- * @param {ModelData[]} data - Array of model data objects.
+ * @property {ModelData[]} data - An array of model data objects returned by the API.
  * @example
  * const apiResponse: ModelApiResponse = {
  *   data: [
@@ -178,6 +224,12 @@ interface ModelData {
  *       in_cache: true,
  *       path: "/models/qwen4b",
  *       status: { value: "loaded", args: ["--model", "qwen4b"] }
+ *     },
+ *     {
+ *       id: "model-456",
+ *       in_cache: false,
+ *       path: "/models/llama7b",
+ *       status: { value: "unloaded" }
  *     }
  *   ]
  * };
@@ -197,4 +249,4 @@ export {
     ModelStatusLoaded,
     ModelStatusLoading,
     ModelStatusUnloaded,
-}
+};

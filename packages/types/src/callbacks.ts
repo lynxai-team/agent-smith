@@ -1,18 +1,17 @@
-
 /**
- * @file Defines callback interfaces for inference and agent interactions.
+ * Defines callback interfaces for inference and agent interactions.
  * Imports: Utilizes types from `history.js`, `inference.js`, `stats.js`, and `tools.js`.
  * @example
  * // Example of using InferenceCallbacks
  * const inferenceCallbacks: InferenceCallbacks = {
- *   onToken: (token: string) => console.log(token),
- *   onError: (err: any) => console.error(err)
+ *   onToken: (token: string, from: string) => console.log(`Token from ${from}: ${token}`),
+ *   onError: (err: any, from: string) => console.error(`Error from ${from}:`, err)
  * };
  *
  * // Example of using AgentCallbacks
  * const agentCallbacks: AgentCallbacks = {
- *   onToolCall: (tc: ToolCallSpec) => console.log(tc),
- *   onTurnEnd: (ht: HistoryTurn) => console.log(ht)
+ *   onToolCall: (tc: ToolCallSpec, type: string, from: string) => console.log(tc),
+ *   onTurnEnd: (ht: HistoryTurn, from: string) => console.log(ht)
  * };
  *
  * // Example of using AllCallbacks
@@ -31,18 +30,22 @@ import type { ToolCallSpec } from "./tools.js";
  * Represents the callbacks for inference events.
  *
  * @interface InferenceCallbacks
- * @param {() => void} [onStartThinking] - Callback when thinking starts.
- * @param {() => void} [onEndThinking] - Callback when thinking ends.
- * @param {(t: string) => void} [onToken] - Callback for each token emitted.
- * @param {(t: string) => void} [onThinkingToken] - Callback for thinking tokens.
- * @param {(data: IngestionStats) => void} [onStartEmit] - Callback when emission starts.
- * @param {(result: InferenceResult) => void} [onEndEmit] - Callback when emission ends.
- * @param {(err: any) => void} [onError] - Callback for errors.
- * @param {(tc: Array<ToolCallSpec>) => void} [onToolCallInProgress] - Callback for tool call progress.
+ * @property {() => void} [onStartThinking] - Callback when thinking starts.
+ * @property {() => void} [onEndThinking] - Callback when thinking ends.
+ * @property {(t: string, from: string) => void} [onToken] - Callback for each token emitted.
+ * @property {(t: string, from: string) => void} [onThinkingToken] - Callback for thinking tokens.
+ * @property {(t: string, from: string) => void} [onToolCallToken] - Callback for tool call tokens.
+ * @property {(data: PromptProcessingInProgressStats, from: string) => void} [onStartEmit] - Callback when emission starts.
+ * @property {(result: InferenceResult, from: string) => void} [onEndEmit] - Callback when emission ends.
+ * @property {(err: any, from: string) => void} [onError] - Callback for errors.
+ * @property {(tc: Array<ToolCallSpec>, from: string) => void} [onToolCallInProgress] - Callback for tool call progress.
+ * @property {(progress: PromptProcessingInProgressStats, from: string) => void} [onPromptProcessingProgress] - Callback for prompt processing progress.
  * @example
  * const inferenceCallbacks: InferenceCallbacks = {
- *   onToken: (token: string) => console.log(token),
- *   onError: (err: any) => console.error(err)
+ *   onToken: (token: string, from: string) => console.log(`Token from ${from}: ${token}`),
+ *   onError: (err: any, from: string) => console.error(`Error from ${from}:`, err),
+ *   onStartThinking: (from: string) => console.log(`Thinking started in ${from}`),
+ *   onEndThinking: (from: string) => console.log(`Thinking ended in ${from}`)
  * };
  */
 interface InferenceCallbacks {
@@ -62,17 +65,19 @@ interface InferenceCallbacks {
  * Represents the callbacks for agent interactions.
  *
  * @interface AgentCallbacks
- * @param {(tc: ToolCallSpec) => void} [onToolCall] - Callback for tool calls.
- * @param {(tc: ToolCallSpec, tr: any) => void} [onToolCallEnd] - Callback for tool call completion.
- * @param {(tc: Array<ToolCallSpec>) => void} [onToolsTurnStart] - Callback for tools turn start.
- * @param {(tt: Array<ToolTurn>) => void} [onToolsTurnEnd] - Callback for tools turn end.
- * @param {(ht: HistoryTurn) => void} [onTurnEnd] - Callback for turn end.
- * @param {(txt: string) => void} [onAssistant] - Callback for assistant text.
- * @param {(txt: string) => void} [onThink] - Callback for thinking text.
+ * @property {(tc: ToolCallSpec, type: string, from: string) => void} [onToolCall] - Callback for tool calls.
+ * @property {(tc: ToolCallSpec, tr: any, type: string, from: string) => void} [onToolCallEnd] - Callback for tool call completion.
+ * @property {(tc: Array<ToolCallSpec>, from: string) => void} [onToolsTurnStart] - Callback for tools turn start.
+ * @property {(tt: Array<ToolTurn>, from: string) => void} [onToolsTurnEnd] - Callback for tools turn end.
+ * @property {(from: string) => void} [onTurnStart] - Callback when a new turn starts.
+ * @property {(ht: HistoryTurn, from: string) => void} [onTurnEnd] - Callback for turn end.
+ * @property {(txt: string, from: string) => void} [onAssistant] - Callback for assistant text.
+ * @property {(txt: string, from: string) => void} [onThink] - Callback for thinking text.
  * @example
  * const agentCallbacks: AgentCallbacks = {
- *   onToolCall: (tc: ToolCallSpec) => console.log(tc),
- *   onTurnEnd: (ht: HistoryTurn) => console.log(ht)
+ *   onToolCall: (tc: ToolCallSpec, type: string, from: string) => console.log(`Tool call from ${from}:`, tc),
+ *   onTurnEnd: (ht: HistoryTurn, from: string) => console.log(`Turn ended in ${from}`),
+ *   onAssistant: (txt: string, from: string) => console.log(`Assistant message from ${from}:`, txt)
  * };
  */
 interface AgentCallbacks {
@@ -90,12 +95,13 @@ interface AgentCallbacks {
  * Combines inference and agent callbacks into a single interface.
  *
  * @interface AllCallbacks
- * @augments InferenceCallbacks
- * @augments AgentCallbacks
+ * @extends InferenceCallbacks
+ * @extends AgentCallbacks
  * @example
  * const allCallbacks: AllCallbacks = {
- *   onToken: (token: string) => console.log(token),
- *   onToolCall: (tc: ToolCallSpec) => console.log(tc)
+ *   onToken: (token: string, from: string) => console.log(`Token: ${token}`),
+ *   onToolCall: (tc: ToolCallSpec, type: string, from: string) => console.log(`Tool: ${tc}`),
+ *   onError: (err: any, from: string) => console.error(`Error:`, err)
  * };
  */
 interface AllCallbacks extends InferenceCallbacks, AgentCallbacks { }

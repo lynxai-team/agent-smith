@@ -1,3 +1,26 @@
+/**
+ * Defines types and interfaces for Language Model (LM) providers, including
+ * provider configuration, model loading progress, and inference capabilities.
+ * Imports: Utilizes types from `inference.js`, `model.js`, `callbacks.js`, `tools.js`, `history.js`.
+ * @example
+ * // Example of creating LM provider parameters
+ * import type { LmProviderParams, LmDefaults } from './lm';
+ *
+ * const defaults: LmDefaults = {
+ *   model: 'llama-3-8b',
+ *   inferenceParams: { max_tokens: 200, temperature: 0.7 }
+ * };
+ *
+ * const providerParams: LmProviderParams = {
+ *   name: 'koboldcpp',
+ *   serverUrl: 'http://localhost:5001/api',
+ *   apiKey: 'your-api-key',
+ *   defaults,
+ *   onToken: (t) => process.stdout.write(t),
+ *   onError: (err) => console.error(err)
+ * };
+ */
+
 import type { useApi } from "restmix";
 import type { InferenceOptions, InferenceParams } from "./inference.js";
 import type { InferenceResult } from "./inference.js";
@@ -11,10 +34,10 @@ import type { ChatCompletionHistoryTurn } from "./history.js";
  * Represents the basic progress of a load operation.
  *
  * @interface OnLoadProgressBasic
- * @param {number} total - The total number of items to load.
- * @param {number} loaded - The number of items that have been loaded so far.
+ * @property {number} total - The total number of items to load.
+ * @property {number} loaded - The number of items that have been loaded so far.
  * @example
- * const onLoadProgress: OnLoadProgressBasic = {
+ * const progress: OnLoadProgressBasic = {
  *   total: 100,
  *   loaded: 50
  * };
@@ -26,12 +49,12 @@ interface OnLoadProgressBasic {
 
 /**
  * Represents the full progress of a load operation, including percentage.
+ * Extends {@link OnLoadProgressBasic} with a percentage field.
  *
  * @interface OnLoadProgressFull
- * @augments OnLoadProgressBasic
- * @param {number} percent - The percentage of items that have been loaded so far.
+ * @property {number} percent - The percentage of items that have been loaded so far.
  * @example
- * const onLoadProgress: OnLoadProgressFull = {
+ * const progress: OnLoadProgressFull = {
  *   total: 100,
  *   loaded: 50,
  *   percent: 50
@@ -43,6 +66,7 @@ interface OnLoadProgressFull extends OnLoadProgressBasic {
 
 /**
  * Type definition for a progress callback function with full details.
+ * Called during model loading to report progress updates.
  *
  * @typedef OnLoadProgress
  * @type {(data: OnLoadProgressFull) => void}
@@ -55,6 +79,7 @@ type OnLoadProgress = (data: OnLoadProgressFull) => void;
 
 /**
  * Type definition for a basic progress callback function.
+ * Called during model loading to report progress updates without percentage.
  *
  * @typedef BasicOnLoadProgress
  * @type {(data: OnLoadProgressBasic) => void}
@@ -67,14 +92,15 @@ type BasicOnLoadProgress = (data: OnLoadProgressBasic) => void;
 
 /**
  * Default parameters that can be used with an LM provider.
+ * Specifies the default model and inference parameters for the provider.
  *
  * @interface LmDefaults
- * @param {string | undefined} model - Default model conf to use.
- * @param {InferenceParams | undefined} inferenceParams - Default inference parameters.
+ * @property {string | undefined} [model] - Default model name to use.
+ * @property {InferenceParams | undefined} [inferenceParams] - Default inference parameters.
  * @example
  * const lmDefaults: LmDefaults = {
- *   model: { name: 'gpt-3', ctx: 2048 },
- *   inferenceParams: { max_tokens: 150, top_k: 50 }
+ *   model: 'llama-3-8b',
+ *   inferenceParams: { max_tokens: 150, temperature: 0.7 }
  * };
  */
 interface LmDefaults {
@@ -84,25 +110,23 @@ interface LmDefaults {
 
 /**
  * Parameters required when creating a new LM provider instance.
+ * Extends {@link InferenceCallbacks} with provider-specific configuration.
  *
  * @interface LmProviderParams
- * @param {string} name - Identifier for the LM provider.
- * @param {string} serverUrl - The URL endpoint for the provider's server.
- * @param {string | undefined} apiKey - The key used for authentication.
- * @param {(t: string) => void} onToken - Callback when a new token is received.
- * @param {(t: string) => void} onThinkingToken - Callback when a new thinking token is received.
- * @param {(data: IngestionStats) => void} onStartEmit - Callback triggered when inference starts.
- * @param {(result: InferenceResult) => void} onEndEmit - Callback triggered when inference ends.
- * @param {(err: string) => void} onError - Callback triggered on errors.
- * @param {LmDefaults | undefined} defaults - Default settings.
+ * @property {string} name - Identifier for the LM provider.
+ * @property {string} serverUrl - The URL endpoint for the provider's server.
+ * @property {string | undefined} [apiKey] - The key used for authentication.
+ * @property {LmDefaults | undefined} [defaults] - Default settings for the provider.
  * @example
  * const lmProviderParams: LmProviderParams = {
  *   name: 'koboldcpp',
  *   serverUrl: 'http://example.com/api',
  *   apiKey: 'your-api-key',
+ *   defaults: {
+ *     model: 'llama-3-8b',
+ *     inferenceParams: { max_tokens: 200 }
+ *   },
  *   onToken: (t) => console.log(t),
- *   onStartEmit: (data) => console.log(data),
- *   onEndEmit: (result) => console.log(result),
  *   onError: (err) => console.error(err)
  * };
  */
@@ -115,37 +139,53 @@ interface LmProviderParams extends InferenceCallbacks {
 
 /**
  * Defines the structure and behavior of an LM Provider.
+ * Provides methods for model management, inference, tokenization, and chat templating.
+ * Extends {@link InferenceCallbacks} with provider capabilities.
  *
  * @interface LmProvider
- * @param {string} name - Identifier for the LM provider.
- * @param {ReturnType<typeof useApi>} api - API utility being used.
- * @param {string} serverUrl - The URL endpoint for the provider's server.
- * @param {string} apiKey - The key used for authentication with the provider's API.
- * @param {string} model - Active model configuration.
- * @param {Array<string>} models - List of available model configurations.
- * @param {() => Promise<ModelInfo>} info - Retrieves information about available server config.
- * @param {() => Promise<Array<ModelInfo>>} modelsInfo - Retrieves information about available models.
- * @param {(name: string, ctx?: number, urls?: string | string[], onLoadProgress?: OnLoadProgress) => Promise<void>} loadModel - Loads a model by name, with optional context.
- * @param {(name: string) => Promise<void>} unloadModel - Unload a model 
- * @param {(prompt: string, params: InferenceParams, options?: InferenceOptions) => Promise<InferenceResult>} infer - Makes an inference based on provided prompt and parameters.
- * @param {() => Promise<void>} abort - Aborts a currently running inference task.
- * @param {(t: string) => void} onToken - Callback when a new token is received
- * @param {(t: string) => void} onThinkingToken - Callback when a new thinking token is received
- * @param {(data: IngestionStats) => void} onStartEmit - Callback triggered when inference starts.
- * @param {(result: InferenceResult) => void} onEndEmit - Callback triggered when inference ends.
- * @param {(err: string) => void} onError - Callback triggered on errors during inference.
+ * @property {string} name - Identifier for the LM provider.
+ * @property {ReturnType<typeof useApi>} api - API utility being used.
+ * @property {string} serverUrl - The URL endpoint for the provider's server.
+ * @property {string} apiKey - The key used for authentication with the provider's API.
+ * @property {string} model - Active model name.
+ * @property {Array<ModelInfo>} models - List of available model configurations.
+ * @property {AbortController} abortController - Controller for aborting ongoing operations.
+ * @property {Record<string, ToolSpec>} tools - Available tools for the provider.
+ * @property {() => Promise<ModelInfo>} info - Retrieves information about the server configuration.
+ * @property {() => Promise<Array<ModelInfo>>} modelsInfo - Retrieves information about available models.
+ * @property {(name: string, ctx?: number, urls?: string | string[], onLoadProgress?: OnLoadProgress) => Promise<void>} loadModel - Loads a model by name, with optional context window and URLs.
+ * @property {(name: string) => Promise<void>} unloadModel - Unloads a model by name.
+ * @property {(text: string) => Promise<Array<number>>} tokenize - Tokenizes text into an array of token IDs.
+ * @property {(tokens: Array<number>) => Promise<string>} detokenize - Converts an array of token IDs back to text.
+ * @property {(messages: Array<ChatCompletionHistoryTurn>, modelName: string) => Promise<{ prompt: string }>} applyTemplate - Applies a chat template to messages for the given model.
+ * @property {(prompt: string, options?: InferenceOptions) => Promise<InferenceResult>} infer - Makes an inference based on provided prompt and options.
+ * @property {() => Promise<void>} abort - Aborts a currently running inference task.
+ * @property {LmDefaults | undefined} [defaults] - Default settings for the provider.
  * @example
  * const lmProvider: LmProvider = {
  *   name: 'koboldcpp',
  *   api: useApi(),
  *   serverUrl: 'http://example.com/api',
  *   apiKey: 'your-api-key',
- *   model: { name: 'gpt-3', ctx: 2048 },
- *   models: [{ name: 'gpt-3', ctx: 2048 }],
+ *   model: 'llama-3-8b',
+ *   models: [
+ *     { id: 'llama-3-8b', status: 'loaded', ctx: 4096, hasVision: false }
+ *   ],
+ *   abortController: new AbortController(),
+ *   tools: {},
  *   info: async () => ({ config: 'some-config' }),
- *   modelsInfo: async () => {},
+ *   modelsInfo: async () => [{ id: 'llama-3-8b', status: 'loaded', ctx: 4096, hasVision: false }],
  *   loadModel: async (name, ctx, urls, onLoadProgress) => {},
- *   infer: async (prompt, params, options) => ({ text: 'result', stats: {}, serverStats: {} }),
+ *   unloadModel: async (name) => {},
+ *   tokenize: async (text) => [1, 2, 3],
+ *   detokenize: async (tokens) => 'hello world',
+ *   applyTemplate: async (messages, modelName) => ({ prompt: 'prompt text' }),
+ *   infer: async (prompt, options) => ({
+ *     text: 'result',
+ *     thinkingText: '',
+ *     stats: {},
+ *     toolCalls: []
+ *   }),
  *   abort: async () => {},
  *   onToken: (t) => console.log(t),
  *   onStartEmit: (data) => console.log(data),
@@ -176,11 +216,12 @@ interface LmProvider extends InferenceCallbacks {
 
 /**
  * Represents the type of LM provider.
+ * Defines the supported provider backends for language model inference.
  *
  * @typedef LmProviderType
- * @type {"openai" | "browser"}
+ * @type {"llamacpp" | "openai" | "browser"}
  * @example
- * const providerType: LmProviderType = 'browser';
+ * const providerType: LmProviderType = 'llamacpp';
  */
 type LmProviderType = "llamacpp" | "openai" | "browser";
 

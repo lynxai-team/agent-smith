@@ -10,7 +10,21 @@ import type { InferenceBackend } from "./conf.js";
 import type { PromptProcessingInProgressStats } from "./stats.js";
 
 /**
- * Settings for a agent configuration.
+ * @file Defines agent-related types and interfaces for the Agent Smith framework.
+ * Imports: Utilizes types from `callbacks.js`, `lm.js`, `core.js`, `history.js`, `inference.js`, `model.js`, `tools.js`, `workspace.js`, `conf.js`, and `stats.js`.
+ * @example
+ * // Example of creating an agent specification
+ * const agentSpec: AgentSpec = {
+ *   name: 'chat',
+ *   prompt: 'Chat with the user',
+ *   description: 'A simple chat agent',
+ *   model: 'llama3',
+ *   ctx: 2048
+ * };
+ */
+
+/**
+ * Settings for an agent configuration.
  *
  * @interface AgentSettings
  * @property {string} [model] - The model to use for the agent.
@@ -24,11 +38,14 @@ import type { PromptProcessingInProgressStats } from "./stats.js";
  * @property {number | undefined} presence_penalty - Adjusts penalty for presence.
  * @property {number | undefined} frequency_penalty - Repeat alpha frequency penalty.
  * @property {string} [backend] - The backend to use for the agent.
+ * @property {Record<string, any>} [chat_template_kwargs] - Additional kwargs for the chat template.
+ * @property {Record<string, any>} [props] - Additional properties for the agent.
  * @example
  * const agentSettings: AgentSettings = {
  *   model: 'llama3',
  *   ctx: 2048,
- *   temperature: 0.7
+ *   temperature: 0.7,
+ *   backend: 'ollama'
  * };
  */
 interface AgentSettings {
@@ -47,7 +64,7 @@ interface AgentSettings {
 }
 
 /**
- * Definition of a agent variable.
+ * Definition of an agent variable.
  *
  * @interface AgentVariableDef
  * @property {string | Array<string>} type - The type of the variable, can be a string or array for enums.
@@ -106,10 +123,17 @@ interface AgentVariables {
  * User agent variables with required and optional values.
  *
  * @interface UserAgentVariables
- * @property {Record<string, string>} required - Required variable values.
- * @property {Record<string, string>} optional - Optional variable values.
+ * @property {Record<string, AgentVariableDef>} [required] - Required variable definitions.
+ * @property {Record<string, AgentOptionalVariableDef>} [optional] - Optional variable definitions.
+ * @property {{ required: Record<string, string>, optional: Record<string, string> }} values - The actual values provided by the user.
  * @example
  * const variables: UserAgentVariables = {
+ *   required: {
+ *     name: { type: 'string', description: 'User name' }
+ *   },
+ *   optional: {
+ *     age: { type: 'string', description: 'User age', default: '25' }
+ *   },
  *   values: {
  *     required: { name: 'John' },
  *     optional: { age: '30' }
@@ -128,25 +152,41 @@ interface UserAgentVariables extends AgentVariables {
  *
  * @interface AgentState
  * @property {boolean} isReady - Whether the agent is ready.
+ * @property {boolean} isProcessingPrompt - Whether the agent is currently processing a prompt.
+ * @property {boolean} isLoadingModel - Whether the agent is currently loading a model.
  * @property {Promise<boolean>} onReady - Promise that resolves when ready.
+ * @property {PromptProcessingInProgressStats} promptProcessingProgress - Statistics about prompt processing progress.
  * @property {boolean} hasConfig - Whether configuration exists.
- * @property {Array<UiHistoryTurn>} history - History of turns.
- * @property {Record<string, ModelInfo>} models - Available models.
- * @property {Record<string, Record<string, any>>} agentsSettings - Agent settings.
- * @property {Record<string, Record<string, any>>} backends - Backend configurations.
- * @property {Object} currentFeature - Current feature information.
- * @property {string} currentFeature.name - Feature name.
- * @property {string} currentFeature.type - Feature type.
+ * @property {Array<UiHistoryTurn>} uihistory - UI history of turns.
+ * @property {Array<HistoryTurn>} history - History of turns.
+ * @property {Record<string, Record<string, ModelInfo>>} models - Available models.
+ * @property {Record<string, AgentSettings>} agentsSettings - Agent settings.
+ * @property {Record<string, InferenceBackend>} backends - Backend configurations.
+ * @property {{ name: string, type: string }} currentFeature - Current feature information.
+ * @property {Workspace} currentWorkspace - The current workspace.
+ * @property {ModelInfo} currentModel - The current model being used.
+ * @property {Record<string, Workspace>} workspaces - Available workspaces.
+ * @property {Record<string, any>} settings - General settings.
+ * @property {Record<string, SamplingPreset>} samplingPresets - Available sampling presets.
  * @example
  * const agentState: AgentState = {
  *   isReady: false,
+ *   isProcessingPrompt: false,
+ *   isLoadingModel: true,
  *   onReady: Promise.resolve(false),
+ *   promptProcessingProgress: { tokensPerSecond: 0 },
  *   hasConfig: false,
+ *   uihistory: [],
  *   history: [],
  *   models: {},
  *   agentsSettings: {},
  *   backends: {},
- *   currentFeature: { name: 'chat', type: 'agent' }
+ *   currentFeature: { name: 'chat', type: 'agent' },
+ *   currentWorkspace: { id: 'default', path: '/workspace' },
+ *   currentModel: { name: 'llama3', provider: 'ollama' },
+ *   workspaces: {},
+ *   settings: {},
+ *   samplingPresets: {}
  * };
  */
 interface AgentState {
@@ -180,7 +220,9 @@ interface AgentState {
  * @example
  * const template: TemplateSpec = {
  *   system: "You are a helpful AI",
- *   stop: ["\n", "<tool_call>"],
+ *   afterSystem: "Let's begin.",
+ *   stop: ["\n", "<|end|>"],
+ *   assistant: "Assistant:"
  * };
  */
 interface TemplateSpec {
@@ -192,12 +234,12 @@ interface TemplateSpec {
 /**
  * Agent definition structure.
  *
- * @interface AgentDef
+ * @interface AgentSpec
  * @property {string} name - The name of the agent.
  * @property {string} prompt - The prompt for the agent.
  * @property {string} description - Description of the agent.
  * @property {string} model - The model to use for the agent.
- * @property {number} ctx - Context window size.
+ * @property {string} [backend] - The backend to use for the agent.
  * @property {TemplateSpec} [template] - Template specification for the agent.
  * @property {InferenceParams} [inferParams] - Inference parameters for the agent.
  * @property {Array<string>} [models] - Available models for the agent.
@@ -207,13 +249,22 @@ interface TemplateSpec {
  * @property {Array<string>} [toolsList] - List of tool names for the agent.
  * @property {string} [type] - Type of the agent.
  * @property {string} [category] - Category of the agent.
+ * @property {McpServerSpec} [mcp] - MCP server specification.
+ * @property {Array<string>} [skills] - Skills available for the agent.
+ * @property {AgentWorkflow} [workflow] - Workflow configuration for the agent.
  * @example
- * const agentDef: AgentDef = {
+ * const agentSpec: AgentSpec = {
  *   name: 'chat',
  *   prompt: 'Chat with the user',
  *   description: 'A simple chat agent',
  *   model: 'llama3',
- *   ctx: 2048
+ *   ctx: 2048,
+ *   template: {
+ *     system: "You are a helpful AI"
+ *   },
+ *   tools: [
+ *     { name: 'search', description: 'Search the web' }
+ *   ]
  * };
  */
 interface AgentSpec {
@@ -256,6 +307,18 @@ interface AgentParams extends AllCallbacks {
     lm: LmProvider,
 }
 
+/**
+ * Workflow specification for an agent, defining before/after hooks.
+ *
+ * @interface AgentWorkflow
+ * @property {Array<Record<string, string>>} [before] - Hooks to execute before the agent runs.
+ * @property {Array<Record<string, string>>} [after] - Hooks to execute after the agent completes.
+ * @example
+ * const workflow: AgentWorkflow = {
+ *   before: [{ action: 'load_context', key: 'user_prefs' }],
+ *   after: [{ action: 'save_history', key: 'session_123' }]
+ * };
+ */
 interface AgentWorkflow {
     before?: Array<Record<string, string>>;
     after?: Array<Record<string, string>>;
