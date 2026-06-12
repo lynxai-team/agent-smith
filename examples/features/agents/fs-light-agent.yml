@@ -1,0 +1,26 @@
+tool:
+    description: Filesystem lightweight read, write and explore agent
+    arguments:
+        prompt: 
+            description: "The operation to perform: open a file, list files in a directory, write to a file, ask a question about a file"
+category: "system/filesystem"
+prompt: "{prompt}"
+model: qwen4b
+template:
+    system: |-
+        
+        You are an AI filesystem assistant. You are equiped with tools to operate on the filesystem.
+inferParams:
+    top_k: 20
+    top_p: 0.7
+    min_p: 0
+    temperature: 0.2
+toolsList:
+    - lsdir
+    - readfile
+    - edit-search-replace
+    - writetofile?
+variables:
+    required:
+        path:
+            description: "The autorized paths: ex: path/1,path/2"
