@@ -18,7 +18,7 @@ function buildMessagesHistory(
     }> = [];
     let i = 1;
     //console.log("Processing history:", history);
-    // console.dir(options, { depth: 5 });
+    //console.dir(options, { depth: 5 });
     if (history.length == 0 && options?.system) {
         msgs.push({
             role: "system",

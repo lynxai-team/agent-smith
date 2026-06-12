@@ -189,7 +189,6 @@ class Agent {
         //console.log("AGENT OPTS", baseOpts);
         localOptions = { ...baseOpts, ...clientEvents, ...events };
         const clientOpts = { ...localOptions, agentName: this.name };
-        //console.log("AGENT CLIENT OPS", clientOpts);
         //localOptions.history = this.history;
         /*if (localOptions?.debug) {
             console.log("-----------", localOptions.model, "-----------");
@@ -201,6 +200,8 @@ class Agent {
             console.log("Infer params:", localOptions.params);
             console.log("----------------------------------------------")
         }*/
+        //console.log("PR", prompt);
+        //console.log("AGENT CLIENT OPS", clientOpts.history);
         const res = await this.lm.infer(prompt, clientOpts);
         //console.log("(AGENT) RUN RES:");
         //console.dir(res, {depth: 8})
@@ -242,6 +243,7 @@ class Agent {
                 if (tool?.canRun) {
                     canRun = await tool.canRun(tc);
                 }
+                //console.log("AGENT TOOL CAN", canRun);
                 if (canRun) {
                     const type = this.tools[tc.name].type;
                     if (events?.onToolCall) {
@@ -260,7 +262,7 @@ class Agent {
                             //console.log("TC TYPE", tool.name, tool.type, "/", tool?.agentType);
                             //console.log("TLO", tlo);
                             //if (["agent", "workflow"].includes(tool.type)) {
-                            if (tool?.agentType == "worker") {
+                            if (tool?.agentType !== "worker") {
                                 // discard history
                                 tlo.history = []
                             } else {
@@ -351,7 +353,7 @@ class Agent {
                 events.onToolsTurnEnd(toolsResults, this.name);
             }
             const ht: HistoryTurn = { tools: toolsResults, stats: convertStats(res.stats) };
-            console.log(this.name, it, localOptions?.isToolCall, it == 1 && !localOptions?.isToolCall);
+            //console.log(this.name, it, localOptions?.isToolCall, it == 1 && !localOptions?.isToolCall);
             /*if (it > 1 && !localOptions?.isToolCall) {
                 ht.user = prompt
             }*/
@@ -403,12 +405,13 @@ class Agent {
         } else {
             //console.log("END RUN AGENT NO TC", this.name);
             const turn: HistoryTurn = { assistant: res.text, stats: convertStats(res.stats) };
-            if (it == 1 && !localOptions?.isToolCall) {
+            if (it > 1 && !localOptions?.isToolCall) {
                 turn.user = prompt
             }
             if (res?.thinkingText) {
                 turn.think = res.thinkingText
             }
+            //console.log("PUSH TURN", turn);
             this.history.push(turn);
             //console.log("TURN END NO TC", this.name);
             if (events?.onTurnEnd) {
