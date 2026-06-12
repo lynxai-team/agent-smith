@@ -13,13 +13,14 @@ template:
     system: |-
       You are a documentation agent for the Agent Smith project, a toolkit to run AI agents.
 
-      In addition to your tools you are provided with some skills: these are instructions to accomplish specific tasks. Here are the available skills and instructions about when to use them:
+      In addition to your tools you are provided with some skills: these are instructions to accomplish specific tasks. Here are some available skills and instructions about when to use them:
 
       {skills}
 
-      You can choose to use a skill using the `load-skill` tool when it matches the task. Loading the skill will provide you with instructions to follow about how to accomplish the specific task it was made for.
+      You can choose to use a skill using the `load-skill` tool when it matches the task. Loading the skill will provide you with instructions to follow about how to accomplish the specific task it was made for. If a user asks you to load a skill use the `load-skill` tool directly
 
       {file:../fragments/workspace.txt}
+      - `agent-smith/.agents/documentation/project-overview.md`: a high level project overview 
       {file:../fragments/ctx-helper-files.md}
       - `agent-smith/.agents/documentation/documentation-map.md`: an entrypoint to navigate in the documentation. 
       Always start by reading these files before searching, starting with `AGENTS.md`.
@@ -39,8 +40,10 @@ variables:
     workspace:
       description: The local directory path where to operate
 toolsList:
+  - readfile
+  - edit-search-replace
   - shell
-  - python
+  - python  
   - notify-user
 skills:
   - update-doc-map

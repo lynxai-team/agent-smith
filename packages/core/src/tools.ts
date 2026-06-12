@@ -1,6 +1,6 @@
 import YAML from 'yaml';
 import * as fs from 'fs';
-import type { ToolSpec, FeatureExtension } from '@agent-smith/types';
+import type { ToolSpec, FeatureExtension, AgentVariableDef, AgentOptionalVariableDef } from '@agent-smith/types';
 import { readYmlFile } from './utils/sys/read_yml_file.js';
 
 
@@ -69,8 +69,12 @@ function _parseToolDoc(rawTxt: string, name: string): ToolSpec {
     }
 }
 
-function _parseAgentVariables(data: Record<string, any>): { required: Array<string>, optional: Array<string> } {
-    const res = { required: new Array<string>(), optional: new Array<string>() };
+function _parseAgentVariables(data: Record<string, any>): {
+    required: Record<string, AgentVariableDef>, optional: Record<string, AgentOptionalVariableDef>
+} {
+    const res: {
+        required: Record<string, AgentVariableDef>, optional: Record<string, AgentOptionalVariableDef>
+    } = { required: {}, optional: {} };
     if (data?.variables) {
         if (data.variables?.required) {
             res.required = data.variables.required
@@ -85,11 +89,25 @@ function _parseAgentVariables(data: Record<string, any>): { required: Array<stri
 function extractAgentToolDocAndVariables(
     name: string, ext: FeatureExtension, dirPath: string
 ): {
-    toolDoc: string, variables: { required: Array<string>, optional: Array<string> }, type: string | null, category: string | null
+    toolDoc: string,
+    variables: {
+        required: Record<string, AgentVariableDef>,
+        optional: Record<string, AgentOptionalVariableDef>
+    },
+    type: string | null,
+    category: string | null
 } {
     const fp = dirPath + "/" + name + "." + ext;
     const { data, found } = readYmlFile(fp);
-    const res = { variables: { required: new Array<string>(), optional: new Array<string>() }, toolDoc: "", type: null, category: null };
+    const res: {
+        toolDoc: string,
+        variables: {
+            required: Record<string, AgentVariableDef>,
+            optional: Record<string, AgentOptionalVariableDef>
+        },
+        type: string | null,
+        category: string | null
+    } = { variables: { required: {}, optional: {} }, toolDoc: "", type: null, category: null };
     // tools
     let tspec: ToolSpec;
     if (!found) {

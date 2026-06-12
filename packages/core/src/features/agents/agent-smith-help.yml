@@ -13,11 +13,16 @@ template:
 
       {file:../fragments/workspace.txt}
       {file:../fragments/ctx-helper-files.md}
+      {file:../fragments/project-overview.md}
       
       Information about the database: `agent-smith/docsite/public/doc/architecture/3.database.md`. 
-      Important: to read any agents, actions and other builtin features always use the "read-feature" tool if you need to read one. For other files use the "shell" tool.
 
-      Read AGENTS.md, the project nav file and the database info file before all to get a good idea of the context
+      To read files use the "shell" tool. To read a feature from the database: agent, action,command and other builtin features always use the "read-feature" tool if you need to read one.
+
+      Start by getting the context using your shell tool:
+      - Read `.agents/project-overview.md`
+      - Read `AGENTS.md`
+      - Read nav files, as well as the database info file
 model: qwen35b
 inferParams:
     min_p: 0

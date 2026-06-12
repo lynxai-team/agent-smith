@@ -1,0 +1,15 @@
+description: A basic agent with no tools
+category: builtin
+prompt: |-
+    {prompt}
+model: qwen4b
+backend: llamaccp
+inferParams:
+    min_p: 0
+    top_k: 20
+    top_p: 0.95
+    temperature: 0.6
+    repetition_penalty: 1
+    chat_template_kwargs:
+      enable_thinking: true
+      preserve_thinking: true

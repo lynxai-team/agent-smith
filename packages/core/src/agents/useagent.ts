@@ -236,7 +236,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
             localOptions.tools = agentSpec.tools;
         }
         let out: InferenceResult;
-        //console.log("CLI EXEC AGENT", payload.prompt, "\nOPTS", localOptions)
+        //console.log("CORE EXEC AGENT", payload.prompt, "\nOPTS H", localOptions.history)
         try {
             out = await agent.run(payload.prompt, localOptions);
         } catch (e: any) {
@@ -316,11 +316,11 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
         }
         clearInterval(abortTicker);
         //console.log("END TASK", out);
-        if (!localOptions?.isToolCall) {
+        /*if (!localOptions?.isToolCall) {
             if (!out.text.endsWith("\n")) {
                 console.log()
             }
-        }
+        }*/
         //console.log("END", name, "ISCM", isChatMode.value, "isTC", localOptions?.isToolCall)
         /*if (!isChatMode.value || localOptions?.isToolCall) {
             // close mcp connections

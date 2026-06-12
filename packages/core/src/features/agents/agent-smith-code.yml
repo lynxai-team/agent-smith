@@ -26,6 +26,8 @@ variables:
     workspace:
       description: The local directory path where to operate
 toolsList:
+  - readfile
+  - edit-search-replace
   - shell
   - python
   - agent-smith-doc

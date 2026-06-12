@@ -72,6 +72,7 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
                     } else {
                         actArgs = taskRes
                     }
+                    //console.log("WF EXEC ACTION OPTS", options);
                     const ares = await executeAction(step.name, actArgs, options, true);
                     //console.log("WF ACTION RES", typeof ares, ares);
                     //console.log("LAST ACT", i, finalTaskIndex);

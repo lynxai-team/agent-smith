@@ -23,6 +23,6 @@ Check what is remaining to do. Avoid verifying previous phases and execute the n
 
 ## After a task is executed or created: manage the state
 
-If the task is completed ask the user to confirm if everything is all right. If yes delete the task directory.
+When the task is completed it is important to ask the user if everything is all right. If he confirms you can then delete the task directory.
 
 If the task is not completed create or update`.agents/tasks/[task-name]/state.md` to indicate briefly what was done and what remains to do to complete the quickstart task. This file should contains step by step instructions and their state.

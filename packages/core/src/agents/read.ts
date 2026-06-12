@@ -216,10 +216,18 @@ async function readAgent(
                 }
             }
             if (!autoRunTool) {
-                if (!options?.confirmToolUsage) {
+                if (!options?.onConfirmToolUsage) {
                     throw new Error("provide a tool usage confirm function")
                 }
-                lmTool.canRun = options.confirmToolUsage as (tool: ToolCallSpec) => Promise<boolean>;
+                /*const tcr = async (tool: ToolCallSpec) => {
+                    console.log("CORE: RUN TOOL CALL CONFIRM", tool)
+                    // @ts-ignore
+                    const res = await options.onConfirmToolUsage(tool)
+                    console.log("TCR", res);
+                    return res
+                }
+                lmTool.canRun = tcr;*/
+                lmTool.canRun = options.onConfirmToolUsage;
             }
             agentSpec.tools.push(lmTool)
         }
