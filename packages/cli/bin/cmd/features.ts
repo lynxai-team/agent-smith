@@ -6,28 +6,14 @@ import { chat } from "./build.js";
 
 async function executeWorkflowCmd(name: string, wargs: Array<any>): Promise<any> {
     //console.log("WF INITIAL ARGS", typeof wargs, wargs.slice(0, -1));
-    const { args, options } = parseCommandArgs(wargs);
-    //console.log("WF ARGS", typeof args, args);
-    //console.log("WF OPTS", options);
-    return await executeWorkflow(name, args, options)
-}
-
-async function executeTaskCmd(
-    name: string,
-    targs: Array<any> = []
-): Promise<InferenceResult> {
-    const ca = parseCommandArgs(targs);
-    //console.log("ARGS", ca);
+    const ca = parseCommandArgs(wargs);
+    //console.log("WF ARGS", ca);
     const inferenceCallbacks = useInferenceCallbacks(name, ca.options);
     const options = { ...ca.options, ...inferenceCallbacks };
-    const prompt = await getAgentPrompt(name, ca.args, options);
-    const tsk = await useAgentExecutor(name, { prompt: prompt }, options);
-    const tr = await tsk.execute();
-    //console.log("TR", tr);
-    if (ca?.options.chat) {
+    return await executeWorkflow(name, wargs, options);
+    /*if (ca?.options.chat) {
         await chat(options, tsk.agent, tsk.mcpServers);
-    }
-    return tr
+    }*/
 }
 
 async function executeAgentCmd(
@@ -36,6 +22,7 @@ async function executeAgentCmd(
 ): Promise<InferenceResult> {
     //console.log("EXEC AGENT", name);
     const ca = parseCommandArgs(targs);
+    //console.log("Agent ARGs", ca);
     ca.options.isAgent = true;
     ca.options.confirmToolUsage = confirmToolUsage;
     const inferenceCallbacks = useInferenceCallbacks(name, ca.options);
@@ -45,6 +32,11 @@ async function executeAgentCmd(
     //console.log("CA", ca);
     const tr = await tsk.execute();
     //console.dir(tsk.agent.history, { depth: 6 });
+    if (tr?.text) {
+        if (!tr.text.endsWith("\n")) {
+            console.log()
+        }
+    }
     if (ca?.options.chat) {
         await chat(options, tsk.agent, tsk.mcpServers);
     }
@@ -54,10 +46,12 @@ async function executeAgentCmd(
 async function executeActionCmd(
     name: string, aargs: Array<any>, quiet = false
 ): Promise<any> {
-    //console.log("AARGs", aargs)
-    const { args, options } = parseCommandArgs(aargs);
+    const ca = parseCommandArgs(aargs);
+    //console.log("AARGs", ca);
+    const inferenceCallbacks = useInferenceCallbacks(name, ca.options);
+    const options: Record<string, any> = { ...ca.options, ...inferenceCallbacks };
     //console.log("CMDA", args)
-    const params = args;
+    const params = aargs;
     const ip = await getInputFromOptions(options);
     if (ip !== null) {
         params.push(ip)
@@ -70,7 +64,6 @@ async function executeActionCmd(
 
 export {
     executeWorkflowCmd,
-    executeTaskCmd,
     executeActionCmd,
     executeAgentCmd,
 }

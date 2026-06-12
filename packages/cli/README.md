@@ -50,29 +50,33 @@ This installs the `lm` command globally.
 
 ## Quick Start
 
-### 1. Configure Your Backend
+### 1. Initialize a config file
 
-Create a config file at `~/.config/agent-smith/config.yml`:
+Run `lm conf` to initialize. A basic config file will be created (`~/.config/agent-smith/config.yml` on Linux):
+
+```yaml
+backends:
+  default: llamacpp
+  llamacpp:
+    url: http://localhost:8080/v1
+```
+
+### 2. Configure your backend
+
+Customize your config:
 
 ```yaml
 backends:
   default: "llamacpp"
   llamacpp:
-    type: "openai"
     url: "http://localhost:8080/v1"
   openrouter:
     type: "openai"
     url: "https://openrouter.ai/api/v1"
-    apiKey: "$OPENROUTER_API_KEY"
+    apiKey: "$OPENROUTER_API_KEY" # env variable
 ```
 
-### 2. Sync Configuration
-
-```bash
-lm conf ~/.config/agent-smith/config.yml
-```
-
-This processes the YAML config and populates the SQLite database at `~/.config/agent-smith/config.db`.
+Run `lm conf` again to synchronize. This processes the YAML config and populates the SQLite database (at `~/.config/agent-smith/config.db` on Linux).
 
 ### 3. Run a Quick Query
 
@@ -161,12 +165,12 @@ lm q "Write a poem" \
 
 **Clipboard input:**
 ```bash
-lm q "Summarize this" --clipboard-input
+lm q "Summarize this" --ic
 ```
 
 **File input:**
 ```bash
-lm q "Analyze" --input-file
+lm q "Analyze" --if
 ```
 
 **Markdown output:**
@@ -176,7 +180,7 @@ lm q "Generate a report" --markdown-output
 
 **Clipboard output:**
 ```bash
-lm q "Generate code" --clipboard-output
+lm q "Generate code" --oc
 ```
 
 ### Chat Mode for Tasks
@@ -219,27 +223,26 @@ backends:
     url: "http://localhost:8080/v1"
 ```
 
+Run `lm conf` to synchronize the conf db
+
 ### Step 3: Create an Agent
 
 Create `~/my-agents/features/agents/shell-demo.yml`:
 
 ```yaml
-name: shell-demo
-description: A demo agent with shell tool access
+description: A demo agent
 prompt: |-
-    {prompt}
+  Custom prompt here.
+  User input: {prompt}
+template:
+  system: |-
+    Custom system prompt here
 model: qwen4b
 inferParams:
   min_p: 0
   top_k: 20
   top_p: 0.95
   temperature: 0.4
-toolsList:
-  - shell
-variables:
-  required:
-    workspace:
-      description: The local directory path where to operate
 ```
 
 ### Step 4: Register and Run
@@ -249,7 +252,7 @@ variables:
 lm update
 
 # Run with a prompt and variable
-lm shell-demo "List files in the current directory" --workspace /path/to/dir
+lm demo "user prompt here" -v # -v is to see thinking tokens
 ```
 
 ## API Reference

@@ -24,7 +24,12 @@ async function chat(options: AgentInferenceOptions, agent: Agent, mcpServers: Ar
             await query(program)
         }
     }
-    //console.log("CHAT HIST", agent.history);
+    /* console.log("CHAT HISTORY", agent.history.length);
+     agent.history.forEach(t => {
+         const turn = { ...t };
+         delete turn.stats;
+         console.log(turn)
+     });*/
     //options.history = undefined;
     //console.log("RUN W PROMPT", prompt);
     options.params = chatInferenceParams;
