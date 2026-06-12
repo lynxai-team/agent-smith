@@ -29,24 +29,26 @@ Get up and running in 3 steps:
 npm i -g @agent-smith/cli
 ```
 
-### 2. Create a config file (`~/.config/agent-smith/config.yml`)
+A new `lm` command is available
+
+### 2. Initialize a config file
+
+Run `lm conf` to initialize. A basic config file will be created (`~/.config/agent-smith/config.yml` on Linux):
 
 ```yaml
 backends:
-  default: "llamacpp"
+  default: llamacpp
   llamacpp:
-    type: "llamacpp"
-    url: "http://localhost:8080/v1"
-
-features:
-  - ~/my-agents/features
+    url: http://localhost:8080/v1
 ```
 
 ### 3. Run your first query
 
 ```bash
-lm q "Say hello in three words"
+lm q list the planets of the solar system -m qwen4b
 ```
+
+Replace `qwen4b` by your model alias
 
 👉 See the [full quickstart guide](https://lynxai-team.github.io/agent-smith/terminal_client/quickstart) for detailed setup including plugins and custom agents.
 
@@ -155,4 +157,4 @@ Supported inference backends:
 
 ![Agent Smith](docsite/public/img/job.jpg)
 
-*Agents processing a real-world job, thinking, working, and adapting.*
+*Agents processing a real-world job, thinking, working and adapting.*

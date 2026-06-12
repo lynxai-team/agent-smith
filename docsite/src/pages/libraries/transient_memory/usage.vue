@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { hljs } from "@/conf";
+import { hljs } from "@/conf.js";
 import { StaticCodeBlock } from "@docdundee/vue";
 import { useTmem } from "@agent-smith/tmem";
 import { onBeforeMount, reactive } from "vue";

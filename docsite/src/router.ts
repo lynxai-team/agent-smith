@@ -1,6 +1,6 @@
 import { nextTick } from 'vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router"
-import { libName } from "./conf"
+import { libName } from "./conf.js"
 // @ts-ignore
 import { default as autoRoutes } from '~pages'
 

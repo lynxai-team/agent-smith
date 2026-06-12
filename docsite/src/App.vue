@@ -23,10 +23,10 @@
 import { onBeforeMount } from "vue";
 import TheHeader from "./components/TheHeader.vue";
 import TheSidebar from "./components/TheSidebar.vue";
-import { libTitle, links } from "@/conf";
-import { initState } from "./state";
+import { libTitle, links } from "@/conf.js";
+import { initState } from "./state.js";
 import { useRouter } from "vue-router";
-import { initNotifyService } from "./services/notify";
+import { initNotifyService } from "./services/notify.js";
 import ConfirmDialog from "primevue/confirmdialog";
 import Toast from "primevue/toast";
 
