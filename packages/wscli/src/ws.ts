@@ -15,13 +15,13 @@ const useWsServer = (params: ServerParams) => {
     };
 
     ws.onmessage = function(event: MessageEvent) {
-        //console.log('Received message:', typeof event.data, event.data);
         let data: WsRawServerMsg;
         try {
             data = JSON.parse(event.data) as WsRawServerMsg;
         } catch (e) {
             throw new Error(`can not parse data: ${e}\nMSG: ${event.data}`)
         }
+        //console.log('Received message:', data);
         const type = data.type;
         const from = data.from;
         const msg = data.msg;
@@ -127,14 +127,17 @@ const useWsServer = (params: ServerParams) => {
                 }
                 break
             case "toolcallconfirm":
+                //console.log("WS TCC", params?.onConfirmToolUsage);
                 if (params?.onConfirmToolUsage) {
                     const tm = JSON.parse(msg) as ToolCallSpec;
+                    //console.log("WS TM", tm);
                     params.onConfirmToolUsage(tm).then(c => {
                         const m: WsClientMsg = {
                             type: "system",
                             command: "confirmtool",
                             payload: { confirm: c, id: tm.id }
                         }
+                        //console.log("WS CCM", m);
                         _sendMsg(JSON.stringify(m))
                     })
                 }
@@ -192,6 +195,8 @@ const useWsServer = (params: ServerParams) => {
             payload: payload,
             options: options,
         };
+        //console.log("WS EXEC FEAT H", options.history);
+        //console.log("WS EXEC FEAT P", payload);
         _sendMsg(JSON.stringify(cmd));
     };
 

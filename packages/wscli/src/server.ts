@@ -117,8 +117,7 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): Cli
         //console.log("SRV OPTS VARS", agentvars);
         const payload = { prompt: prompt };
         const _opts = { ...opts, variables: agentvars };
-        //console.log("==> OPTS", options);
-
+        //console.log("WS AGENT HIST", _opts.history);
         ws.executeAgent(agentSpec.value?.name, payload, _opts);
         if (isSync) {
             await awaiter;
