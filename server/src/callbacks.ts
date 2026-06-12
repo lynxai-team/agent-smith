@@ -166,7 +166,7 @@ function buildCallbacks(msg: WsClientMsg, ctx: Context,
         //console.log("TOOL CALL END", toolResData);
         ctx.websocket.send(JSON.stringify(rsm));
     }
-    msg.options.confirmToolUsage = async (tc: Record<string, any>, from: string) => {
+    msg.options.onConfirmToolUsage = async (tc: Record<string, any>, from: string) => {
         if (!tc?.id) {
             tc.id = crypto.randomUUID()
         }
