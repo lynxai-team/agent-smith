@@ -1,1 +1,0 @@
-import{d as t,o as n,g as o,u as e,l,n as r,H as u,_ as p,h as c,i}from"./index-CctRGQ9K.js";const b=t({__name:"[...all]",setup(_){const s=c(),a=i();return(h,f)=>(n(),o(e(p),{hljs:e(u),nav:e(r),url:e(a).path,"on-open":e(s).push,"base-title":e(l)},null,8,["hljs","nav","url","on-open","base-title"]))}});export{b as default};

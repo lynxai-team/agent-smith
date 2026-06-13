@@ -58,10 +58,14 @@
           <code class="text-sm bg-gray-100 dark:secondary px-2 py-1 rounded">lm my-agent "hello"</code>
         </div>
       </div>
-
-      <button class="btn success text-lg px-8 py-3" @click="router.push('/terminal_client/quickstart')">
-        Get Started
-      </button>
+      <div class="flex flex-row space-x-3">
+        <button class="btn success text-lg px-8 py-3" @click="router.push('/terminal_client/quickstart')">
+          Get Started with the terminal client
+        </button>
+        <button class="btn success text-lg px-8 py-3" @click="router.push('/frontend/quickstart')">
+          Get Started with the frontend
+        </button>
+      </div>
     </div>
 
     <!-- EXAMPLE OUTPUT -->
