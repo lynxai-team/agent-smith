@@ -17,40 +17,28 @@ A toolkit to create local-first human-friendly agents in the browser or terminal
 - **Declarative** — focus on business logic, express features simply
 - **Explicit** — simple and under user control, no hidden magic
 
-📚 [Documentation](https://lynxai-team.github.io/agent-smith) | 🧩 [Plugins](https://github.com/synw/agent-smith-plugins) | 🎨 [UI](https://github.com/synw/agent-smith-ui)
+## Documentation
+
+### For AI Agents
+- [Codebase Summary](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/.agents/documentation/codebase-summary.md) — Architecture, key files, and patterns
+- [Documentation map](https://raw.githubusercontent.com/lynxai-team/agent-smith/refs/heads/main/.agents/documentation/documentation-map.md) — Complete documentation and usage guide
+
+### For Humans
+
+📚 [Documentation](https://lynxai-team.github.io/agent-smith) | 🧩 [Plugins](https://lynxai-team.github.io/agent-smith-plugins) | 🎨 [UI](https://lynxai-team.github.io/agent-smith-ui)
 
 ## Quickstart
 
-Get up and running in 3 steps:
+### Get Started
 
-### 1. Install the CLI
+#### 🖥️ Web UI
 
-```bash
-npm i -g @agent-smith/cli
-```
+[![Frontend Quickstart](https://img.shields.io/badge/Get%20Started-Frontend-brightgreen)](https://lynxai-team.github.io/agent-smith/frontend/quickstart) 
 
-A new `lm` command is available
+#### 💻 Terminal Client
 
-### 2. Initialize a config file
+[![Terminal Quickstart](https://img.shields.io/badge/Get%20Started-Terminal-blue)](https://lynxai-team.github.io/agent-smith/terminal_client/quickstart) 
 
-Run `lm conf` to initialize. A basic config file will be created (`~/.config/agent-smith/config.yml` on Linux):
-
-```yaml
-backends:
-  default: llamacpp
-  llamacpp:
-    url: http://localhost:8080/v1
-```
-
-### 3. Run your first query
-
-```bash
-lm q list the planets of the solar system -m qwen4b
-```
-
-Replace `qwen4b` by your model alias
-
-👉 See the [full quickstart guide](https://lynxai-team.github.io/agent-smith/terminal_client/quickstart) for detailed setup including plugins and custom agents.
 
 ## Packages
 
@@ -67,7 +55,7 @@ Replace `qwen4b` by your model alias
 
 ## Plugins
 
-Plugins extend the CLI with additional capabilities. Browse all plugins at [agent-smith-plugins](https://github.com/synw/agent-smith-plugins).
+Plugins extend the CLI with additional capabilities. Browse all plugins at [agent-smith-plugins](https://lynxai-team.github.io/agent-smith-plugins).
 
 | Category | Plugin | Package | Description |
 |----------|--------|---------|-------------|
@@ -152,8 +140,8 @@ Supported inference backends:
 
 | Repository | Description |
 |------------|-------------|
-| [agent-smith-plugins](https://github.com/synw/agent-smith-plugins) | Plugin extensions: git, sqlite, fs, shell, search, video, autodoc |
-| [agent-smith-ui](https://github.com/synw/agent-smith-ui) | Web interface for Agent Smith |
+| [agent-smith-plugins](https://lynxai-team.github.io/agent-smith-plugins) | Plugin extensions: git, sqlite, fs, shell, search, video, autodoc |
+| [agent-smith-ui](https://lynxai-team.github.io/agent-smith-ui) | Web interface for Agent Smith |
 
 ![Agent Smith](docsite/public/img/job.jpg)
 
