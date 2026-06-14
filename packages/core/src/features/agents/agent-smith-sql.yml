@@ -4,7 +4,7 @@ tool:
         prompt: 
             description: the question about the config or data to retrieve
 description: Create an sql query
-category: internal
+category: internal/doc
 prompt: |-
     Schema:
     {schema}

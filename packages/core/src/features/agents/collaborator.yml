@@ -1,5 +1,5 @@
 description: A collaborator agent
-category: internal
+category: internal/experimental
 type: worker
 prompt: |-
     You are on collaborator mode. Your role is: {role}. Main agent request:

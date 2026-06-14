@@ -6,7 +6,7 @@ tool:
           description: the web search to perform or question about a web page
           required: true
 description: An agent to run web search or open web pages
-category: internal
+category: "agent-smith"
 prompt: |-
     {prompt}
 template:

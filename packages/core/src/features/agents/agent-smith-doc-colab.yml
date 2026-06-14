@@ -6,7 +6,7 @@ tool:
           description: The query about the documentation, the task to perform
           required: true
 description: An agent to manage Agent Smith's documentation
-category: internal
+category: internal/experimental
 prompt: |-
     {prompt}
 template:

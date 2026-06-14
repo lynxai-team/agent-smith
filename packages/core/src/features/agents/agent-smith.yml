@@ -1,5 +1,5 @@
 description: An agent to manage Agent Smith's documentation
-category: builtin
+category: "agent-smith"
 prompt: |-
     {prompt}
 template:
@@ -34,6 +34,8 @@ variables:
     workspace:
       description: The local directory path where to operate
 toolsList:
+  - readfile
+  - edit-search-replace
   - shell
   - python
   - run-agent

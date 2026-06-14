@@ -1,9 +1,8 @@
-description: A basic agent with no tools
-category: builtin
+description: A basic agent
+category: "agent-smith"
 prompt: |-
     {prompt}
 model: qwen4b
-backend: llamaccp
 inferParams:
     min_p: 0
     top_k: 20
@@ -13,3 +12,8 @@ inferParams:
     chat_template_kwargs:
       enable_thinking: true
       preserve_thinking: true
+toolsList:
+  - readfile
+  - writetofile?
+  - edit-search-replace?
+  - load-skill

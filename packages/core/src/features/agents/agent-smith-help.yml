@@ -1,5 +1,5 @@
 description: An agent to manage Agent Smith's documentation
-category: builtin
+category: "agent-smith"
 prompt: |-
     {prompt}
 template:
