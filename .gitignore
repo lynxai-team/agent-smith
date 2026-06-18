@@ -20,3 +20,4 @@ coverage
 server.config.yaml
 .aider*
 .continue
+.agents/tasks
