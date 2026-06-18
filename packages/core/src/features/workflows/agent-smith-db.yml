@@ -1,9 +1,0 @@
-tool:
-  description: and agent to retrieve data in the Agent Smith config database that references agents, actions, workflows and other features. Ask a question in natural language and get the data back. 
-  arguments:
-    prompt:
-        description: the question to ask about the data
-steps:
-  - adaptater: agent-smith-db-getschema
-  - agent: agent-smith-sql
-  - action: db-execute-read-query

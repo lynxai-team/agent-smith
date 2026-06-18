@@ -1,10 +1,10 @@
 {
   "name": "@agent-smith/core",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Agent Smith core",
   "repository": "https://github.com/synw/agent-smith",
   "scripts": {
-    "build": "rm -rf dist/* && tsc && cp -r src/features/agents dist/features && cp -r src/features/workflows dist/features && cp -r src/features/fragments dist/features && cp -r src/features/skills dist/features"
+    "build": "rm -rf dist/* && tsc"
   },
   "dependencies": {
     "@agent-smith/agent": "^0.5.2",

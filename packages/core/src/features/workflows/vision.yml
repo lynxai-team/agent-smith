@@ -1,3 +1,0 @@
-steps:
-  - action: imgs2base64
-  - task: infer

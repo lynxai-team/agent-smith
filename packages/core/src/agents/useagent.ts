@@ -1,5 +1,5 @@
 import { Agent, type Lm } from "@agent-smith/agent";
-import type { AgentInferenceOptions, AgentSettings, InferenceResult } from "@agent-smith/types";
+import { WorkflowStep, type AgentInferenceOptions, type AgentSettings, type InferenceResult } from "@agent-smith/types";
 import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
 import { backend, backends, listBackends } from "../state/backends.js";
 import { initAgentSettings, isAgentSettingsInitialized, agentSettings } from "../state/tasks.js";
@@ -11,9 +11,11 @@ import { toRaw } from "@vue/reactivity";
 import { readAllSkills } from "../db/read.js";
 import { default as fm } from "front-matter";
 import { readFile } from "../utils/sys/read.js";
+import { executeWorkflow } from "../main.js";
+import { readInlineWorkflow } from "../utils/workflow.js";
 
 const useAgentExecutor = async (name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions) => {
-    const localOptions = Object.assign({}, options);
+    const localOptions = Object.assign({}, options) as AgentInferenceOptions & Record<string, any>;
     // skill loader
     if (payload.prompt.includes("%")) {
         const skills = readAllSkills();
@@ -237,8 +239,18 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
         }
         let out: InferenceResult;
         //console.log("CORE EXEC AGENT", payload.prompt, "\nOPTS H", localOptions.history)
+        let finalPrompt = payload.prompt;
+        if (agentSpec?.workflow?.before) {
+            //console.log("WFB", agentSpec.workflow.before);
+            const workflow = readInlineWorkflow(agentSpec.workflow.before);
+            localOptions.inlineWorkflow = workflow;
+            //console.log("EXEC BEFORE WF", workflow);
+            const res = await executeWorkflow("inline", [payload.prompt], localOptions);
+            //console.log("IWF RES", res);
+            finalPrompt = res.toString()
+        }
         try {
-            out = await agent.run(payload.prompt, localOptions);
+            out = await agent.run(finalPrompt, localOptions);
         } catch (e: any) {
             //console.log("ERR CATCH", e);
             const errMsg = `${e}`;
@@ -334,6 +346,13 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 }
             });
         }*/
+        if (agentSpec?.workflow?.after) {
+            const workflow = readInlineWorkflow(agentSpec.workflow.after);
+            localOptions.inlineWorkflow = workflow;
+            //console.log("EXEC AFTER WF", workflow);
+            out = await executeWorkflow("inline", out, localOptions);
+            //console.log("EXEC AFTER WF RES", out);
+        }
         await processOutput(out);
         // chat mode
         //console.log("CLI CONF IP", initialInferParams);

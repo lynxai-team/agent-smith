@@ -1,13 +1,13 @@
 /*
 # tool
-name: read-feature
-description: read a feature and get it's content
+name: show-feature
+description: 'only use this to show the details of an Agent Smith feature: agent, action, adaptater, skill, command or workflow'
 arguments:
     name:
         description: the feature name
         required: true
     type:
-        description: 'the feature type: agent, workflow, action, adaptater or skill'
+        description: 'the feature type: agent, action, adaptater, skill, command or workflow'
         required: true
 */
 

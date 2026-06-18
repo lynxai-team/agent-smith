@@ -1,3 +1,0 @@
-Agents call mode info: you can call an agent in worker mode using `run-worker`, it will have all the context you have in the conversation history. Or you can call an agent in isolation mode using `run-agent`: the agent will be completly independant and have no context. Use the isolation mode for independant tasks that are heavy and do not require context, otherwise use the worker mode to share context and dialog with workers.
-
-Evaluate if you run in worker mode. If yes answer directly. Otherwise if in main agent mode coordinate the work.

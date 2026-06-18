@@ -14,7 +14,7 @@ import { useAgentExecutor } from "../../agents/useagent.js";
 
 async function action(args: Record<string, any>, options: Record<string, any>) {
     //console.log("RA ARGS", args);
-    console.log("RA OPTS", options);
+    //console.log("RA OPTS", options);
     const errb = new Array<string>();
     if (!args?.name) {
         errb.push(`loading agent: provide an agent name`);
@@ -27,6 +27,18 @@ async function action(args: Record<string, any>, options: Record<string, any>) {
     }
     const aOpts = { ...options };
     aOpts.history = [];
+    if (aOpts?.template) {
+        delete aOpts.template
+    }
+    if (aOpts?.system) {
+        delete aOpts.system
+    }
+    if (aOpts?.shots) {
+        delete aOpts.shots
+    }
+    if (aOpts?.tools) {
+        delete aOpts.tools;
+    }
     const ax = await useAgentExecutor(args.name, { prompt: args.prompt }, aOpts);
     const res = await ax.execute();
     //console.log("AH", ax.agent.history);
