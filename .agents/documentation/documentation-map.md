@@ -10,6 +10,15 @@
 - [`agent-smith/docsite/public/doc/architecture/4.tool-abstraction.md`](agent-smith/docsite/public/doc/architecture/4.tool-abstraction.md)
 - [`agent-smith/docsite/public/doc/architecture/5.callbacks.md`](agent-smith/docsite/public/doc/architecture/5.callbacks.md)
 
+### frontend
+
+- [`agent-smith/docsite/public/doc/frontend/1.quickstart.md`](agent-smith/docsite/public/doc/frontend/1.quickstart.md)
+- [`agent-smith/docsite/public/doc/frontend/2.agents.md`](agent-smith/docsite/public/doc/frontend/2.agents.md)
+- [`agent-smith/docsite/public/doc/frontend/3.create-agents.md`](agent-smith/docsite/public/doc/frontend/3.create-agents.md)
+- [`agent-smith/docsite/public/doc/frontend/4.subagents.md`](agent-smith/docsite/public/doc/frontend/4.subagents.md)
+- [`agent-smith/docsite/public/doc/frontend/5.skills.md`](agent-smith/docsite/public/doc/frontend/5.skills.md)
+- [`agent-smith/docsite/public/doc/frontend/6.apps.md`](agent-smith/docsite/public/doc/frontend/6.apps.md)
+
 ### libraries
 
 - [`agent-smith/docsite/public/doc/libraries/agent/1.get_started.md`](agent-smith/docsite/public/doc/libraries/agent/1.get_started.md)
@@ -43,6 +52,10 @@
 - [`agent-smith/docsite/public/doc/plugins/8.search.md`](agent-smith/docsite/public/doc/plugins/8.search.md)
 - [`agent-smith/docsite/public/doc/plugins/9.shell.md`](agent-smith/docsite/public/doc/plugins/9.shell.md)
 
+### reference
+
+- [`agent-smith/docsite/public/doc/reference/1.howto-agents.md`](agent-smith/docsite/public/doc/reference/1.howto-agents.md)
+
 ### server
 
 - [`agent-smith/docsite/public/doc/server/1.get_started.md`](agent-smith/docsite/public/doc/server/1.get_started.md)
@@ -53,9 +66,9 @@
 ### terminal_client
 
 - [`agent-smith/docsite/public/doc/terminal_client/0.quickstart.md`](agent-smith/docsite/public/doc/terminal_client/0.quickstart.md)
-- [`agent-smith/docsite/public/doc/terminal_client/1.quickstart-agent.md`](agent-smith/docsite/public/doc/terminal_client/1.quickstart-agent.md)
 - [`agent-smith/docsite/public/doc/terminal_client/1.install.md`](agent-smith/docsite/public/doc/terminal_client/1.install.md)
 - [`agent-smith/docsite/public/doc/terminal_client/agents/1.overview.md`](agent-smith/docsite/public/doc/terminal_client/agents/1.overview.md)
+- [`agent-smith/docsite/public/doc/terminal_client/1.quickstart-agent.md`](agent-smith/docsite/public/doc/terminal_client/1.quickstart-agent.md)
 - [`agent-smith/docsite/public/doc/terminal_client/2.overview.md`](agent-smith/docsite/public/doc/terminal_client/2.overview.md)
 - [`agent-smith/docsite/public/doc/terminal_client/agents/2.tools_call.md`](agent-smith/docsite/public/doc/terminal_client/agents/2.tools_call.md)
 - [`agent-smith/docsite/public/doc/terminal_client/3.config.md`](agent-smith/docsite/public/doc/terminal_client/3.config.md)
