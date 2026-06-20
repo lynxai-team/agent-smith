@@ -74,7 +74,9 @@ interface FeatureSpec {
  *   action: [{ name: 'lint', path: './actions/lint.js', ext: 'js' }],
  *   workflow: [{ name: 'deploy', path: './workflows/deploy.yml', ext: 'yml' }],
  *   adaptater: [{ name: 'slack', path: './adapters/slack.js', ext: 'js' }],
- *   skill: [{ name: 'debug', path: './skills/debug.md', ext: 'md' }]
+ *   skill: [{ name: 'debug', path: './skills/debug.md', ext: 'md' }],
+ *   task: [{ name: 'debug', path: './skills/debug.md', ext: 'md' }],
+ *   tasktemplate: [{ name: 'debug', path: './skills/debug.md', ext: 'md' }]
  * };
  */
 interface Features {
@@ -87,6 +89,8 @@ interface Features {
     workflow: Array<{ name: string, path: string, ext: WorkflowExtension }>;
     adaptater: Array<{ name: string, path: string, ext: AdaptaterExtension }>;
     skill: Array<{ name: string, path: string, ext: SkillExtension, variables?: Record<string, any> }>;
+    task: Array<{ name: string, path: string, ext: "md" }>;
+    tasktemplate: Array<{ name: string, path: string, ext: "md" }>;
 }
 
 /**
@@ -276,12 +280,12 @@ type FormatMode = "text" | "markdown";
 
 /**
  * Defines all possible feature types that can be registered in the system.
- * @typedef {('agent' | 'action' | 'cmd' | 'workflow' | 'adaptater' | 'skill')} FeatureType
+ * @typedef {('agent' | 'action' | 'cmd' | 'workflow' | 'adaptater' | 'skill' | 'task' | 'tasktemplate')} FeatureType
  * @example
  * const type: FeatureType = 'agent';
  * const skillType: FeatureType = 'skill';
  */
-type FeatureType = "agent" | "action" | "cmd" | "workflow" | "adaptater" | "skill";
+type FeatureType = "agent" | "action" | "cmd" | "workflow" | "adaptater" | "skill" | "task" | "tasktemplate";
 
 /**
  * Defines the types of features that can act as tools.
