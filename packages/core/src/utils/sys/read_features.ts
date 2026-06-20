@@ -20,6 +20,20 @@ function _readDir(dir: string, ext: Array<string>): Array<string> {
     return fileNames
 }
 
+function _listSubDirs(dir: string): Array<string> {
+    const dirNames = new Array<string>;
+    fs.readdirSync(dir).forEach((filename) => {
+        const filepath = path.join(dir, filename);
+        //console.log("F", filepath);
+        const isDir = fs.statSync(filepath).isDirectory();
+        if (isDir) {
+            dirNames.push(filename);
+        }
+    });
+    return dirNames
+}
+
+
 function _readSkills(dir: string): Array<{ name: string, path: string, info: { name: string, description: string } }> {
     const dirs = new Array<{ name: string, path: string, info: { name: string, description: string } }>();
     fs.readdirSync(dir).forEach((p) => {
@@ -50,6 +64,8 @@ function readFeaturesDir(dir: string): Features {
         adaptater: [],
         agent: [],
         skill: [],
+        task: [],
+        tasktemplate: [],
     }
     let dirpath = path.join(dir, "agents");
     if (fs.existsSync(dirpath)) {
@@ -130,6 +146,28 @@ function readFeaturesDir(dir: string): Features {
                 path: s.path,
                 ext: "md",
                 variables: s.info,
+            })
+        });
+    }
+    dirpath = path.join(dir, "tasks");
+    if (fs.existsSync(dirpath)) {
+        const data = _listSubDirs(dirpath);
+        data.forEach((s) => {
+            feats.task.push({
+                name: s,
+                path: path.join(dirpath, s),
+                ext: "md",
+            })
+        });
+    }
+    dirpath = path.join(dir, "task-templates");
+    if (fs.existsSync(dirpath)) {
+        const data = _listSubDirs(dirpath);
+        data.forEach((s) => {
+            feats.tasktemplate.push({
+                name: s,
+                path: path.join(dirpath, s),
+                ext: "md",
             })
         });
     }

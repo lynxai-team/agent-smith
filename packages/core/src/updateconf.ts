@@ -58,6 +58,12 @@ async function updateAllFeatures(paths: Array<string>, userFeats?: Features) {
     if (userFeats?.skill) {
         feats.skill.push(...userFeats.skill)
     }
+    if (userFeats?.task) {
+        feats.task.push(...userFeats.task)
+    }
+    if (userFeats?.tasktemplate) {
+        feats.tasktemplate.push(...userFeats.tasktemplate)
+    }
     updateFeatures(feats);
     updateAliases(feats);
     const deleted = cleanupFeaturePaths(paths);

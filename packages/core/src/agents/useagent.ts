@@ -20,11 +20,16 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
     if (payload.prompt.includes("%")) {
         const skills = readAllSkills();
         for (const [k, v] of Object.entries(skills)) {
-            //console.log("S", k, payload.prompt.includes("%" + k));
-            if (payload.prompt.includes("%" + k)) {
+            // Escape special regex characters in the skill name
+            const escapedK = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            // Use regex with negative lookahead to ensure exact skill name match
+            // (?![a-zA-Z0-9-]) ensures "%create" doesn't match inside "%create-2"
+            const regex = new RegExp(`%${escapedK}(?![a-zA-Z0-9-])`, 'g');
+
+            if (regex.test(payload.prompt)) {
                 const fc = readFile(v.path);
                 const data = fm(fc);
-                payload.prompt = payload.prompt.replace("%" + k, data.body);
+                payload.prompt = payload.prompt.replace(new RegExp(`%${escapedK}(?![a-zA-Z0-9-])`, 'g'), data.body);
                 if (localOptions?.debug) {
                     console.log(`loading skill ${k} in prompt`)
                 }

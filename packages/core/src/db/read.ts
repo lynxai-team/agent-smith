@@ -126,7 +126,7 @@ function readSkillsFromList(names: Array<string>): Record<string, FeatureSpec> {
 
 function readFeatures(): Record<FeatureType, Record<string, FeatureSpec>> {
     const feats: Record<FeatureType, Record<string, FeatureSpec>> = {
-        action: {}, cmd: {}, workflow: {}, adaptater: {}, agent: {}, skill: {}
+        action: {}, cmd: {}, workflow: {}, adaptater: {}, agent: {}, skill: {}, task: {}, tasktemplate: {}
     };
     feats.agent = readFeaturesType("agent");
     feats.action = readFeaturesType("action");
@@ -134,6 +134,8 @@ function readFeatures(): Record<FeatureType, Record<string, FeatureSpec>> {
     feats.workflow = readFeaturesType("workflow");
     feats.adaptater = readFeaturesType("adaptater");
     feats.skill = readFeaturesType("skill");
+    feats.skill = readFeaturesType("task");
+    feats.skill = readFeaturesType("tasktemplate");
     return feats
 }
 

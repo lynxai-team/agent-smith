@@ -1,6 +1,6 @@
 {
   "name": "@agent-smith/core",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Agent Smith core",
   "repository": "https://github.com/synw/agent-smith",
   "scripts": {
@@ -11,7 +11,7 @@
     "@intrinsicai/gbnfgen": "^0.12.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@vue/reactivity": "^3.5.38",
-    "better-sqlite3": "^12.10.0",
+    "better-sqlite3": "^12.11.1",
     "clipboardy": "^5.3.1",
     "front-matter": "^4.0.2",
     "node-notifier": "^10.0.1",
@@ -19,9 +19,9 @@
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@agent-smith/types": "^0.0.6",
+    "@agent-smith/types": "^0.0.7",
     "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.0.0",
     "@types/node-notifier": "^8.0.5",
     "tslib": "^2.8.1",
     "typescript": "^6.0.3"

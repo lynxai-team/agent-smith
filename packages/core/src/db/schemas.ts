@@ -59,6 +59,22 @@ const skill = `CREATE TABLE IF NOT EXISTS skill (
     ext TEXT NOT NULL CHECK ( ext IN ('md') )
 );`;
 
+const taskTemplate = `CREATE TABLE IF NOT EXISTS tasktemplate (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    path TEXT NOT NULL,
+    variables TEXT,
+    ext TEXT
+);`;
+
+const task = `CREATE TABLE IF NOT EXISTS task (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL,
+    path TEXT NOT NULL,
+    variables TEXT,
+    ext TEXT
+);`;
+
 const cmd = `CREATE TABLE IF NOT EXISTS cmd (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
@@ -153,6 +169,8 @@ const schemas = [
     setting,
     skill,
     samplingPresets,
+    task,
+    taskTemplate,
 ];
 
 export { schemas }

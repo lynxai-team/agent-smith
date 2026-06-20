@@ -19,6 +19,8 @@ function readFeaturesDirs(featuresPaths: Array<string>, isverbose = false): Feat
         adaptater: [],
         agent: [],
         skill: [],
+        task: [],
+        tasktemplate: [],
     };
     featuresPaths.forEach((dir: string) => {
         if (isverbose) {
@@ -31,6 +33,8 @@ function readFeaturesDirs(featuresPaths: Array<string>, isverbose = false): Feat
         _f.workflow.forEach((item) => feats.workflow.push(item));
         _f.adaptater.forEach((item) => feats.adaptater.push(item));
         _f.skill.forEach((item) => feats.skill.push(item));
+        _f.task.forEach((item) => feats.task.push(item));
+        _f.tasktemplate.forEach((item) => feats.tasktemplate.push(item));
     });
     return feats
 }

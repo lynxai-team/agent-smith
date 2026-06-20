@@ -8,11 +8,10 @@ import { initFilepaths, promptfilePath, outputMode, formatMode } from "../state/
 import { readFile } from "../utils/sys/read.js";
 import { runtimeError } from '../utils/user_msgs.js';
 import { writeToClipboard } from '../utils/sys/clipboard.js';
-import { MarkedExtension, marked } from 'marked';
+//import { MarkedExtension, marked } from 'marked';
 // @ts-ignore
-import { markedTerminal } from "marked-terminal";
-
-marked.use(markedTerminal() as MarkedExtension);
+//import { markedTerminal } from "marked-terminal";
+//marked.use(markedTerminal() as MarkedExtension);
 
 function readPromptFile(): string {
     initFilepaths();
@@ -43,12 +42,12 @@ async function processOutput(res: InferenceResult) {
         //console.log("Writing to kb", data)
         await writeToClipboard(data);
     }
-    if (hasTextData) {
+    /*if (hasTextData) {
         if (formatMode.value == "markdown") {
             console.log("\n------------------\n");
             console.log((marked.parse(data) as string).trim())
         }
-    }
+    }*/
 }
 
 function openAgentSpec(name: string): { agentSpec: AgentSpec, agentPath: string } {

@@ -314,6 +314,8 @@ function updateFeatures(feats: Features, isVerbose = false) {
     upsertAndCleanFeatures(feats.adaptater, "adaptater");
     upsertAndCleanFeatures(feats.cmd, "cmd");
     upsertAndCleanFeatures(feats.skill, "skill");
+    upsertAndCleanFeatures(feats.task, "task");
+    upsertAndCleanFeatures(feats.tasktemplate, "tasktemplate");
     feats.cmd.forEach(c => updateUserCmd(c))
 }
 
