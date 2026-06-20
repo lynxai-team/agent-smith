@@ -10,6 +10,7 @@ Node.js backend service providing REST API (`/api/*`) and WebSocket (`/ws`) endp
 
 ## Used By
 - `@agent-smith/wscli` — WebSocket client connects to `/ws`; REST calls to `/api/*`.
+- `@agent-smith/cli` — remote mode connects to server for agent execution.
 - Browser UIs and external clients via HTTP API.
 
 ## Entry Point
@@ -23,6 +24,7 @@ Node.js backend service providing REST API (`/api/*`) and WebSocket (`/ws`) endp
 | `src/server/router.ts` | Two routers: base (`/ping`) and API (`/api/*` prefix for all feature endpoints) |
 | `src/callbacks.ts` | WebSocket callback handlers: tokens, tool calls, thinking phases, turn events |
 | `src/utils.ts` | `getConfig()` (read config YAML), `createAwaiter()` (promise-based async confirmation) |
+| `src/routes/index.ts` | Route composition: aggregates all feature route functions into `baseRoutes` array |
 | `src/routes/agents.ts` | GET agents list and individual agent specs |
 | `src/routes/workflows.ts` | GET workflows list and individual workflow specs |
 | `src/routes/backends.ts` | Backend listing and activation |
@@ -31,6 +33,9 @@ Node.js backend service providing REST API (`/api/*`) and WebSocket (`/ws`) endp
 | `src/routes/workspace.ts` | Workspace CRUD operations |
 | `src/routes/plugins.ts` | Plugin installation via npm |
 | `src/routes/conf.ts` | Configuration file reading and creation |
+| `src/routes/apps.ts` | App config file CRUD |
+| `src/routes/tools.ts` | Tool listing and management |
+| `src/routes/settings.ts` | General settings endpoints |
 
 ## Architecture
 - **Koa v3 + Router**: Web framework with `@koa/router` for REST routing under `/api` prefix.

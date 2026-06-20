@@ -1,36 +1,35 @@
 # @agent-smith/wscli
 
 ## Summary
-WebSocket client library for the Agent Smith server. Provides real-time bidirectional communication for executing agents and workflows with automatic reconnection, message parsing by type, and event-driven callbacks for token streaming, tool calls, and turn management.
+WebSocket client library providing real-time bidirectional communication with the Agent Smith server for agent/workflow execution, auto-reconnection, and REST fallback API access.
 
 ## Dependencies
-- `@agent-smith/types` — `WsRawServerMsg`, `WsClientMsg`, `InferenceCallbacks`.
-- External: `reconnecting-websocket` (auto-reconnect), `@vue/reactivity` (reactive state), `restmix` (REST fallback).
+- `@agent-smith/types` — `WsRawServerMsg`, `WsClientMsg`, `ServerParams`, `AgentSpec`, `InferenceCallbacks`
+- External: `reconnecting-websocket` (auto-reconnect), `@vue/reactivity` (reactive state), `restmix` (REST API client)
 
 ## Used By
-- Browser-based Agent Smith UIs and web applications.
-- Any client needing real-time agent execution via WebSocket.
+- `ui` — Vue dashboard imports `useClientFeatures` for real-time agent execution and result streaming
+- `apps` (debate) — debate app consumes wscli for WebSocket-based multi-agent communication
 
 ## Entry Point
-- `src/main.ts` — Exports `useWsServer` (low-level WebSocket client) and `useClientFeatures` (high-level agent/workflow orchestration service).
+- `src/main.ts` — Re-exports `useWsServer` (low-level WS client) and `useClientFeatures` (high-level orchestration service)
 
 ## Key Files
 | File | Purpose |
 |------|---------|
-| `src/ws.ts` | WebSocket client with auto-reconnect; parses messages by type (token, thinking, toolcall, turnstart/end) and dispatches to callbacks |
-| `src/server.ts` | Client features service: agent/workflow execution, variable handling, model loading, settings mgmt; reactive state (`isReady`, `agentSpec`, `variables`) |
-| `src/api.ts` | REST API client (`restmix`): fetches models, agents, settings, workspaces from server at `http://localhost:5184/api` |
-| `src/utils.ts` | `createAwaiter<T>()`: creates promise with external resolve/reject for sync-like async execution |
+| `src/ws.ts` | Low-level WebSocket client: auto-reconnect, message parsing by type (token, thinking, toolcall, turnstart/end), callback dispatch |
+| `src/server.ts` | High-level client features service: agent/workflow execution with sync/async modes, variable handling, model/settings loading; reactive state via Vue reactivity |
+| `src/api.ts` | REST API client (`restmix`): queries server at `http://localhost:5184/api` for models, agents, settings, workspaces |
+| `src/utils.ts` | `createAwaiter<T>()`: promise factory with external resolve/reject for sync-like async execution |
 
 ## Architecture
-- **Event-Driven**: WebSocket messages parsed and dispatched to callback handlers by type.
-- **Dual Transport**: WebSocket for real-time streaming (tokens, tool calls); REST API for queries (models, settings).
-- **Reactive State**: Vue `reactive`/`ref` for `agentSpec`, `variables`, `mcp`, `isReady`.
-- **Promise-Based Sync**: `createAwaiter` enables sync-like execution of async agent/workflow operations.
-- **Auto-Reconnect**: Exponential backoff up to 5 seconds via `reconnecting-websocket`.
+- **Event-Driven WebSocket**: Messages parsed by type and dispatched to typed callbacks (token, toolcall, turn events, etc.)
+- **Dual Transport Layer**: WebSocket (`/ws`) for real-time streaming; REST (`/api/*`) for configuration queries
+- **Reactive Orchestration**: Vue `ref`/`reactive` manages `agentSpec`, `variables`, `mcp`, `isReady` state
+- **Promise-Based Sync Pattern**: `createAwaiter` enables synchronous-style execution of async agent/workflow operations with await/unblock
 
 ## Related
-- See `server` — wscli connects to the server's `/ws` endpoint for real-time communication; REST calls go to `/api/*`.
-- See `packages/types` — WebSocket message types (`WsRawServerMsg`, `WsClientMsg`) defined in `types/src/ws.ts`.
-- See `packages/ui` — UI components consume `useClientFeatures` for agent execution and result display.
+- See `server` — connects to server's `/ws` WebSocket endpoint and `/api/*` REST endpoints
+- See `packages/types` — defines `WsRawServerMsg`, `WsClientMsg`, `ServerParams`, `AgentSpec` types
+- See `packages/ui` — Vue dashboard consumes `useClientFeatures()` for agent execution UI
 

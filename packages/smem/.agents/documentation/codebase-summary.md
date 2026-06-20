@@ -1,33 +1,32 @@
 # @agent-smith/smem
 
 ## Summary
-Semantic memory API for agents: stores, retrieves, and searches data using vector embeddings. Powered by LanceDB (vector database) and Xenova transformers (`all-MiniLM-L6-v2`, 384-dim vectors).
+Semantic memory API for agents: stores, retrieves, and searches data using vector embeddings powered by LanceDB and Xenova transformers.
 
 ## Dependencies
-- `@agent-smith/types` — shared types.
-- External: `@lancedb/lancebd` (vector DB), `@xenova/transformers` (text embeddings).
+- `@lancedb/lancebd` — vector database for persistent storage and vector search
+- `@xenova/transformers` — text embedding pipeline (`all-MiniLM-L6-v2`, 384-dim vectors)
+- `apache-arrow` — schema definition and data format for LanceDB tables
 
 ## Used By
-- `@agent-smith/core` — for semantic memory integration in agent features.
-- Agent plugins that require vector search (e.g., filesystem indexing).
+- No direct references found in workspace; designed for consumption by CLI and server packages.
 
 ## Entry Point
-- `src/main.ts` — Exports `useSmem`, `useSnode`, and type definitions (`SmemNodeFieldSchema`, `Smem`).
+- `src/main.ts` — Exports `useSmem`, `useSnode`, `SmemNodeFieldSchema`, `SmemNodeSchema`, `SmemNode`, `Smem`
 
 ## Key Files
 | File | Purpose |
 |------|---------|
-| `src/useSmem.ts` | Factory `useSmem()`: creates semantic memory instance; `init()` loads embedding pipeline; `node()` creates tables; `embed()` batch text→vector |
-| `src/useSnode.ts` | Node interface: `add()`, `upsert()`, `search()` (cosine similarity), `filter()`; auto-opens tables on first use |
-| `src/smeminterfaces.ts` | Types: `SmemNode<T>` (generic CRUD/search), `Smem`, `SearchParams`, `SmemNodeFieldSchema` |
+| `src/main.ts` | Barrel export: re-exports useSmem, useSnode, and all type definitions |
+| `src/useSmem.ts` | Factory `useSmem()`: initializes LanceDB connection and embedding pipeline; `node()` creates typed tables; `embed()` batch text→vector conversion |
+| `src/useSnode.ts` | Node interface: `add()`, `upsert()`, `search()`, `filter()`; auto-opens tables on first use; vector embedding at write time |
+| `src/smeminterfaces.ts` | Type definitions: `SmemNode<T>`, `Smem`, `SearchParams`, `SmemNodeFieldSchema` |
 
 ## Architecture
-- **Factory Pattern**: `useSmem()` returns a configured instance; `node()` creates typed table handles.
-- **Generic Types**: `SmemNode<T>` for type-safe data operations.
-- **Lazy Initialization**: Tables auto-opened on first operation; nodes cached in a registry.
-- **Vector Embeddings**: Text auto-embedded via `all-MiniLM-L6-v2` (384-dim vectors stored as FixedSizeList columns).
-- **Schema Management**: Auto Arrow schema generation from type defs; supports string/int/float/boolean + vector column.
+- **Factory Pattern**: `useSmem()` returns a configured instance with `node()` factory for typed table handles.
+- **Generic Types**: `SmemNode<T>` provides type-safe CRUD and vector search operations.
+- **Lazy Initialization**: Tables auto-open on first operation; nodes cached in a registry map.
+- **Auto-Embedding**: Text source column auto-embedded via `all-MiniLM-L6-v2` at write time; vectors stored as 384-dim FixedSizeList columns.
 
 ## Related
-- See `packages/tmem` — complementary transient (key-value) memory; smem handles semantic/vector search.
-- See `packages/core` — integrates smem for agent feature storage and retrieval.
+- See `packages/tmem` — transient (key-value) memory; complements smem's semantic/vector search with ephemeral storage.

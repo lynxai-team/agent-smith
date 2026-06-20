@@ -1,42 +1,30 @@
 # @agent-smith/tmem
 
 ## Summary
-Transient key-value memory for agents. Wraps localForage (IndexedDB backend) with a simple typed API: `init`, `set`, `get`, `del`, `keys`, `all`.
+Transient key-value memory module that wraps localForage (IndexedDB backend) with a generic typed API for init, set, get, del, keys, and all operations.
 
 ## Dependencies
-- External: `localforage` (IndexedDB wrapper).
+- External: `localforage` (^1.10.0) — IndexedDB wrapper for browser-based persistent storage
 
 ## Used By
-- `@agent-smith/core` — for transient state persistence.
-- Browser-based agent apps needing lightweight key-value storage.
+- *(none currently — available for use by other packages such as cli, agent, or ui)*
 
 ## Entry Point
-- `src/main.ts` — Re-exports `Tmem` interface and `useTmem` function.
+- `src/main.ts` — Re-exports `Tmem` interface and `useTmem` factory function
 
 ## Key Files
 | File | Purpose |
 |------|---------|
-| `src/tmem.ts` | `useTmem<S>()` generic factory: creates localForage instance, returns typed store with init/set/get/del/keys/all |
-| `src/tmeminterfaces.ts` | `Tmem<S>` interface defining the memory module shape |
+| `src/main.ts` | Entry point: re-exports `Tmem` and `useTmem` |
+| `src/tmem.ts` | `useTmem<S>()` generic factory: creates a named localForage instance and returns a typed store with init/set/get/del/keys/all |
+| `src/tmeminterfaces.ts` | `Tmem<S>` interface defining the transient memory module shape |
 
 ## Architecture
-- **Generic Factory**: `useTmem<S>()` creates a typed instance for a named store with optional initial data.
-- **Wrapper Pattern**: Simplifies localForage's API to consistent async key-value operations.
-- **Init on Demand**: `init()` populates store only if empty, enabling reproducible agent state.
-- **Type Inference**: TypeScript generics infer value types from keys — `get("count")` returns the inferred type without explicit type parameters.
-
-## API Surface
-```typescript
-interface Tmem<S extends Record<string, any>> {
-    db: LocalForage;
-    init(): Promise<void>;
-    set<T extends keyof S>(k: T, v: S[T]): Promise<void>;
-    get<T extends keyof S>(k: T): Promise<S[T]>;
-    del<T extends keyof S>(k: T): Promise<void>;
-    keys(): Promise<Array<string>>;
-    all<T = any>(): Promise<Record<string, T>>;
-}
-```
+- **Generic Factory**: `useTmem<S>()` creates a typed instance for a named store with optional initial data, using TypeScript generics to infer value types from keys.
+- **Wrapper Pattern**: Simplifies localForage's API into consistent async key-value operations (set/get/del/keys/all) with an `init` method for seeding empty stores.
+- **IndexedDB Backend**: Persists data in the browser via IndexedDB through localForage, with `db.ready()` ensuring operations are safe on first access.
+- **Type-Safe Keys**: TypeScript generics constrain keys to `keyof S`, so `get("count")` returns the inferred type without explicit type parameters.
 
 ## Related
-- See `packages/smem` — complementary semantic (vector) memory; tmem handles simple key-value persistence.
+- See `packages/smem` — complementary semantic (vector) memory; tmem handles simple key-value persistence while smem handles vector embeddings.
+- See `packages/types` — shared TypeScript types across the agent-smith monorepo.

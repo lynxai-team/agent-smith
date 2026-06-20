@@ -5,11 +5,11 @@ Pure TypeScript type definitions library shared across all Agent Smith packages.
 
 ## Dependencies
 - None (leaf package; all other packages depend on this one).
-- External: `openai`, `restmix`, `@vue/reactivity` (for `Ref`/`Reactive` types).
+- External (devDependencies): `openai` (for `ChatCompletionRole`, `ChatCompletionMessageToolCall`, `ChatCompletionContentPart` types), `restmix` (for `useApi` return type), `vue` (for `Ref<T>`, `Reactive<T>` reactive types).
 
 ## Used By
 - Every other `@agent-smith/*` package and the `server`.
-- Key types consumed: `AgentParams`, `ToolSpec`, `InferenceCallbacks`, `HistoryTurn`, `LmProvider`, `WsRawServerMsg`.
+- Key types consumed: `AgentParams`, `ToolSpec`, `InferenceCallbacks`, `HistoryTurn`, `LmProvider`, `WsRawServerMsg`, `ModelInfo`, `SamplingPreset`.
 
 ## Entry Point
 - `src/main.ts` — Re-exports all types from every module file for single-import usage.
@@ -17,37 +17,52 @@ Pure TypeScript type definitions library shared across all Agent Smith packages.
 ## Key Files
 | File | Purpose |
 |------|---------|
-| `src/agent.ts` | Agent config: `AgentParams`, `AgentSpec`, `AgentSettings`, callbacks, LM provider refs |
+| `src/agent.ts` | Agent definitions: `AgentParams`, `AgentSpec`, `AgentSettings`, `AgentState`, `AgentVariables`, `TemplateSpec`, `AgentWorkflow` |
 | `src/callbacks.ts` | Event callback interfaces: `InferenceCallbacks`, `AgentCallbacks`, `AllCallbacks` |
-| `src/client.ts` | Client-side features service: `ClientFeaturesOptions`, `ClientFeaturesService` |
-| `src/conf.ts` | Config & backend defs: `ConfInferenceBackend`, `ConfigFile`, `InferenceBackend` |
-| `src/core.ts` | Fundamental types: `FeatureSpec`, `Features`, `InputMode`, `OutputMode`, extensions |
-| `src/history.ts` | Conversation history: `HistoryTurn`, `UiHistoryTurn`, `ToolTurn`, `ImgData` |
-| `src/inference.ts` | Inference params & results: `InferenceParams`, `InferenceOptions`, `InferenceResult`, sampling presets |
-| `src/lm.ts` | LM provider abstraction: `LmProvider`, `LmProviderParams`, `LmProviderType` |
-| `src/model.ts` | Model management: `ModelInfo`, `ModelState`, `ModelStatus` (discriminated union) |
-| `src/stats.ts` | Performance metrics: `InferenceStats`, `PerformanceMetrics`, `CtxStats` |
-| `src/tools.ts` | Tool specs: `ToolSpec`, `ToolDefSpec`, `ToolCallSpec` |
-| `src/ws.ts` | WebSocket protocol: message types for token streaming, tool calls, turn events |
+| `src/client.ts` | Client-side features service: `ClientFeaturesOptions`, `ClientFeaturesService` (uses Vue reactivity) |
+| `src/conf.ts` | Config & backend defs: `ConfInferenceBackend`, `ConfigFile`, `InferenceBackend`, `BackendEntries` |
+| `src/core.ts` | Fundamental types: `FeatureSpec`, `Features` (includes agent, cmd, action, workflow, adaptater, skill, task, tasktemplate), `Settings`, `InputMode`, `OutputMode`, extension types, `McpServerSpec`, `UserCmdDef`, `FeatureType` |
+| `src/history.ts` | Conversation history: `HistoryTurn`, `UiHistoryTurn` (with `agentTurn`), `ToolTurn`, `ImgData`, `ChatCompletionHistoryTurn` (OpenAI-compatible, supports multimodal content arrays) |
+| `src/inference.ts` | Inference params & results: `InferenceParams`, `InferenceOptions`, `InferenceResult`, `AgentInferenceOptions` (with optional `caller`), `ClientInferenceOptions`, `SamplingPreset` |
+| `src/lm.ts` | LM provider abstraction: `LmProvider` (with `applyTemplate` method), `LmProviderParams`, `LmProviderType`, `LmDefaults`, loading progress types |
+| `src/model.ts` | Model management: `ModelInfo`, `ModelState`, `ModelData`, `ModelApiResponse`, `ModelStatus` (discriminated union), `ModelTemplate`, status subtypes |
+| `src/stats.ts` | Performance metrics: `InferenceStats`, `PerformanceMetrics`, `PromptProcessingProgress`, `PromptProcessingInProgressStats` |
+| `src/tools.ts` | Tool specs: `ToolSpec` (with optional `agentType`), `ToolDefSpec`, `ToolCallSpec` |
+| `src/ws.ts` | WebSocket protocol: `WsClientMsg`, `WsClientMsgType`, `WsServerMsgType`, `WsRawClientMsg`, `WsRawServerMsg`, `MsgType`, `ServerParams`, `StreamedMessage` |
+| `src/workspace.ts` | Workspace definition: `Workspace` interface |
+| `src/verbosity.ts` | Verbosity configuration: `VerbosityOptions` |
 
 ## Architecture
-- **Type-only library**: No runtime code; all files contain interfaces, type aliases, and exports. Output is `.d.ts` declarations.
-- **Modular by layer**: Files grouped by concern — agent, client, LM, inference, stats, tooling, communication.
-- **Callback-driven**: Events handled through typed callback interfaces (`InferenceCallbacks`, `AgentCallbacks`).
-- **Discriminated unions**: `ModelStatus` uses `{ value: 'unloaded' | 'loading' | 'loaded' | 'failed' }`.
-- **Vue reactive support**: Uses `Ref<T>` and `Reactive<T>` from `@vue/reactivity` for reactive state types.
+- **Type-only library**: No runtime code; all files contain interfaces, type aliases, and exports. Output compiled to `.d.ts` declarations via `tsc`.
+- **Modular by concern**: Files grouped by domain — agent lifecycle, callbacks/events, inference pipeline, model management, tooling, communication (WebSocket), configuration, and core feature system.
+- **Callback-driven event system**: `InferenceCallbacks` and `AgentCallbacks` compose into `AllCallbacks` for granular inference/agent event handling (tokens, tool calls, turns).
+- **Discriminated unions**: `ModelStatus` uses `{ value: 'unloaded' | 'loading' | 'loaded' | 'failed' }` for type-safe state narrowing.
+- **Vue reactive types**: `ClientFeaturesService` uses `Ref<T>` and `Reactive<T>` from `vue` for reactive state management in client-side features.
+- **OpenAI compatibility**: `ChatCompletionHistoryTurn` aligns with OpenAI's chat completion message format, supporting multimodal content arrays and optional tool calls for interoperability.
+- **Feature system**: `Features` interface supports 8 feature types (agent, cmd, action, workflow, adaptater, skill, task, tasktemplate) with `FeatureType` union and `FeatureSpec` for registration.
+- **Chat templating**: `LmProvider.applyTemplate` method enables applying model-specific chat templates to message histories.
 
 ### Module Dependency Flow
 ```
-main.ts → (all modules)
-agent.ts → callbacks, lm, inference, tools
-client.ts → conf, inference, tools, workspace, agent, model
-conf.ts → lm, core
-inference.ts → callbacks, stats
-ws.ts → history, inference, tools
+main.ts → (re-exports all modules)
+agent.ts    → callbacks, lm, inference, tools, history, workspace, conf, stats
+callbacks.ts → history, inference, stats, tools
+client.ts    → vue, conf, inference, tools, workspace, agent, model
+conf.ts      → lm, agent
+core.ts      → agent (AgentVariables)
+history.ts   → openai/resources, stats, tools
+inference.ts → callbacks, history, stats, tools, verbosity
+lm.ts        → restmix, inference, model, callbacks, tools, history (OpenAI types)
+model.ts     → standalone
+stats.ts     → standalone (no imports)
+tools.ts     → inference
+ws.ts        → core, tools, history, inference, callbacks
+workspace.ts → standalone
+verbosity.ts → standalone
 ```
 
 ## Related
 - See `packages/core` — uses types for DB schema definitions and feature specs.
 - See `packages/agent` — uses `AgentParams`, `ToolSpec`, `HistoryTurn` for the inference loop.
+- See `packages/cli` — uses `Settings`, `InputMode`, `OutputMode`, `RunMode` for CLI configuration.
 - See `server` — uses `WsRawServerMsg` / `WsClientMsg` for WebSocket protocol.

@@ -4,13 +4,12 @@
 Agent runtime providing the `Agent` class (inference loop with recursive tool calling) and `Lm` class (OpenAI-compatible HTTP client for streaming inference). Works in Node.js and browsers.
 
 ## Dependencies
-- `@agent-smith/types` — `AgentParams`, `ToolSpec`, `HistoryTurn`, `InferenceCallbacks`, `LmProvider`.
-- External: `restmix` (HTTP client), `eventsource-parser` (SSE parsing).
+- `@agent-smith/types` — `AgentParams`, `ToolSpec`, `HistoryTurn`, `InferenceCallbacks`, `LmProvider`, `AgentSpec`.
+- External: `restmix` (HTTP client), `eventsource-parser` (SSE streaming parser), `yaml` (YAML spec parsing), `openai` (type definitions for OpenAI API).
 
 ## Used By
-- `@agent-smith/cli` — for agent execution with streaming callbacks.
-- `server` — for agent inference over WebSocket connections.
-- `@agent-smith/wscli` — uses `Agent`-compatible callback patterns.
+- `@agent-smith/cli` — CLI uses agent runtime for interactive agent sessions with streaming.
+- `@agent-smith/core` — wraps Agent class with MCP backend selection and config integration.
 
 ## Entry Point
 - `src/main.ts` — Exports `Agent` and `Lm` classes.

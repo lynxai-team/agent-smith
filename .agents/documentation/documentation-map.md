@@ -83,33 +83,33 @@
 
 ## 🤖 Root Agent Documentation
 
-- [`agent-smith/.agents/codebase-summary.md`](agent-smith/.agents/codebase-summary.md)
-- [`agent-smith/.agents/documentation-map.md`](agent-smith/.agents/documentation-map.md)
+- [`agent-smith/.agents/documentation/codebase-summary.md`](agent-smith/.agents/documentation/codebase-summary.md)
+- [`agent-smith/.agents/documentation/documentation-map.md`](agent-smith/.agents/documentation/documentation-map.md)
 
 ## 📦 Package: @agent-smith/core
 
-- [`agent-smith/packages/core/.agents/codebase-summary.md`](agent-smith/packages/core/.agents/codebase-summary.md)
+- [`agent-smith/packages/core/.agents/documentation/codebase-summary.md`](agent-smith/packages/core/.agents/documentation/codebase-summary.md)
 
 ## 📦 Package: @agent-smith/agent
 
-- [`agent-smith/packages/agent/.agents/codebase-summary.md`](agent-smith/packages/agent/.agents/codebase-summary.md)
+- [`agent-smith/packages/agent/.agents/documentation/codebase-summary.md`](agent-smith/packages/agent/.agents/documentation/codebase-summary.md)
 
 ## 📦 Package: @agent-smith/cli
 
-- [`agent-smith/packages/cli/.agents/codebase-summary.md`](agent-smith/packages/cli/.agents/codebase-summary.md)
+- [`agent-smith/packages/cli/.agents/documentation/codebase-summary.md`](agent-smith/packages/cli/.agents/documentation/codebase-summary.md)
 
 ## 📦 Package: @agent-smith/wscli
 
-- [`agent-smith/packages/wscli/.agents/codebase-summary.md`](agent-smith/packages/wscli/.agents/codebase-summary.md)
+- [`agent-smith/packages/wscli/.agents/documentation/codebase-summary.md`](agent-smith/packages/wscli/.agents/documentation/codebase-summary.md)
 
 ## 📦 Package: @agent-smith/types
 
-- [`agent-smith/packages/types/.agents/codebase-summary.md`](agent-smith/packages/types/.agents/codebase-summary.md)
+- [`agent-smith/packages/types/.agents/documentation/codebase-summary.md`](agent-smith/packages/types/.agents/documentation/codebase-summary.md)
 
 ## 📦 Package: @agent-smith/smem
 
-- [`agent-smith/packages/smem/.agents/codebase-summary.md`](agent-smith/packages/smem/.agents/codebase-summary.md)
+- [`agent-smith/packages/smem/.agents/documentation/codebase-summary.md`](agent-smith/packages/smem/.agents/documentation/codebase-summary.md)
 
 ## 📦 Package: @agent-smith/tmem
 
-- [`agent-smith/packages/tmem/.agents/codebase-summary.md`](agent-smith/packages/tmem/.agents/codebase-summary.md)
+- [`agent-smith/packages/tmem/.agents/documentation/codebase-summary.md`](agent-smith/packages/tmem/.agents/documentation/codebase-summary.md)
