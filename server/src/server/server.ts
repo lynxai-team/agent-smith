@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import fs from 'fs';
+import path from 'path';
 import { executeAgent, executeWorkflow } from '@agent-smith/core';
 import type { WsClientMsg, WsRawServerMsg } from '@agent-smith/types';
 import cors from '@koa/cors';
@@ -183,20 +185,24 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
     .use(baseRouter.routes()).use(baseRouter.allowedMethods())
     .use(apiRouter.routes()).use(apiRouter.allowedMethods());
 
-  // 404 middleware - runs after router
-  /*app.use((ctx) => {
+  // SPA 404 handler - serve index.html for unmatched non-API routes
+  app.use(async (ctx) => {
     if (!ctx.matched || ctx.matched.length === 0) {
-      ctx.redirect('/')
-      ctx.status = 301
-
-      /*ctx.status = 404;
-      //console.log("404 ROUTE", ctx);
-      ctx.body = {
-        error: 'Not Found',
-        path: ctx.path
-      };
+      if (!ctx.path.startsWith('/api/')) {
+        if (staticDir) {
+          ctx.status = 200;
+          ctx.type = 'html';
+          ctx.body = fs.createReadStream(path.join(staticDir, 'index.html'));
+        } else {
+          ctx.status = 404;
+          ctx.body = { error: 'Not Found', path: ctx.path };
+        }
+      } else {
+        ctx.status = 404;
+        ctx.body = { error: 'Not Found', path: ctx.path };
+      }
     }
-  });*/
+  });
 
   app.listen(5184, () => {
     console.log('Please open url http://localhost:5184 in a browser');
