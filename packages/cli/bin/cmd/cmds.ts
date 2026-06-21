@@ -144,11 +144,32 @@ async function processAgentCmd(args: Array<string>, options: Record<string, any>
     //console.log(JSON.stringify(ts, null, "  "));
 }
 
+async function manageWorkspaces(args: Array<string>, options: Record<string, any>) {
+    if (!options?.activate) {
+        const { found, setting } = db.readSetting("workspace");
+        const dws = found ? setting : null;
+        const ws = db.readWorkspaces();
+        ws.forEach(w => {
+            const msg = dws == w.name ? colors.bold(w.name) + " " + colors.yellow("[active]") : colors.bold(w.name);
+            console.log("- " + msg + " " + w.path);
+        })
+    } else {
+        const { found, workspace } = db.readWorkspace(options.activate);
+        if (!found) {
+            runtimeDataError(`Workspace ${options.activate} not found`)
+            return
+        }
+        db.upsertSetting("workspace", workspace.name);
+        console.log(`Workspace ${colors.bold(options.activate)} activated`)
+    }
+}
+
 export {
     initUserCmds,
     processAgentCmd,
     processAgentsCmd,
     resetDbCmd,
     recreateDbCmd,
+    manageWorkspaces,
 };
 

@@ -1,7 +1,7 @@
 import { Command, Option } from "commander";
 import { conf, state } from "@agent-smith/core";
 import { parseCommandArgs } from "../utils.js";
-import { processAgentCmd, processAgentsCmd, recreateDbCmd, resetDbCmd } from "./cmds.js";
+import { manageWorkspaces, processAgentCmd, processAgentsCmd, recreateDbCmd, resetDbCmd } from "./cmds.js";
 import { displayOptions, inferenceOptions } from "../options.js";
 
 function initBaseCommands(program: Command): Command {
@@ -62,6 +62,15 @@ function initBaseCommands(program: Command): Command {
         .action(async (...args: Array<any>) => {
             await recreateDbCmd()
         });
+    const wsCmd = program.command("ws")
+        .description("manage the workspaces")
+        .action(async (...args: Array<any>) => {
+            const ca = parseCommandArgs(args);
+            await manageWorkspaces(ca.args, ca.options);
+        });
+    wsCmd.addOption(
+        new Option("-a, --activate <name>", "activate a workspace")
+    )
     return program
 }
 
