@@ -1,8 +1,8 @@
 import path from "path";
 import { confDir, createConfigFileIfNotExists, dbPath, processConfPath } from "./conf.js";
 import { initDb } from "./db/db.js";
-import { readFeaturePaths, readFilePath } from "./db/read.js";
-import { cleanupFeaturePaths, updateAliases, updateDataDirPath, updateFeatures, updatePromptfilePath, upsertFilePath } from "./db/write.js";
+import { readAgentSettings, readFeaturePaths, readFilePath, readSamplingPresets, readWorkspaces } from "./db/read.js";
+import { cleanupFeaturePaths, updateAliases, updateDataDirPath, updateFeatures, updatePromptfilePath, upsertAgentSettings, upsertAndCleanWorkspaces, upsertFilePath, upsertSamplingPresets } from "./db/write.js";
 import type { Features } from "@agent-smith/types";
 import { getBuiltinFeaturesDirPath, readFeaturesDirs } from "./state/features.js";
 import { readPluginsPaths } from "./state/plugins.js";
@@ -80,6 +80,12 @@ async function updateFeaturesCmd(options: Record<string, any>, userFeats?: Featu
 }
 
 async function recreateDbFromConf() {
+    const agentSettings = readAgentSettings();
+    const workspaces = readWorkspaces();
+    const samplingPresets = readSamplingPresets();
+    /*console.log("AS", agentSettings);
+    console.log("SP", samplingPresets);
+    return*/
     // try to find a conf path in db
     let confPath: string;
     const cf = readFilePath("conf");
@@ -93,6 +99,16 @@ async function recreateDbFromConf() {
     deleteFileIfExists(dbPath);
     console.log("Using", confPath, "to recreate the db");
     await updateConfCmd([confPath]);
+    console.log("Updating workspaces ...");
+    upsertAndCleanWorkspaces(workspaces);
+    console.log("Updating agent settings ...");
+    agentSettings.forEach(s => {
+        s.chat_template_kwargs = JSON.parse(s.chat_template_kwargs);
+        s.props = JSON.parse(s.props);
+        upsertAgentSettings(s.name, s);
+    });
+    console.log("Updating sampling presets ...");
+    upsertSamplingPresets(samplingPresets);
     console.log(`Config recreated db ${dbPath} from ${confPath} ok`)
 }
 
@@ -128,7 +144,7 @@ async function updateConfCmd(args: Array<string>): Promise<any> {
         updateDataDirPath(dd);
         dataDirPath.value = dd;
     }
-    updateAllFeatures(paths);
+    await updateAllFeatures(paths);
 }
 
 export {

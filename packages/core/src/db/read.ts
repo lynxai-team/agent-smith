@@ -229,12 +229,23 @@ function readWorkspaces(): Array<Workspace> {
     data.forEach(row => wss.push({ name: row.name, path: row.path, props: row.props }));
     return wss
 }
+
+function readWorkspace(name: string): { found: boolean, workspace: Workspace } {
+    const q = "SELECT * FROM workspace WHERE name= ?";
+    const stmt = db.prepare(q);
+    const result = stmt.get(name) as Workspace & { id: number };
+    if (result?.id) {
+        return { found: true, workspace: result }
+    }
+    return { found: false, workspace: {} as Workspace }
+}
+
 function readSetting(name: string): { found: boolean, setting: string } {
     const q = "SELECT * FROM setting WHERE name= ?";
     const stmt = db.prepare(q);
     const result = stmt.get(name);
     if (result?.id) {
-        return { found: true, setting: result }
+        return { found: true, setting: result.value }
     }
     return { found: false, setting: "" }
 }
@@ -300,6 +311,6 @@ function readSamplingPresets(): Array<SamplingPreset> {
 export {
     readAgentSettings, readAliases, readBackends, readFeature, readFeaturePaths, readFeatures, readFeaturesType, readFilePath,
     readFilePaths, readPlugins, readSetting, readSettings, readSkillsFromList, readAgentSetting, readTool, readWorkspaces,
-    readSamplingPreset, readSamplingPresets, readAllSkills,
+    readSamplingPreset, readSamplingPresets, readAllSkills, readWorkspace,
     //readSkill
 };
