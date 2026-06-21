@@ -17,7 +17,8 @@
 - [`agent-smith/docsite/public/doc/frontend/3.create-agents.md`](agent-smith/docsite/public/doc/frontend/3.create-agents.md)
 - [`agent-smith/docsite/public/doc/frontend/4.subagents.md`](agent-smith/docsite/public/doc/frontend/4.subagents.md)
 - [`agent-smith/docsite/public/doc/frontend/5.skills.md`](agent-smith/docsite/public/doc/frontend/5.skills.md)
-- [`agent-smith/docsite/public/doc/frontend/6.apps.md`](agent-smith/docsite/public/doc/frontend/6.apps.md)
+- [`agent-smith/docsite/public/doc/frontend/6.tasks.md`](agent-smith/docsite/public/doc/frontend/6.tasks.md)
+- [`agent-smith/docsite/public/doc/frontend/7.apps.md`](agent-smith/docsite/public/doc/frontend/7.apps.md)
 
 ### libraries
 

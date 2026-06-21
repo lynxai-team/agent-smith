@@ -33,8 +33,8 @@ The agent must resolve the package name to its path and target file using the ta
   - `lynx-coder` → repo is `/workspace/lynx-coder`
 - **cd into the correct repository directory** before running git commands (git cannot access paths outside its own `.git`)
 - Run `git log --oneline -10 -- <relative-package-path>` to see recent commits
-- Run `git diff HEAD~10 -- <relative-package-path>/src/` to identify code changes
-- Focus exploration on modified files identified in the diff
+- Run `git diff HEAD~10 -- <relative-package-path>/src/` to identify code changes for the package you are working on
+- Focus exploration on modified files identified in the diff only for the package you are working on
 **Success Criteria:**
 - [ ] Correct repo directory identified and cd'd into
 - [ ] Recent commits reviewed
