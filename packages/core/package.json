@@ -1,6 +1,6 @@
 {
   "name": "@agent-smith/core",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Agent Smith core",
   "repository": "https://github.com/synw/agent-smith",
   "scripts": {
@@ -16,7 +16,8 @@
     "front-matter": "^4.0.2",
     "node-notifier": "^10.0.1",
     "python-shell": "^5.0.0",
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.0",
+    "ansi-colors": "^4.1.3"
   },
   "devDependencies": {
     "@agent-smith/types": "^0.0.7",
