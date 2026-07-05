@@ -14,6 +14,8 @@ import { runtimeDataError } from "../../utils/user_msgs.js";
 import { parsePath } from "../../utils/path.js";
 import fs from 'fs/promises';
 import path from 'path';
+import { init } from "../../state/state.js";
+import { state } from "../../main.js";
 
 async function copyDirectory(source: string, destination: string): Promise<boolean> {
     // Check if destination directory already exists
@@ -62,6 +64,9 @@ export async function listDirectoriesOnly(dirPath: string): Promise<string[]> {
 }
 
 async function action(args: Record<string, any>, options: Record<string, any>) {
+    if (!state.isStateReady) {
+        await init();
+    }
     let errMsg = "";
     if (!args?.name) {
         errMsg = `loading task: provide a task name`;
