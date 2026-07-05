@@ -10,13 +10,16 @@ import type {
     SamplingPreset,
 } from "@agent-smith/types";
 import { reactive, ref } from "@vue/reactivity";
-import { api } from "./api.js";
 import { createAwaiter } from "./utils.js";
 import { useWsServer } from "./ws.js";
+import { useApi } from "restmix";
 
-const useClientFeatures = (params: ServerParams = { onToken: (t) => null }): ClientFeaturesService => {
-    //console.log(from, ":", params);
-    const ws = useWsServer(params);
+const useClientFeatures = (params: ServerParams = { onToken: (t) => null }, port = 5184): ClientFeaturesService => {
+    //console.log("UCF", port, params);
+    const api = useApi({
+        serverUrl: `http://localhost:${port}/api`
+    });
+    const ws = useWsServer(params, port);
     const isReady = ref<boolean>(false);
     const agentSpec = ref<AgentSpec>({} as AgentSpec);
     const variables = reactive<UserAgentVariables>({ required: {}, optional: {}, values: { required: {}, optional: {} } });

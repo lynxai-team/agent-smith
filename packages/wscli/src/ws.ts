@@ -2,9 +2,9 @@ import type { WsClientMsg, FeatureType, ToolCallSpec, WsRawServerMsg, ServerPara
 import type { HistoryTurn } from "@agent-smith/types";
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
-const useWsServer = (params: ServerParams) => {
+const useWsServer = (params: ServerParams, port = 5184) => {
     //console.log("WS PARAMS", params);
-    let url = "ws://localhost:5184/ws";
+    let url = `ws://localhost:${port}/ws`;
     if (params?.url) {
         url = params.url;
     }
