@@ -1,6 +1,6 @@
 {
   "name": "@agent-smith/server",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Agent Smith Nodejs server",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,7 +10,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@agent-smith/core": "^0.0.8",
+    "@agent-smith/core": "^0.0.10",
     "@koa/cors": "^5.0.0",
     "@koa/router": "^15.6.0",
     "ansi-colors": "^4.1.3",
@@ -47,11 +47,16 @@
     "dist"
   ],
   "bin": {
-    "agentserver": "./dist/index.js"
+    "agentserver": "dist/index.js"
   },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "directories": {
+    "doc": "doc"
+  },
+  "keywords": [],
+  "author": ""
 }

@@ -13,6 +13,7 @@ import { getOrCreateAppConfigFileRoute, updateAppConfigFileRoute } from "./apps.
 import { getWorkspaceRoute, updateDefaultWorkspaceRoute, upsertWorkspaceRoute } from "./workspace.js";
 import { getSettingsRoute } from "./settings.js";
 import { applyTemplateRoute } from "./templates.js";
+import { getSkillssRoute } from "./skills.js";
 
 const baseRoutes = new Array<((r: Router) => void)>(
     getConfRoute,
@@ -40,6 +41,7 @@ const baseRoutes = new Array<((r: Router) => void)>(
     upsertModelPresetRoute,
     delModelPresetRoute,
     applyTemplateRoute,
+    getSkillssRoute,
 );
 
 export { baseRoutes }

@@ -44,7 +44,7 @@ app.ws.use((ctx: Context, next: Next) => {
   return next();
 });
 
-function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
+function runserver(routes?: ((r: Router) => void)[], staticDir: string | null = null, port = 5184) {
   //state.init();
   const router = useRouter(routes);
   //console.log(router.apiRouter.stack.map(i => i.path));
@@ -204,8 +204,8 @@ function runserver(routes?: ((r: Router) => void)[], staticDir?: string) {
     }
   });
 
-  app.listen(5184, () => {
-    console.log('Please open url http://localhost:5184 in a browser');
+  app.listen(port, () => {
+    console.log(`Please open url http://localhost:${port} in a browser`);
   });
 }
 
