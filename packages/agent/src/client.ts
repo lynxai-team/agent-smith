@@ -297,7 +297,7 @@ class Lm implements LmProvider {
             //console.log("IP", JSON.stringify(ip, null, 2));            
             const _url = `/chat/completions`;
             //console.log("URL", _url);
-            const res = await this.api.post<Record<string, any>>(_url, ip, false, true);
+            const res = await this.api.post<Record<string, any>>(_url, ip, false);
             if (!res.ok) {
                 throw new Error(`${res.statusText} ${res.status}`);
             }
@@ -328,6 +328,7 @@ class Lm implements LmProvider {
                 });
             }
         } else {
+            //console.log("C OPTS", localOptions?.onPromptProcessingProgress !== undefined ? true : false, localOptions?.onPromptProcessingProgress)
             const ip: ChatCompletionCreateParamsStreaming & { return_progress?: boolean } = {
                 // @ts-ignore
                 messages: msgs,
@@ -335,7 +336,7 @@ class Lm implements LmProvider {
                 parallel_tool_calls: true,
                 ...inferenceParams,
                 stream: true,
-                return_progress: localOptions?.return_progress ?? false,
+                return_progress: localOptions?.onPromptProcessingProgress !== undefined ? true : false,
             };
             if (localOptions?.debug) {
                 console.log(`\n-------- ${localOptions?.agentName} [${ip.model}] ${this.name} -------`);

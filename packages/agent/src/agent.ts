@@ -1,4 +1,4 @@
-import type { AgentCallbacks, AgentParams, AgentSpec, HistoryTurn, InferenceCallbacks, InferenceResult, ToolCallSpec, ToolSpec, ToolTurn, VerbosityOptions } from "@agent-smith/types";
+import type { AgentCallbacks, AgentParams, AgentSpec, ClientInferenceOptions, HistoryTurn, InferenceCallbacks, InferenceResult, ToolCallSpec, ToolSpec, ToolTurn, VerbosityOptions } from "@agent-smith/types";
 import type { AgentInferenceOptions, PerformanceMetrics } from "@agent-smith/types";
 import { Lm } from "./client.js";
 import { convertStats } from "./stats.js";
@@ -188,7 +188,7 @@ class Agent {
         }
         //console.log("AGENT OPTS", baseOpts);
         localOptions = { ...baseOpts, ...clientEvents, ...events };
-        const clientOpts = { ...localOptions, agentName: this.name };
+        const clientOpts: ClientInferenceOptions = { ...localOptions, agentName: this.name };
         //localOptions.history = this.history;
         /*if (localOptions?.debug) {
             console.log("-----------", localOptions.model, "-----------");
@@ -291,8 +291,8 @@ class Agent {
                             //if (verbosity?.events) {
                             console.log("[X] Tool", tool.name, "execution error:", toolCallResult);
                             //}
-                            if (localOptions?.onError) {
-                                localOptions?.onError(toolCallResult, this.name);
+                            if (clientEvents?.onError) {
+                                clientEvents?.onError(toolCallResult, this.name);
                             }
                             //throw new Error(m)
                         }
