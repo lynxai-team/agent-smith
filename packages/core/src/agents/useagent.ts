@@ -28,6 +28,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
 
             if (regex.test(payload.prompt)) {
                 const fc = readFile(v.path);
+                // @ts-ignore
                 const data = fm(fc);
                 payload.prompt = payload.prompt.replace(new RegExp(`%${escapedK}(?![a-zA-Z0-9-])`, 'g'), data.body);
                 if (localOptions?.debug) {

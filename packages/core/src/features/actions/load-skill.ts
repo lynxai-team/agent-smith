@@ -30,6 +30,7 @@ function action(args: Record<string, any>, options: Record<string, any>) {
         }
     }
     const fc = readFile(feature.path);
+    //@ts-ignore
     const data = fm(fc);
     sb = data.body;
     return sb;

@@ -40,6 +40,7 @@ function _readSkills(dir: string): Array<{ name: string, path: string, info: { n
         const isDir = fs.statSync(path.join(dir, p)).isDirectory();
         const skp = path.join(dir, p, "SKILL.md");
         const fc = readFile(skp);
+        // @ts-ignore
         const data = fm<Record<string, any>>(fc);
         //console.log("FM DATA", data);
         if (!data.attributes?.name) {

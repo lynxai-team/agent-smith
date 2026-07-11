@@ -15,12 +15,12 @@ async function action(args: Record<string, any>, options: Record<string, any>) {
     // Get the schema information as SQL CREATE TABLE statements
     const schema = [];
     // Get all table names
-    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+    const tables: Array<any> = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
 
     for (const table of tables) {
         const tableName = table.name;
-        const tableInfo = db.prepare(`PRAGMA table_info(${tableName})`).all();
-        const indexes = db.prepare(`SELECT name, sql FROM sqlite_master WHERE type='index' AND tbl_name='${tableName}'`).all();
+        const tableInfo: Array<any> = db.prepare(`PRAGMA table_info(${tableName})`).all();
+        const indexes: Array<any> = db.prepare(`SELECT name, sql FROM sqlite_master WHERE type='index' AND tbl_name='${tableName}'`).all();
 
         // Generate CREATE TABLE statement
         let createTableSQL = `CREATE TABLE ${tableName} (\n`;
