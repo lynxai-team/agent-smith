@@ -1,6 +1,6 @@
 {
   "name": "@agent-smith/types",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Agent Smith Nodejs types",
   "repository": "https://github.com/synw/agent-smith",
   "scripts": {
@@ -14,11 +14,11 @@
     "dist"
   ],
   "devDependencies": {
-    "@types/node": "^25.5.2",
-    "openai": "^6.33.0",
+    "@types/node": "^26.1.1",
+    "openai": "^6.46.0",
     "restmix": "^0.6.1",
-    "typescript": "^6.0.2",
-    "vue": "3.5.32"
+    "typescript": "^7.0.2",
+    "vue": "3.5.39"
   },
   "publishConfig": {
     "access": "public",

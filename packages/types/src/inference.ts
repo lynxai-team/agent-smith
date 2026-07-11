@@ -166,6 +166,7 @@ interface InferenceOptions {
  * @extends InferenceOptions
  * @extends InferenceCallbacks
  * @property {string | undefined} [agentName] - The name of the agent making the request.
+ * @property {boolean | undefined} [return_progress] - Use prompt processing stats 
  * @example
  * const clientOptions: ClientInferenceOptions = {
  *   model: 'llama-3',
@@ -177,6 +178,7 @@ interface InferenceOptions {
  */
 interface ClientInferenceOptions extends InferenceOptions, InferenceCallbacks {
     agentName?: string;
+    return_progress?: boolean;
 }
 
 /**
