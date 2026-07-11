@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
         "target": "ES2022",
-        "module": "es2022",
-        "moduleResolution": "node",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
         "lib": [
             "ES2022"
         ],
@@ -12,7 +12,6 @@
         "allowJs": true,
         "outDir": "./dist",
         "rootDir": "./src",
-        "ignoreDeprecations": "6.0",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
@@ -20,7 +19,12 @@
         "resolveJsonModule": true,
         "declaration": true,
         "declarationMap": false,
-        "sourceMap": false
+        "sourceMap": false,
+        "paths": {
+            "*": [
+                "./*"
+            ]
+        }
     },
     "include": [
         "src/**/*"
