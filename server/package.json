@@ -1,6 +1,6 @@
 {
   "name": "@agent-smith/server",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Agent Smith Nodejs server",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,7 +10,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@agent-smith/core": "^0.0.11",
+    "@agent-smith/core": "^0.0.12",
     "@koa/cors": "^5.0.0",
     "@koa/router": "^15.7.0",
     "ansi-colors": "^4.1.3",
