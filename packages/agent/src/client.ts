@@ -188,6 +188,16 @@ class Lm implements LmProvider {
             onToolCallInProgress: options?.onToolCallInProgress ?? this.onToolCallInProgress,
             onPromptProcessingProgress: options?.onPromptProcessingProgress ?? this.onPromptProcessingProgress,
         };
+        this.onStartThinking = events.onStartThinking;
+        this.onEndThinking = events.onEndThinking;
+        this.onToolCallToken = events.onToolCallToken;
+        this.onToken = events.onToken;
+        this.onThinkingToken = events.onThinkingToken;
+        this.onStartEmit = events.onStartEmit;
+        this.onEndEmit = events.onEndEmit;
+        this.onError = events.onError;
+        this.onToolCallInProgress = events.onToolCallInProgress;
+        this.onPromptProcessingProgress = events.onPromptProcessingProgress;
         //console.log("CLIENT EVENTS", events);
         //console.log("CLIENT OPTS", options);
         //console.dir(options?.history ?? [], { depth: 5 })
@@ -325,7 +335,7 @@ class Lm implements LmProvider {
                 parallel_tool_calls: true,
                 ...inferenceParams,
                 stream: true,
-                //return_progress: true,
+                return_progress: localOptions?.return_progress ?? false,
             };
             if (localOptions?.debug) {
                 console.log(`\n-------- ${localOptions?.agentName} [${ip.model}] ${this.name} -------`);
@@ -381,16 +391,16 @@ class Lm implements LmProvider {
             if (!response.ok) {
                 const jerr = await response.json();
                 const err = jerr?.error ?? await response.text();
-                if (this?.onError) {
-                    this.onError(err, localOptions?.agentName ?? "");
+                if (events?.onError) {
+                    events.onError(err, localOptions?.agentName ?? "");
                     return {} as InferenceResult;
                 } else {
                     throw new Error(`Inference server error: ${JSON.stringify(err, null, 2)}`)
                 }
             }
             if (!response.body) {
-                if (this?.onError) {
-                    this.onError(new Error("No response body"), localOptions?.agentName ?? "");
+                if (events?.onError) {
+                    events.onError(new Error("No response body"), localOptions?.agentName ?? "");
                 };
                 throw new Error("No response body")
             }

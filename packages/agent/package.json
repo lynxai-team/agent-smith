@@ -5,7 +5,7 @@
     "type": "git",
     "url": "git+https://github.com/synw/agent-smith.git"
   },
-  "version": "0.5.2",
+  "version": "0.6.0",
   "scripts": {
     "buildrl": "rm -rf dist/* && rollup -c",
     "build": "rm -rf dist/* && tsc"
@@ -16,15 +16,15 @@
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@agent-smith/types": "^0.0.6",
+    "@agent-smith/types": "^0.0.8",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
-    "@types/node": "^25.9.3",
-    "openai": "^6.42.0",
-    "rollup": "^4.61.1",
+    "@types/node": "^26.1.1",
+    "openai": "^6.46.0",
+    "rollup": "^4.62.2",
     "ts-node": "^10.9.2",
     "tslib": "2.8.1",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "type": "module",
   "main": "./dist/main.js",

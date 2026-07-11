@@ -22,10 +22,9 @@
       "ES2022",
       "dom"
     ],
-    "baseUrl": ".",
     "paths": {
       "*": [
-        "node_modules/*"
+        "./*"
       ]
     }
   },
