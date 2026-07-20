@@ -4,9 +4,9 @@
 Node.js backend service providing REST API (`/api/*`) and WebSocket (`/ws`) endpoints for managing AI agents, workflows, models, and configurations. Built on Koa v3. Handles agent execution with streaming token/tool-call events over WebSocket.
 
 ## Dependencies
-- `@agent-smith/core` — DB operations, configuration, feature management.
-- `@agent-smith/types` — shared interfaces, WebSocket message types.
-- External: `koa` v3, `@koa/router`, `koa-websocket`, `koa-bodyparser`, `@koa/cors`, `koa-static`.
+- `@agent-smith/core` — DB operations, configuration, feature management (`db`, `conf`, `state`, `fs`, `utils`).
+- `@agent-smith/types` — shared interfaces, WebSocket message types (`WsClientMsg`, `WsRawServerMsg`).
+- External: `koa` v3, `@koa/router`, `koa-websocket`, `koa-bodyparser`, `@koa/cors`, `koa-static`, `ansi-colors`, `yaml`.
 
 ## Used By
 - `@agent-smith/wscli` — WebSocket client connects to `/ws`; REST calls to `/api/*`.
@@ -14,8 +14,8 @@ Node.js backend service providing REST API (`/api/*`) and WebSocket (`/ws`) endp
 - Browser UIs and external clients via HTTP API.
 
 ## Entry Point
-- `src/index.ts` — CLI entry: initializes and runs the server (respects `NODE_ENV` for paths).
-- `src/main.ts` — Library entry: exports `runServer()` for programmatic usage.
+- `src/index.ts` — CLI entry: resolves paths, respects `NODE_ENV` for static serving, calls `runserver()`.
+- `src/main.ts` — Library entry: exports `runServer(routes?, staticDir?, port?)` for programmatic usage.
 
 ## Key Files
 | File | Purpose |
@@ -33,9 +33,11 @@ Node.js backend service providing REST API (`/api/*`) and WebSocket (`/ws`) endp
 | `src/routes/workspace.ts` | Workspace CRUD operations |
 | `src/routes/plugins.ts` | Plugin installation via npm |
 | `src/routes/conf.ts` | Configuration file reading and creation |
-| `src/routes/apps.ts` | App config file CRUD |
-| `src/routes/tools.ts` | Tool listing and management |
+| `src/routes/apps.ts` | App config file CRUD (YAML) |
+| `src/routes/tools.ts` | Tool definition lookup by name |
 | `src/routes/settings.ts` | General settings endpoints |
+| `src/routes/skills.ts` | Skills list endpoint |
+| `src/routes/templates.ts` | Template application via LLM executor |
 
 ## Architecture
 - **Koa v3 + Router**: Web framework with `@koa/router` for REST routing under `/api` prefix.
@@ -45,6 +47,6 @@ Node.js backend service providing REST API (`/api/*`) and WebSocket (`/ws`) endp
 - **Middleware Stack**: Body parser → CORS → WebSocket → static files → logging → routers → 404 fallback.
 
 ## Related
-- See `packages/wscli` — the WebSocket client that connects to this server.
-- See `packages/core` — server delegates DB/config/feature operations to core.
-- See `packages/types` — WebSocket message protocol types (`WsRawServerMsg`, `WsClientMsg`).
+- See `@agent-smith/wscli` — the WebSocket client that connects to `/ws`.
+- See `@agent-smith/core` — server delegates DB/config/feature operations to core.
+- See `@agent-smith/types` — WebSocket message protocol types (`WsRawServerMsg`, `WsClientMsg`).
