@@ -252,6 +252,7 @@ interface TemplateSpec {
  * @property {McpServerSpec} [mcp] - MCP server specification.
  * @property {Array<string>} [skills] - Skills available for the agent.
  * @property {AgentWorkflow} [workflow] - Workflow configuration for the agent.
+ * @property {boolean} [isEditable] - Can this agent be edited
  * @example
  * const agentSpec: AgentSpec = {
  *   name: 'chat',
@@ -285,6 +286,7 @@ interface AgentSpec {
     mcp?: McpServerSpec;
     skills?: Array<string>;
     workflow?: AgentWorkflow;
+    isEditable?: boolean;
 }
 
 /**

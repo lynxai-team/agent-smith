@@ -27,4 +27,18 @@ async function readPluginsPaths(): Promise<Array<string>> {
     return paths
 }
 
-export { buildPluginsPaths, readPluginsPaths }
+let pluginsPaths = new Array<string>();
+let pluginsDone = false;
+
+async function getPluginsPaths() {
+    if (!pluginsDone) {
+        pluginsPaths = await readPluginsPaths();
+    }
+    return pluginsPaths
+}
+
+export {
+    buildPluginsPaths,
+    readPluginsPaths,
+    getPluginsPaths,
+}

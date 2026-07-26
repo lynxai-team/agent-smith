@@ -144,7 +144,6 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 console.log("MCP start", mcp.name);
             }
         }
-        //console.log("TASKCONF IP", conf.inferParams);
         if (!localOptions?.params) {
             localOptions.params = {}
         }
@@ -253,9 +252,22 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
             //console.log("EXEC BEFORE WF", workflow);
             const res = await executeWorkflow("inline", [payload.prompt], localOptions);
             //console.log("IWF RES", res);
-            finalPrompt = res.toString()
+            if (typeof res == "string") {
+                finalPrompt = res
+            } else {
+                if (!res?.prompt) {
+                    throw new Error(`before agent workflow ${agentSpec.workflow.before} result: no prompt provided in object`);
+                }
+                finalPrompt = res.prompt;
+                delete res.prompt;
+                const ks = Object.keys(res);
+                if (ks.length > 0) {
+                    ks.forEach(k => localOptions[k] = res[k])
+                }
+            }
         }
         try {
+            //console.log("AGENT RUN");
             out = await agent.run(finalPrompt, localOptions);
         } catch (e: any) {
             //console.log("ERR CATCH", e);

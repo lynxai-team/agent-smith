@@ -2,6 +2,7 @@ import type { InferenceStats, PerformanceMetrics, PromptProcessingInProgressStat
 import { formatDuration } from "./utils.js";
 
 function convertStats(metrics: PerformanceMetrics): InferenceStats {
+    //console.log("CONVERT STATS", metrics);
     const percentCache = metrics.cache_n > 0
         ? (metrics.cache_n / (metrics.prompt_n + metrics.cache_n)) * 100
         : 0;

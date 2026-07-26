@@ -201,23 +201,26 @@ class Agent {
             console.log("----------------------------------------------")
         }*/
         //console.log("PR", prompt);
-        //console.log("AGENT CLIENT OPS", clientOpts.history);
+        //console.log("AGENT CLIENT OPS", clientOpts);
+        //console.log("PROMPT:", prompt);
         const res = await this.lm.infer(prompt, clientOpts);
         //console.log("(AGENT) RUN RES:");
-        //console.dir(res, {depth: 8})
+        //console.dir(res, { depth: 8 })
         //console.log("IT", it, prompt);
         if (it == 1) {
-            this.history.push({ user: prompt, stats: convertStats(res.stats) });
+            this.history.push({ user: prompt, stats: res?.stats ? convertStats(res.stats) : undefined });
         }
         //console.log(it, this.name, "tc:", localOptions?.isToolCall, "history:");
         //console.dir(this.history, { depth: 5 })
         let _res = res;
         //console.log("RES", res);
         const toolsResults = new Array<ToolTurn>();
-        if (_res.thinkingText.length > 0) {
-            if (events.onThink) {
-                events.onThink(_res.thinkingText, this.name);
-            };
+        if (_res?.thinkingText) {
+            if (_res.thinkingText.length > 0) {
+                if (events.onThink) {
+                    events.onThink(_res.thinkingText, this.name);
+                };
+            }
         }
         if (_res.text.length > 0) {
             if (events.onAssistant) {
@@ -352,7 +355,7 @@ class Agent {
             if (events?.onToolsTurnEnd) {
                 events.onToolsTurnEnd(toolsResults, this.name);
             }
-            const ht: HistoryTurn = { tools: toolsResults, stats: convertStats(res.stats) };
+            const ht: HistoryTurn = { tools: toolsResults, stats: res?.stats ? convertStats(res.stats) : undefined };
             //console.log(this.name, it, localOptions?.isToolCall, it == 1 && !localOptions?.isToolCall);
             /*if (it > 1 && !localOptions?.isToolCall) {
                 ht.user = prompt
@@ -404,7 +407,7 @@ class Agent {
             //console.log("END RUN AGENT TC", this.name);
         } else {
             //console.log("END RUN AGENT NO TC", this.name);
-            const turn: HistoryTurn = { assistant: res.text, stats: convertStats(res.stats) };
+            const turn: HistoryTurn = { assistant: res.text, stats: res?.stats ? convertStats(res.stats) : undefined };
             if (it > 1 && !localOptions?.isToolCall) {
                 turn.user = prompt
             }

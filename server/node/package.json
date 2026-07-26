@@ -10,7 +10,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@agent-smith/core": "^0.0.12",
+    "@agent-smith/core": "file:/home/ggg/dev/js/agentenv/agent-smith/packages/core",
     "@koa/cors": "^5.0.0",
     "@koa/router": "^15.7.0",
     "ansi-colors": "^4.1.3",

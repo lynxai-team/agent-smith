@@ -98,7 +98,7 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
                         taskRes.args = ares;
                         //console.log("ARRAY ACTION RES", taskRes)
                     } else {
-                        if (isInline && i == finalTaskIndex) {
+                        if (isInline && (i == finalTaskIndex)) {
                             taskRes = ares
                         } else {
                             taskRes = { ...ares, ...taskRes };
@@ -203,7 +203,7 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
         prevStepType = step.type;
         ++i
     }
-    console.log("WF FINAL RES", wname, isInline, taskRes);
+    //console.log("WF FINAL RES", wname, isInline, taskRes);
     return taskRes
 }
 

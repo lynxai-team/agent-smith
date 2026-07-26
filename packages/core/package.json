@@ -7,20 +7,20 @@
     "build": "rm -rf dist/* && tsc"
   },
   "dependencies": {
-    "@agent-smith/agent": "^0.6.1",
+    "@agent-smith/agent": "file:/home/ggg/dev/js/agentenv/agent-smith/packages/agent",
     "@intrinsicai/gbnfgen": "^0.12.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@vue/reactivity": "^3.5.39",
-    "better-sqlite3": "^12.11.1",
-    "clipboardy": "^5.3.1",
+    "@vue/reactivity": "^3.5.40",
+    "ansi-colors": "^4.1.3",
+    "better-sqlite3": "^13.0.1",
+    "clipboardy": "^5.3.2",
     "front-matter": "^4.0.2",
     "node-notifier": "^10.0.1",
     "python-shell": "^5.0.0",
-    "yaml": "^2.9.0",
-    "ansi-colors": "^4.1.3"
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@agent-smith/types": "^0.0.8",
+    "@agent-smith/types": "file:/home/ggg/dev/js/agentenv/agent-smith/packages/types",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^26.1.1",
     "@types/node-notifier": "^8.0.5",

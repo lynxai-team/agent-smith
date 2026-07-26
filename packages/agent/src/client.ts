@@ -370,7 +370,7 @@ class Lm implements LmProvider {
                 }
                 console.log(`----------------------------------------------------`);
             }
-            if (tools.length > 0) {
+            if (tools && tools.length > 0) {
                 ip.tools = tools;
                 ip.tool_choice = "auto";
             }

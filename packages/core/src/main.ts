@@ -43,7 +43,6 @@ import {
     getAgentSettings
 } from "./state/tasks.js";
 import {
-    readAgent,
     readAgentsDir,
 } from "./utils/sys/read_agent.js";
 import { extractBetweenTags } from "./utils/text.js";
@@ -54,6 +53,7 @@ import {
 } from "./updateconf.js";
 import { useAgentExecutor } from "./agents/useagent.js";
 import { executeAgent } from "./agents/cmd.js";
+import { readAgent } from "./agents/read.js";
 
 const db = {
     init: initDb,
@@ -65,6 +65,7 @@ const db = {
 const fs = {
     openAgentSpec,
     readWorkflow,
+
 }
 
 const conf = {

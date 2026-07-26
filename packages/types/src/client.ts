@@ -16,7 +16,7 @@
  * await clientService.executeAgent('Hello, how are you?', options);
  */
 
-import type { Reactive, Ref } from "vue";
+import type { Ref, ShallowReactive } from "vue-reactivity";
 import type { ConfigFile } from "./conf.js";
 import type { AgentInferenceOptions, SamplingPreset } from "./inference.js";
 import type { ToolDefSpec } from "./tools.js";
@@ -100,9 +100,9 @@ interface ClientFeaturesOptions extends AgentInferenceOptions {
 interface ClientFeaturesService {
     isReady: Ref<boolean>;
     agentSpec: Ref<AgentSpec>;
-    variables: Reactive<UserAgentVariables>;
+    variables: ShallowReactive<UserAgentVariables>;
     //inferOptions: Reactive<{ params: InferenceParams, model: string }>;
-    mcp: Reactive<{ servers: Record<string, any> }>;
+    mcp: ShallowReactive<{ servers: Record<string, any> }>;
     loadModels: (backend: string) => Promise<Record<string, ModelInfo>>;
     loadAgentSettings: () => Promise<Record<string, AgentSettings>>;
     load: (name: string, isAgent?: boolean) => Promise<void>;

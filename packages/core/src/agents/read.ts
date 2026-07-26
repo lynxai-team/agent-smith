@@ -8,6 +8,7 @@ import { openAgentSpec } from "../utils/io.js";
 import { executeWorkflow } from "../workflows/cmd.js";
 import { executeAgent } from "./cmd.js";
 import { applyFilePlaceholders } from "./files.js";
+import { getPluginsPaths } from "../state/plugins.js";
 
 async function readAgent(
     name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions & Record<string, any>
@@ -21,6 +22,14 @@ async function readAgent(
     console.log("Payload:", payload);
     console.log("Options:", options);*/
     const { agentSpec, agentPath } = openAgentSpec(name);
+    agentSpec.isEditable = true;
+    const pluginsPaths = await getPluginsPaths();
+    for (const pp of pluginsPaths) {
+        if (agentPath.includes(pp)) {
+            agentSpec.isEditable = false;
+            break
+        }
+    }
     //console.log("Agent vars:", agentSpec?.variables);
     const agentDir = path.dirname(agentPath);
     if (!options?.backend && agentSpec?.backend) {
