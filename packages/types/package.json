@@ -1,8 +1,11 @@
 {
   "name": "@agent-smith/types",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Agent Smith Nodejs types",
-  "repository": "https://github.com/synw/agent-smith",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/synw/agent-smith.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf dist && tsc"
