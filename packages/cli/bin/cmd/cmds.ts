@@ -119,12 +119,12 @@ async function processAgentCmd(args: Array<string>, options: Record<string, any>
         return
     }
     //console.log("RT", path)
-    const res = utils.readAgent(path);
-    if (!res.found) {
+    const res = await utils.readAgent(path, { prompt: "" }, {});
+    /*if (!res.found) {
         throw new Error(`Agent ${args[0]}, ${path} not found`)
-    }
+    }*/
     //const ts = JSON.parse(res.ymlAgent);
-    console.log(res.ymlAgent);
+    console.log(res.agentSpec);
     if (Object.keys(options).length > 0) {
         db.upsertAgentSettings(args[0], options);
     }
