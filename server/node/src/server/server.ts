@@ -128,6 +128,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir: string | null = 
             }
             ctx.websocket.send(JSON.stringify(rsm));*/
           } catch (e) {
+            console.log(e);
             const rsm: WsRawServerMsg = {
               type: "error",
               from: "server",
@@ -145,6 +146,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir: string | null = 
             }
             ctx.websocket.send(JSON.stringify(rsm));*/
           } catch (e) {
+            console.log(e);
             const rsm: WsRawServerMsg = {
               type: "error",
               from: "server",
@@ -162,6 +164,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir: string | null = 
           await executeCmd(msg.name, msg.payload, msg.options);
         }*/
         else {
+          console.log("command type " + msg.feature + " not supported");
           const rsm: WsRawServerMsg = {
             type: "error",
             from: "server",
@@ -187,7 +190,7 @@ function runserver(routes?: ((r: Router) => void)[], staticDir: string | null = 
 
   // SPA 404 handler - serve index.html for unmatched non-API routes
   app.use(async (ctx) => {
-    if (!ctx.matched || ctx.matched.length === 0) {
+    if (!ctx.matched || ctx.matched?.length === 0) {
       if (!ctx.path.startsWith('/api/')) {
         if (staticDir) {
           ctx.status = 200;

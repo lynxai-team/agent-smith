@@ -6,7 +6,7 @@ Node.js backend service providing REST API (`/api/*`) and WebSocket (`/ws`) endp
 ## Dependencies
 - `@agent-smith/core` — DB operations, configuration, feature management (`db`, `conf`, `state`, `fs`, `utils`).
 - `@agent-smith/types` — shared interfaces, WebSocket message types (`WsClientMsg`, `WsRawServerMsg`).
-- External: `koa` v3, `@koa/router`, `koa-websocket`, `koa-bodyparser`, `@koa/cors`, `koa-static`, `ansi-colors`, `yaml`.
+- External: `koa` v3, `@koa/router`, `koa-route`, `koa-websocket`, `koa-bodyparser`, `@koa/cors`, `koa-static`, `ansi-colors`, `yaml`.
 
 ## Used By
 - `@agent-smith/wscli` — WebSocket client connects to `/ws`; REST calls to `/api/*`.
