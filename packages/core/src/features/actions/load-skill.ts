@@ -11,8 +11,10 @@ import { default as fm } from "front-matter";
 import { readFeature } from "../../db/read.js";
 import { readFile } from "../../utils/sys/read.js";
 import { runtimeDataError } from "../../utils/user_msgs.js";
+import { state } from "../../main.js";
 
-function action(args: Record<string, any>, options: Record<string, any>) {
+async function action(args: Record<string, any>, options: Record<string, any>) {
+    await state.init();
     let sb = "";
     let errMsg = "";
     if (!args?.name) {

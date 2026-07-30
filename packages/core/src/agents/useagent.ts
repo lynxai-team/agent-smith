@@ -114,7 +114,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
     /*if (localOptions?.debug) {
         console.log("Agent executor:", name, "backend:", backendName);
     }*/
-    if (backendName.length == 0) {
+    if (backendName?.length == 0) {
         throw new Error(`${name} agent executor: no backend set in options`)
     }
     // check setting for backend    
@@ -133,7 +133,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
 
     const execute = async (): Promise<InferenceResult> => {
         //console.log("EXEC AGENT OPTS", localOptions);
-        if (localOptions?.verbosity?.mcp && mcpServers.length > 0) {
+        if (localOptions?.verbosity?.mcp && mcpServers?.length > 0) {
             console.log("Starting", mcpServers.length, "mcp servers")
         }
         for (const mcp of mcpServers) {
@@ -341,6 +341,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 // }
             }
             else {
+                console.error(e)
                 throw new Error(errMsg)
             }
         }

@@ -11,10 +11,12 @@ arguments:
         required: true
 */
 import { useAgentExecutor } from "../../agents/useagent.js";
+import { state } from "../../main.js";
 
 async function action(args: Record<string, any>, options: Record<string, any>) {
     //console.log("RA ARGS", args);
     //console.log("RA OPTS", options);
+    await state.init();
     const errb = new Array<string>();
     if (!args?.name) {
         errb.push(`loading agent: provide an agent name`);
