@@ -257,10 +257,12 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }, port
     }
 
     return {
+        // @ts-ignore
         isReady,
         variables,
         //inferOptions,
         mcp,
+        // @ts-ignore
         agentSpec,
         loadModels,
         loadAgentSettings,
