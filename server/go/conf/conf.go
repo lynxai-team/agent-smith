@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/synw/agent-smith/server/types"
+	"github.com/synw/agent-smith/server/go/types"
 
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"

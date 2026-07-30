@@ -1,17 +1,17 @@
 package httpserver
 
 import (
+	"fmt"
 	"net/http"
-	"slices"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
-	"github.com/synw/agent-smith/server/state"
-	"github.com/synw/agent-smith/server/types"
+	"github.com/synw/agent-smith/server/go/state"
 )
 
-func RunServer() {
+// RunServer starts the Echo HTTP server with WebSocket and health endpoints.
+func RunServer(port int) {
 	e := echo.New()
 
 	// logger
@@ -22,7 +22,7 @@ func RunServer() {
 		l.SetHeader("[${time_rfc3339}] ${level}")
 	}
 
-	//cors
+	// CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     state.Conf.Origins,
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAuthorization},
@@ -30,7 +30,16 @@ func RunServer() {
 		AllowCredentials: true,
 	}))
 
-	cmds := e.Group("/cmd")
+	// WebSocket route — no API key auth at HTTP level
+	e.GET("/ws", WsHandler)
+
+	// Health check
+	e.GET("/ping", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	})
+
+	// Optional /api group with KeyAuth middleware for future REST endpoints
+	cmds := e.Group("/api")
 	cmds.Use(middleware.KeyAuth(func(key string, c echo.Context) (bool, error) {
 		if state.Conf.CmdApiKey.IsValid {
 			if key == state.Conf.CmdApiKey.Key {
@@ -38,14 +47,19 @@ func RunServer() {
 				return true, nil
 			}
 		}
-		if slices.Contains(state.Conf.ApiKeys, types.GroupApiKey(key)) {
-			c.Set("apiKey", key)
-			return true, nil
+		for _, apiKey := range state.Conf.ApiKeys {
+			if string(apiKey) == key {
+				c.Set("apiKey", key)
+				return true, nil
+			}
 		}
 		return false, nil
 	}))
-	//tasks.GET("/abort", AbortHandler)
-	cmds.POST("/execute", ExecuteCmdHandler)
+	// Future REST endpoints can be added here
 
-	e.Start(":5042")
+	if state.IsVerbose {
+		fmt.Printf("Starting the WebSocket server on port %d with allowed origins %v\n", port, state.Conf.Origins)
+	}
+
+	e.Start(fmt.Sprintf(":%d", port))
 }

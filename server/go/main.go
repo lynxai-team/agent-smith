@@ -4,9 +4,9 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/synw/agent-smith/server/conf"
-	"github.com/synw/agent-smith/server/httpserver"
-	"github.com/synw/agent-smith/server/state"
+	"github.com/synw/agent-smith/server/go/conf"
+	"github.com/synw/agent-smith/server/go/httpserver"
+	"github.com/synw/agent-smith/server/go/state"
 )
 
 func main() {
@@ -14,26 +14,32 @@ func main() {
 	debug := flag.Bool("debug", false, "debug mode")
 	genconf := flag.Bool("conf", false, "generate a config file")
 	genkey := flag.Bool("key", false, "generate a random api key")
+	port := flag.Int("port", 5184, "server port")
 	flag.Parse()
+
 	if *genconf {
 		conf.Create()
-		fmt.Println("File server.config.json created")
+		fmt.Println("File server.config.yaml created")
 		return
 	}
+
 	if *genkey {
 		key := conf.GenerateRandomKey()
 		fmt.Println(key)
 		return
 	}
+
 	if *debug {
 		fmt.Println("Debug mode is on")
 		state.IsDebug = true
 	}
+
 	state.IsVerbose = !*quiet
 	state.Conf = conf.InitConf()
-	//fmt.Println("Conf", config)
+
 	if state.IsVerbose {
-		fmt.Println("Starting the http server with allowed origins", state.Conf.Origins)
+		fmt.Println("Starting the WebSocket server with allowed origins", state.Conf.Origins)
 	}
-	httpserver.RunServer()
+
+	httpserver.RunServer(*port)
 }
