@@ -5,9 +5,9 @@ Commander.js CLI (`lm` binary) providing an interactive REPL and one-shot comman
 
 ## Dependencies
 - `@agent-smith/core` — DB operations, config management, feature discovery, agent/workflow/action execution.
-- `@agent-smith/types` — shared TypeScript type definitions.
-- `@agent-smith/agent` — agent inference loop class.
-- External: `commander` (CLI argument parsing), `@inquirer/prompts` (interactive prompts), `ora` (terminal spinners), `ansi-colors` (styled output), `@vue/reactivity` (reactive refs), `yaml` (config parsing), `marked-terminal` (markdown rendering), `clipboardy` (clipboard I/O).
+- `@agent-smith/types` — shared TypeScript type definitions (runtime type imports).
+- `@agent-smith/agent` — agent inference loop class (runtime import for `Agent` type).
+- External: `commander` (CLI argument parsing), `@inquirer/prompts` (interactive prompts), `ora` (terminal spinners), `ansi-colors` (styled output), `chalk` (colored runtime messages), `@vue/reactivity` (reactive refs), `yaml` (config parsing), `marked-terminal` (markdown rendering), `clipboardy` (clipboard I/O).
 
 ## Used By
 - End users — terminal interaction via `lm` binary.

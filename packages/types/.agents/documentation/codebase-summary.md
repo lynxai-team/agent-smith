@@ -5,7 +5,7 @@ Pure TypeScript type definitions library shared across all Agent Smith packages.
 
 ## Dependencies
 - None (leaf package; all other packages depend on this one).
-- External (devDependencies): `openai` (for `ChatCompletionRole`, `ChatCompletionMessageToolCall`, `ChatCompletionContentPart` types), `restmix` (for `useApi` return type), `vue` (for `Ref<T>`, `Reactive<T>` reactive types).
+- External (devDependencies): `openai` (for `ChatCompletionRole`, `ChatCompletionMessageToolCall`, `ChatCompletionContentPart` types), `restmix` (for `useApi` return type), `vue-reactivity` (for `Ref<T>`, `ShallowReactive<T>` reactive types).
 
 ## Used By
 - Every other `@agent-smith/*` package and the `server`.
@@ -17,9 +17,9 @@ Pure TypeScript type definitions library shared across all Agent Smith packages.
 ## Key Files
 | File | Purpose |
 |------|---------|
-| `src/agent.ts` | Agent definitions: `AgentParams`, `AgentSpec`, `AgentSettings`, `AgentState`, `AgentVariables`, `TemplateSpec`, `AgentWorkflow` |
+| `src/agent.ts` | Agent definitions: `AgentParams`, `AgentSpec` (with `isEditable`), `AgentSettings`, `AgentState`, `AgentVariables`, `AgentVariableDef`, `AgentOptionalVariableDef`, `UserAgentVariables`, `TemplateSpec`, `AgentWorkflow` |
 | `src/callbacks.ts` | Event callback interfaces: `InferenceCallbacks`, `AgentCallbacks`, `AllCallbacks` |
-| `src/client.ts` | Client-side features service: `ClientFeaturesOptions`, `ClientFeaturesService` (uses Vue reactivity) |
+| `src/client.ts` | Client-side features service: `ClientFeaturesOptions`, `ClientFeaturesService` (uses `vue-reactivity` `Ref`/`ShallowReactive`) |
 | `src/conf.ts` | Config & backend defs: `ConfInferenceBackend`, `ConfigFile`, `InferenceBackend`, `BackendEntries` |
 | `src/core.ts` | Fundamental types: `FeatureSpec`, `Features` (includes agent, cmd, action, workflow, adaptater, skill, task, tasktemplate), `Settings`, `InputMode`, `OutputMode`, extension types, `McpServerSpec`, `UserCmdDef`, `FeatureType` |
 | `src/history.ts` | Conversation history: `HistoryTurn`, `UiHistoryTurn` (with `agentTurn`), `ToolTurn`, `ImgData`, `ChatCompletionHistoryTurn` (OpenAI-compatible, supports multimodal content arrays) |
@@ -37,7 +37,7 @@ Pure TypeScript type definitions library shared across all Agent Smith packages.
 - **Modular by concern**: Files grouped by domain — agent lifecycle, callbacks/events, inference pipeline, model management, tooling, communication (WebSocket), configuration, and core feature system.
 - **Callback-driven event system**: `InferenceCallbacks` and `AgentCallbacks` compose into `AllCallbacks` for granular inference/agent event handling (tokens, tool calls, turns).
 - **Discriminated unions**: `ModelStatus` uses `{ value: 'unloaded' | 'loading' | 'loaded' | 'failed' }` for type-safe state narrowing.
-- **Vue reactive types**: `ClientFeaturesService` uses `Ref<T>` and `Reactive<T>` from `vue` for reactive state management in client-side features.
+- **Vue reactive types**: `ClientFeaturesService` uses `Ref<T>` and `ShallowReactive<T>` from `vue-reactivity` for reactive state management in client-side features.
 - **OpenAI compatibility**: `ChatCompletionHistoryTurn` aligns with OpenAI's chat completion message format, supporting multimodal content arrays and optional tool calls for interoperability.
 - **Feature system**: `Features` interface supports 8 feature types (agent, cmd, action, workflow, adaptater, skill, task, tasktemplate) with `FeatureType` union and `FeatureSpec` for registration.
 - **Chat templating**: `LmProvider.applyTemplate` method enables applying model-specific chat templates to message histories.
@@ -47,7 +47,7 @@ Pure TypeScript type definitions library shared across all Agent Smith packages.
 main.ts → (re-exports all modules)
 agent.ts    → callbacks, lm, inference, tools, history, workspace, conf, stats
 callbacks.ts → history, inference, stats, tools
-client.ts    → vue, conf, inference, tools, workspace, agent, model
+client.ts    → vue-reactivity, conf, inference, tools, workspace, agent, model
 conf.ts      → lm, agent
 core.ts      → agent (AgentVariables)
 history.ts   → openai/resources, stats, tools

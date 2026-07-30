@@ -23,6 +23,7 @@ A Go WebSocket server that handles bidirectional communication with AI agent cli
 2. Read `.agents/documentation/project-overview.md` for high-level context
 3. Read `.agents/documentation/project-nav.md` for detailed navigation and dependency graph
 4. Read `.agents/documentation/codebase-summary.md` for technical module details
+5. Read `../../AGENTS.md` for project-wide context and conventions
 
 ## Documentation
 
@@ -30,3 +31,4 @@ A Go WebSocket server that handles bidirectional communication with AI agent cli
 - `.agents/documentation/project-overview.md` — Concise project overview (~1 page)
 - `.agents/documentation/project-nav.md` — Detailed navigation map with dependency graph
 - `.agents/documentation/codebase-summary.md` — Structured technical summary
+- `../../AGENTS.md` — Project-wide context and conventions (workspace root)
