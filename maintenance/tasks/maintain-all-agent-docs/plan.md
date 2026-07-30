@@ -1,144 +1,141 @@
 # Task Plan: maintain-all-agent-docs
 
 > **Project:** Agent Smith
-> **Scope:** Audit and maintain all agent navigation docs across the entire project
+> **Scope:** Create/update all agent navigation docs following the standardized procedure
 > **Type:** Team task — coordinator delegates phases to executor agents (sequential execution)
+
+---
+
+## Procedure Workflow
+
+This task follows the documentation procedure's 8-step workflow:
+
+1. **Explore the Project** — Walk directory tree, identify repos, packages, entry points
+2. **Create Root AGENTS.md** — Project index with mission, conventions, quick start
+3. **Create Per-Repo AGENTS.md** — Localized context for each external repo (4 repos)
+4. **Create decision-tree.md** — Quick guide to find the right doc for your task
+5. **Create project-overview.md** — Concise ~1 page overview
+6. **Create codebase-summary.md** — For every repo/module (13 modules)
+7. **Create project-nav.md** — Comprehensive navigation map
+8. **Cross-Reference and Verify** — Ensure no duplication, all links valid
 
 ---
 
 ## Phase Structure
 
-Each phase handles one repository, package, or server module.
-**Note:** All phases execute sequentially — no parallel execution supported yet.
+### Phase Group A: Foundation (2 phases)
+Explore the project and create the root AGENTS.md.
 
-### Phase Group A: Runtime Packages (7 phases)
-These are the core framework packages within `agent-smith/packages/`.
+| Phase | Scope | Path | Phase File |
+|-------|-------|------|------------|
+| 1 | Explore the Project | All repos | `phases/phase-01-explore.md` |
+| 2 | Create Root AGENTS.md | `agent-smith/` | `phases/phase-02-root-agents.md` |
 
-| Phase | Module | Path | Phase File |
-|-------|--------|------|------------|
-| 1 | `@agent-smith/types` | `agent-smith/packages/types/` | `phases/phase-01-types.md` |
-| 2 | `@agent-smith/core` | `agent-smith/packages/core/` | `phases/phase-02-core.md` |
-| 3 | `@agent-smith/agent` | `agent-smith/packages/agent/` | `phases/phase-03-agent.md` |
-| 4 | `@agent-smith/smem` | `agent-smith/packages/smem/` | `phases/phase-04-smem.md` |
-| 5 | `@agent-smith/tmem` | `agent-smith/packages/tmem/` | `phases/phase-05-tmem.md` |
-| 6 | `@agent-smith/cli` | `agent-smith/packages/cli/` | `phases/phase-06-cli.md` |
-| 7 | `@agent-smith/wscli` | `agent-smith/packages/wscli/` | `phases/phase-07-wscli.md` |
-
-### Phase Group B: Server & Root (2 phases)
-
-| Phase | Module | Path | Phase File |
-|-------|--------|------|------------|
-| 8 | `server` | `agent-smith/server/` | `phases/phase-08-server.md` |
-| 9 | `agent-smith` (root) | `agent-smith/` | `phases/phase-09-agent-smith-root.md` |
-
-### Phase Group C: External Repos (5 phases)
+### Phase Group B: Per-Repo AGENTS.md (4 phases)
+Create localized AGENTS.md for each external repo.
 
 | Phase | Repo | Path | Phase File |
 |-------|------|------|------------|
-| 10 | `agent-smith-plugins` | `agent-smith-plugins/` | `phases/phase-10-plugins.md` |
-| 11 | `agent-smith-ui` | `agent-smith-ui/` | `phases/phase-11-ui.md` |
-| 12 | `agent-smith-apps` | `agent-smith-apps/` | `phases/phase-12-apps.md` |
-| 13 | `lynx-coder` | `lynx-coder/` | `phases/phase-13-lynx-coder.md` |
+| 3 | `agent-smith-plugins` | `/workspace/agent-smith-plugins/` | `phases/phase-03-agents-plugins.md` |
+| 4 | `agent-smith-ui` | `/workspace/agent-smith-ui/` | `phases/phase-04-agents-ui.md` |
+| 5 | `agent-smith-apps` | `/workspace/agent-smith-apps/` | `phases/phase-05-agents-apps.md` |
+| 6 | `lynx-coder` | `/workspace/lynx-coder/` | `phases/phase-06-agents-lynx.md` |
 
-### Phase Group D: Project-Level Docs (2 phases)
+### Phase Group C: Project-Level Docs (2 phases)
+Create decision-tree.md and project-overview.md.
+
+| Phase | File | Phase File |
+|-------|------|------------|
+| 7 | `decision-tree.md` | `phases/phase-07-decision-tree.md` |
+| 8 | `project-overview.md` | `phases/phase-08-project-overview.md` |
+
+### Phase Group D: codebase-summary.md (13 phases)
+Create/update codebase-summary.md for every module using the `update-codebase-summary` skill.
+
+| Phase | Module | Path | Phase File |
+|-------|--------|------|------------|
+| 9 | `@agent-smith/types` | `agent-smith/packages/types/` | `phases/phase-09-types.md` |
+| 10 | `@agent-smith/core` | `agent-smith/packages/core/` | `phases/phase-10-core.md` |
+| 11 | `@agent-smith/agent` | `agent-smith/packages/agent/` | `phases/phase-11-agent.md` |
+| 12 | `@agent-smith/smem` | `agent-smith/packages/smem/` | `phases/phase-12-smem.md` |
+| 13 | `@agent-smith/tmem` | `agent-smith/packages/tmem/` | `phases/phase-13-tmem.md` |
+| 14 | `@agent-smith/cli` | `agent-smith/packages/cli/` | `phases/phase-14-cli.md` |
+| 15 | `@agent-smith/wscli` | `agent-smith/packages/wscli/` | `phases/phase-15-wscli.md` |
+| 16 | `server` | `agent-smith/server/` | `phases/phase-16-server.md` |
+| 17 | `agent-smith` (root) | `agent-smith/` | `phases/phase-17-agent-smith-root.md` |
+| 18 | `agent-smith-plugins` | `agent-smith-plugins/` | `phases/phase-18-plugins.md` |
+| 19 | `agent-smith-ui` | `agent-smith-ui/` | `phases/phase-19-ui.md` |
+| 20 | `agent-smith-apps` | `agent-smith-apps/` | `phases/phase-20-apps.md` |
+| 21 | `lynx-coder` | `lynx-coder/` | `phases/phase-21-lynx-coder.md` |
+
+### Phase Group E: Navigation & Verification (2 phases)
+Create project-nav.md and perform cross-reference verification.
 
 | Phase | Scope | Phase File |
 |-------|-------|------------|
-| 14 | Update project-nav.md, decision-tree.md, project-overview.md | `phases/phase-14-project-nav.md` |
-| 15 | Cross-reference verification & final quality check | `phases/phase-15-cross-reference.md` |
+| 22 | Create `project-nav.md` | `phases/phase-22-project-nav.md` |
+| 23 | Cross-reference verification & final quality check | `phases/phase-23-cross-reference.md` |
 
 ---
 
 ## Phase Execution Pattern
 
-Each phase follows the same workflow:
+### Phases 1-8: Foundation & Project-Level Docs
+Each phase creates one documentation file following the procedure's exact templates.
 
-### Step 1: Check Recent Changes (Git)
-- **Determine which git repository the module belongs to** (the project has 5 separate repos):
-  - Packages under `agent-smith/packages/*` and `agent-smith/server/` → repo is `/workspace/agent-smith`
-  - `agent-smith-plugins` → repo is `/workspace/agent-smith-plugins`
-  - `agent-smith-ui` → repo is `/workspace/agent-smith-ui`
-  - `agent-smith-apps` → repo is `/workspace/agent-smith-apps`
-  - `lynx-coder` → repo is `/workspace/lynx-coder`
-- **cd into the correct repository directory** before running git commands (git cannot access paths outside its own `.git`)
-- Run `git log --oneline -10 -- <relative-module-path>` to see recent commits
-- Run `git diff HEAD~10 -- <relative-module-path>/src/` to identify code changes
-- Focus exploration on modified files identified in the diff
-**Success Criteria:**
-- [ ] Correct repo directory identified and cd'd into
-- [ ] Recent commits reviewed
-- [ ] Changed files cataloged
+**Step Pattern:**
+1. Read existing file (if exists) to identify gaps
+2. Explore relevant directories for current state
+3. Create/update file using the procedure's template
+4. Verify against success criteria
 
-### Step 2: Explore the Module
-- Use the `smart-explore` skill to walk the directory tree (excludes noise like `node_modules`, `.git`, build artifacts)
-- Prioritize files identified as changed in Step 1 (git diff)
-- Identify entry points, key files, dependencies
-- Check for new/removed features since last doc update
+### Phases 9-21: Module codebase-summary.md
+Each phase follows the same workflow using the `update-codebase-summary` skill:
 
-### Step 3: Check Existing Documentation
-- Read existing `codebase-summary.md` (if exists)
-- Identify gaps, inaccuracies, outdated information
+**Step Pattern:**
+1. **Check Recent Changes (Git)**
+   - Determine which git repository the module belongs to
+   - cd into the correct repo directory
+   - Run `git log --oneline -10 -- <relative-module-path>`
+   - Run `git diff HEAD~10 -- <relative-module-path>/src/`
+2. **Explore the Module**
+   - Use `smart-explore` skill to walk directory tree
+   - Prioritize files identified as changed in git diff
+   - Identify entry points, key files, dependencies
+3. **Check Existing Documentation**
+   - Read existing `codebase-summary.md` (if exists)
+   - Identify gaps, inaccuracies, outdated information
+4. **Update or Create codebase-summary.md**
+   - Write using the 7-section format (Summary, Dependencies, Used By, Entry Point, Key Files, Architecture, Related)
+   - Include optional "Documentation" section ONLY for root codebase-summary.md
+5. **Verify**
+   - File follows 7-section format exactly
+   - Information is accurate and current
+   - Cross-references point to existing files
 
-### Step 4: Update or Create codebase-summary.md
-- Write using the 7-section format:
-  1. **Summary** — One sentence describing module purpose
-  2. **Dependencies** — Internal (other agent-smith packages) + External (npm packages)
-  3. **Used By** — Which modules depend on this one
-  4. **Entry Point** — Main entry file path
-  5. **Key Files** — Table of important files with purpose
-  6. **Architecture** — 2-4 bullets on patterns, design decisions
-  7. **Related Modules** — Links to related packages/repos
+### Phase 22: Create project-nav.md
+- Load and follow the `update-project-nav` skill
+- Include all required sections (Project Overview, Architecture Principles, Dependency Graph, Packages/Modules, Code Snippets, Navigation Quick Reference, Documentation Links, Key Conventions & Patterns)
+- Include optional sections (Server, Plugins, UI, Apps) as applicable
 
-### Step 5: Verify
-- File follows 7-section format exactly
-- Information is accurate and current
-- Cross-references point to existing files
-
----
-
-## Phase 14: Update Project-Level Documentation
-
-### Step 14.1: Update project-nav.md
-- Verify repository structure table is complete
-- Update dependency graph if relationships changed
-- Verify module sections reflect current state
-- Update navigation quick reference
-- Update documentation links
-
-### Step 14.2: Update decision-tree.md
-- Verify all repos/modules have entries
-- Update task-to-path mappings
-- Verify link to AGENTS.md conventions
-
-### Step 14.3: Update project-overview.md
-- Verify core capabilities are current
-- Update repository structure table
-- Verify architecture patterns reflect current design
-
-### Step 14.4: Update AGENTS.md
-- Verify mission statement is current
-- Verify repositories table includes all repos
-- Verify conventions section reflects current patterns
-- Verify documentation links point to existing files
-
----
-
-## Phase 15: Cross-Reference Verification
-
-### Step 15.1: Check for Duplicated Content
+### Phase 23: Cross-Reference Verification
+**Step 23.1: Check for Duplicated Content**
 - Project description → ONLY in `project-nav.md` and `project-overview.md`
 - Architecture patterns → ONLY in `project-nav.md`
 - Code snippets → ONLY in `project-nav.md` and `project-overview.md`
 - Module technical details → ONLY in `codebase-summary.md`
-- Conventions → ONLY in `AGENTS.md` (referenced by `decision-tree.md`)
+- Conventions → ONLY in root `AGENTS.md` (referenced by `decision-tree.md`)
+- Per-repo context → ONLY in per-repo `AGENTS.md`
 
-### Step 15.2: Verify Cross-References
-- All links between files point to existing files
-- `AGENTS.md` → links to decision-tree, project-overview, project-nav, codebase-summary
-- `decision-tree.md` → references all doc files, links to AGENTS.md
-- `codebase-summary.md` → Related section points to correct modules
+**Step 23.2: Verify Cross-References**
+- Root `AGENTS.md` → links to decision-tree.md, project-overview.md, project-nav.md, codebase-summary.md, per-repo AGENTS.md
+- Per-repo `AGENTS.md` → links to local codebase-summary.md; links back to root `../../AGENTS.md`
+- `decision-tree.md` → references all doc files; ends with link to root AGENTS.md
+- `project-overview.md` → header notes reference decision-tree.md and project-nav.md
+- `codebase-summary.md` → Related section points to related modules
+- `project-nav.md` → no external cross-references needed (primary source)
 
-### Step 15.3: Final Quality Check
+**Step 23.3: Final Quality Check**
 - Files are information-dense (tables, bullets, one-line descriptions)
 - No verbose explanations or filler content
 - Paths are correct and consistent
@@ -154,3 +151,13 @@ Each phase follows the same workflow:
 | Information-dense | Keep files short. Use tables, bullets, one-line descriptions |
 | project-nav.md is canonical | Single source of truth for project overview, architecture, snippets |
 | decision-tree.md first | Always the first file agents should read to find the right doc |
+| Language-agnostic | Adapt examples and conventions to the project's language |
+| Optional sections | Include only when they add value for the specific project |
+
+## Skills to Use
+
+| Skill | When |
+|-------|------|
+| `smart-explore` | All phases — explore module directory tree |
+| `update-codebase-summary` | Phases 9-21 — create/update module summaries |
+| `update-project-nav` | Phase 22 — create/update navigation map |
