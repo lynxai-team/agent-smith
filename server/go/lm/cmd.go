@@ -5,17 +5,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os/exec"
 	"strings"
 
 	"github.com/synw/agent-smith/server/go/callbacks"
+	"github.com/synw/agent-smith/server/go/cmdexec"
 	"github.com/synw/agent-smith/server/go/state"
 	"github.com/synw/agent-smith/server/go/types"
-	"golang.org/x/net/websocket"
+	"github.com/synw/agent-smith/server/go/websock"
 )
 
 // RunCmd executes the external lm binary and streams results via WebSocket callbacks.
-func RunCmd(cmdName string, params []string, ws *websocket.Conn, cbHandler *callbacks.CallbackHandlers, session *state.WsSession) {
+func RunCmd(cmdName string, params []string, ws websock.WSConn, cbHandler *callbacks.CallbackHandlers, session *state.WsSession, runner cmdexec.CmdRunner) {
 	// Create the command with the arguments
 	fullParams := append([]string{cmdName}, params...)
 	if state.IsDebug {
@@ -32,7 +32,7 @@ func RunCmd(cmdName string, params []string, ws *websocket.Conn, cbHandler *call
 	// Store session's AbortController
 	session.AbortController = cancel
 
-	cmd := exec.CommandContext(ctx, "lm", fullParams...)
+	cmd := runner.CommandContext(ctx, "lm", fullParams...)
 
 	// Create a pipe to capture the command's output
 	stdout, err := cmd.StdoutPipe()
@@ -102,12 +102,12 @@ func RunCmd(cmdName string, params []string, ws *websocket.Conn, cbHandler *call
 }
 
 // sendWsError sends an error message directly over WebSocket.
-func sendWsError(ws *websocket.Conn, errMsg string) {
+func sendWsError(ws websock.WSConn, errMsg string) {
 	rawMsg := types.WsRawServerMsg{
 		Type: types.ErrorMsgType,
 		From: "server",
 		Msg:  errMsg,
 	}
 	data, _ := json.Marshal(rawMsg)
-	websocket.Message.Send(ws, string(data))
+	ws.Send(data)
 }

@@ -1,6 +1,7 @@
 package conf
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
@@ -12,22 +13,39 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// InitConf loads configuration from the default server.config.yaml file.
+// Panics if the config file cannot be read.
 func InitConf() types.Conf {
-	viper.SetConfigName("server.config")
-	viper.AddConfigPath(".")
-	viper.SetDefault("origins", []string{"localhost"})
-	viper.SetDefault("groups", []string{})
-	viper.SetDefault("api_key", nil)
-	err := viper.ReadInConfig() // Find and read the config file
-	if err != nil {             // Handle errors reading the config file
-		panic(fmt.Errorf("fatal error config file: %w", err))
+	v := viper.New()
+	v.SetConfigName("server.config")
+	v.AddConfigPath(".")
+	return parseViperConfig(v)
+}
+
+// InitConfFromReader loads configuration from a YAML reader (e.g., for testing).
+// Accepts any io.Reader that provides YAML-formatted config data.
+func InitConfFromReader(yamlData []byte) types.Conf {
+	v := viper.New()
+	v.SetConfigType("yaml")
+	if err := v.ReadConfig(bytes.NewReader(yamlData)); err != nil {
+		panic(fmt.Errorf("fatal error parsing config: %w", err))
 	}
-	or := viper.GetStringSlice("origins")
-	cmdak := viper.GetString("api_key")
+	return parseViperConfig(v)
+}
+
+// parseViperConfig extracts configuration from a viper instance.
+func parseViperConfig(v *viper.Viper) types.Conf {
+	v.SetDefault("origins", []string{"localhost"})
+	v.SetDefault("groups", []string{})
+	v.SetDefault("api_key", nil)
+
+	or := v.GetStringSlice("origins")
+	cmdak := v.GetString("api_key")
 	apiKeyIsValid := cmdak != ""
+
 	// Read groups from config
 	groups := make(map[types.GroupApiKey]types.AuthorizedCmds)
-	groupsData := viper.GetStringMap("groups")
+	groupsData := v.GetStringMap("groups")
 	apiKeys := []types.GroupApiKey{}
 	for key, value := range groupsData {
 		// Safely handle potential type assertion issues

@@ -7,15 +7,20 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/synw/agent-smith/server/go/callbacks"
+	"github.com/synw/agent-smith/server/go/cmdexec"
 	"github.com/synw/agent-smith/server/go/lm"
 	"github.com/synw/agent-smith/server/go/state"
 	"github.com/synw/agent-smith/server/go/types"
+	"github.com/synw/agent-smith/server/go/websock"
 	"golang.org/x/net/websocket"
 )
 
 // WsHandler handles WebSocket connections.
 func WsHandler(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
+		// Wrap the real WebSocket connection with our interface
+		wsConn := websock.NewRealWSConn(ws)
+
 		// Per-session state
 		session := &state.WsSession{
 			ConfirmToolCalls: make(map[string]chan bool),
@@ -28,7 +33,7 @@ func WsHandler(c echo.Context) error {
 		// Message receive loop
 		for {
 			var rawMsg json.RawMessage
-			err := websocket.Message.Receive(ws, &rawMsg)
+			err := wsConn.Receive(&rawMsg)
 			if err != nil {
 				if state.IsVerbose {
 					fmt.Printf("WebSocket disconnect: %v\n", err)
@@ -39,17 +44,17 @@ func WsHandler(c echo.Context) error {
 
 			var msg types.WsClientMsg
 			if err := json.Unmarshal(rawMsg, &msg); err != nil {
-				sendWsError(ws, fmt.Sprintf("Failed to parse message: %v", err))
+				sendWsError(wsConn, fmt.Sprintf("Failed to parse message: %v", err))
 				continue
 			}
 
 			switch msg.Type {
 			case types.SystemMsgType:
-				handleSystemMessage(ws, session, msg)
+				handleSystemMessage(wsConn, session, msg)
 			case types.CommandMsgType:
-				handleCommandMessage(ws, session, msg)
+				handleCommandMessage(wsConn, session, msg)
 			default:
-				sendWsError(ws, fmt.Sprintf("Unknown message type: %s", msg.Type))
+				sendWsError(wsConn, fmt.Sprintf("Unknown message type: %s", msg.Type))
 			}
 		}
 
@@ -62,7 +67,7 @@ func WsHandler(c echo.Context) error {
 }
 
 // handleSystemMessage processes system-level commands.
-func handleSystemMessage(ws *websocket.Conn, session *state.WsSession, msg types.WsClientMsg) {
+func handleSystemMessage(ws websock.WSConn, session *state.WsSession, msg types.WsClientMsg) {
 	switch msg.Command {
 	case "stop":
 		if state.IsVerbose {
@@ -109,7 +114,7 @@ func handleSystemMessage(ws *websocket.Conn, session *state.WsSession, msg types
 }
 
 // handleCommandMessage routes command messages to appropriate executors.
-func handleCommandMessage(ws *websocket.Conn, session *state.WsSession, msg types.WsClientMsg) {
+func handleCommandMessage(ws websock.WSConn, session *state.WsSession, msg types.WsClientMsg) {
 	if msg.Payload == nil {
 		sendWsError(ws, "Command message requires a payload")
 		return
@@ -132,7 +137,7 @@ func handleCommandMessage(ws *websocket.Conn, session *state.WsSession, msg type
 }
 
 // executeAgent runs an agent via the lm binary with callback handlers.
-func executeAgent(ws *websocket.Conn, session *state.WsSession, msg types.WsClientMsg) {
+func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClientMsg) {
 	cmdName := msg.Command
 	apiKey := "" // No API key at WebSocket level yet — authorization is per-command
 	payload := msg.Payload
@@ -170,8 +175,11 @@ func executeAgent(ws *websocket.Conn, session *state.WsSession, msg types.WsClie
 		return
 	}
 
+	// Use default command runner for production
+	cmdRunner := cmdexec.NewRealCmdRunner()
+
 	// Call lm.RunCmd with params
-	lm.RunCmd(cmdName, []string{"--payload", string(payloadJSON), "--options", string(optsJSON)}, ws, cbHandler, session)
+	lm.RunCmd(cmdName, []string{"--payload", string(payloadJSON), "--options", string(optsJSON)}, ws, cbHandler, session, cmdRunner)
 }
 
 // isCommandAuthorized checks if an API key is authorized to run a command.
@@ -196,7 +204,7 @@ func isCommandAuthorized(apiKey, cmd string) bool {
 }
 
 // sendWsError sends an error message over WebSocket.
-func sendWsError(ws *websocket.Conn, errMsg string) {
+func sendWsError(ws websock.WSConn, errMsg string) {
 	msg := types.WsRawServerMsg{
 		Type: types.ErrorMsgType,
 		From: "server",
@@ -209,7 +217,7 @@ func sendWsError(ws *websocket.Conn, errMsg string) {
 		}
 		return
 	}
-	if err := websocket.Message.Send(ws, string(data)); err != nil {
+	if err := ws.Send(data); err != nil {
 		if state.IsDebug {
 			fmt.Printf("Failed to send error message: %v\n", err)
 		}

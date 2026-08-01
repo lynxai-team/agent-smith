@@ -9,18 +9,18 @@ import (
 	"github.com/synw/agent-smith/server/go/state"
 	"github.com/synw/agent-smith/server/go/types"
 	"github.com/synw/agent-smith/server/go/utils"
-	"golang.org/x/net/websocket"
+	"github.com/synw/agent-smith/server/go/websock"
 )
 
 // CallbackHandlers bridges execution events to WebSocket messages.
 type CallbackHandlers struct {
-	ws             *websocket.Conn
-	from           string
+	ws               websock.WSConn
+	from             string
 	confirmToolCalls map[string]*utils.Awaiter
 }
 
 // NewCallbackHandlers creates a new CallbackHandlers instance.
-func NewCallbackHandlers(ws *websocket.Conn, from string) *CallbackHandlers {
+func NewCallbackHandlers(ws websock.WSConn, from string) *CallbackHandlers {
 	return &CallbackHandlers{
 		ws:               ws,
 		from:             from,
@@ -42,7 +42,7 @@ func (cb *CallbackHandlers) sendMsg(msgType types.WsServerMsgType, msg string) {
 		}
 		return
 	}
-	if err := websocket.Message.Send(cb.ws, string(data)); err != nil {
+	if err := cb.ws.Send(data); err != nil {
 		if state.IsDebug {
 			fmt.Printf("Failed to send message: %v\n", err)
 		}
