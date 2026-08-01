@@ -32,6 +32,7 @@ func WsHandler(c echo.Context) error {
 			if err != nil {
 				if state.IsVerbose {
 					fmt.Printf("WebSocket disconnect: %v\n", err)
+					fmt.Println("Msg:", &rawMsg)
 				}
 				break
 			}

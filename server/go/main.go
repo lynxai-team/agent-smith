@@ -14,7 +14,7 @@ func main() {
 	debug := flag.Bool("debug", false, "debug mode")
 	genconf := flag.Bool("conf", false, "generate a config file")
 	genkey := flag.Bool("key", false, "generate a random api key")
-	port := flag.Int("port", 5184, "server port")
+	port := flag.Int("port", 5187, "server port")
 	flag.Parse()
 
 	if *genconf {
