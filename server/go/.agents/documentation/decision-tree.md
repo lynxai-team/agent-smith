@@ -20,7 +20,10 @@
 | Callback bridge | `callbacks/callbacks.go` — 19+ event handlers mapping lm binary output to WebSocket messages |
 | LM binary execution | `lm/cmd.go` — External `lm` process execution with streaming output |
 | Utility helpers | `lm/utils.go`, `utils/awaiter.go` — Interface conversion and channel-based promise pattern |
+| WebSocket abstraction | `websock/websock.go` — WSConn interface for testability |
+| Command execution | `cmdexec/cmdexec.go`, `cmdexec/real_cmd.go` — Cmd/CmdRunner interfaces for external process execution |
 | CLI entry point | `main.go` — Flag parsing, config generation, server bootstrap |
+| Test utilities | `testutil/mock_wsconn.go`, `testutil/mock_cmdrunner.go` — Mock implementations for testing |
 
 ## I need to understand the WebSocket protocol
 
@@ -45,6 +48,7 @@
 | Implement tool confirmation flow | `utils/awaiter.go` + `callbacks/callbacks.go` + `httpserver/ws_handler.go` |
 | Add new command authorization rule | `httpserver/ws_handler.go` (`isCommandAuthorized`) + `types/types.go` |
 | Debug streaming output | `lm/cmd.go` (rune-by-rune scanner) |
+| Add test for a module | `testutil/` — MockWSConn, MockCmdRunner |
 
 ## Conventions
 
@@ -52,5 +56,6 @@
 - **Tool confirmation**: Uses `Awaiter` channel pattern — server sends `toolcallconfirm`, blocks on channel, client resolves via `system` message
 - **Error handling**: Errors sent as `WsRawServerMsg` with `type: "error"`; debug errors only in verbose mode
 - **API key auth**: Main key allows all commands; group keys restricted to authorized command lists
+- **Interface-based testing**: `websock.WSConn` and `cmdexec.CmdRunner` interfaces enable mocking for tests
 
 → See `AGENTS.md` for full conventions summary.

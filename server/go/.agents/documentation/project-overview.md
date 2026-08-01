@@ -34,6 +34,9 @@ A Go WebSocket server that provides real-time bidirectional communication betwee
 | `callbacks` | `/workspace/callbacks/callbacks.go` | 19+ callback handlers bridging lm binary events to WebSocket messages |
 | `lm` | `/workspace/lm/` | External `lm` binary execution with streaming output parsing |
 | `utils` | `/workspace/utils/awaiter.go` | Channel-based promise pattern for async tool confirmation |
+| `websock` | `/workspace/websock/websock.go` | WSConn interface abstraction for testability |
+| `cmdexec` | `/workspace/cmdexec/` | Cmd/CmdRunner interfaces for external process execution |
+| `testutil` | `/workspace/testutil/` | Mock implementations (MockWSConn, MockCmdRunner) for testing |
 
 ---
 
@@ -43,6 +46,7 @@ A Go WebSocket server that provides real-time bidirectional communication betwee
 - **Channel-Based Promises**: `utils.Awaiter` uses buffered channels (`chan bool`) to implement async tool confirmation without goroutine complexity
 - **Per-Session State Isolation**: Each WebSocket connection gets its own `WsSession` with independent `AbortController` and `ConfirmToolCalls` map
 - **Rune-by-Rune Streaming**: `lm/cmd.go` reads output one rune at a time via `bufio.ScanRunes` for real-time token streaming
+- **Interface-Based Design**: `websock.WSConn` and `cmdexec.CmdRunner` interfaces enable mocking and testability
 
 ---
 
@@ -65,7 +69,7 @@ A Go WebSocket server that provides real-time bidirectional communication betwee
 
 ```go
 // main.go — CLI entry point
-flag.Int("port", 5184, "server port")
+flag.Int("port", 5187, "server port")
 flag.Bool("conf", false, "generate a config file")
 flag.Bool("key", false, "generate a random api key")
 httpserver.RunServer(*port)

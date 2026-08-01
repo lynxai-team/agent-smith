@@ -6,8 +6,8 @@
 
 ## 1. Project Overview
 
-| Repo | Path | Purpose |
-|------|------|---------|
+| Module | Path | Purpose |
+|--------|------|---------|
 | `go` | `/workspace/` | Go WebSocket server — real-time agent communication, inference streaming, tool call management |
 
 **Module**: `github.com/synw/agent-smith/server/go`
@@ -24,6 +24,7 @@
 | Per-Session State | Each WebSocket connection has independent `WsSession` with `AbortController` and `ConfirmToolCalls` | `state/state.go`, `httpserver/ws_handler.go` |
 | Rune-by-Rune Streaming | Real-time token streaming via `bufio.ScanRunes` from lm process stdout | `lm/cmd.go` |
 | Viper Config | YAML-based configuration with API keys, CORS origins, and group command authorization | `conf/conf.go`, `server.config.yaml` |
+| Interface-Based Testing | `websock.WSConn` and `cmdexec.CmdRunner` interfaces enable mocking for unit tests | `websock/websock.go`, `cmdexec/cmdexec.go` |
 
 ---
 
@@ -42,14 +43,14 @@ main.go
         │           │     ├── callbacks.NewCallbackHandlers(ws, cmdName)
         │           │     │     └── BuildOptions() → 19+ handler functions
         │           │     ├── isCommandAuthorized(apiKey, cmdName)
-        │           │     └── lm.RunCmd(cmdName, params, ws, cbHandler, session)
-        │           │           └── exec.Command("lm", ...)
+        │           │     └── lm.RunCmd(cmdName, params, ws, cbHandler, session, runner)
+        │           │           └── runner.CommandContext("lm", ...)
         │           │                 └── bufio.ScanRunes → cbHandler.SendToken(token)
         │           └── feature="workflow" → not implemented
         └── /api/* → KeyAuth middleware (future REST endpoints)
 ```
 
-**Prose**: `main.go` bootstraps the server by loading config via `conf.InitConf()` into `state.Conf`, then starts the Echo HTTP server. The `/ws` endpoint handles WebSocket connections, routing messages to `handleSystemMessage` (stop/confirmtool) or `handleCommandMessage` (agent/workflow execution). Command execution calls `callbacks.NewCallbackHandlers()` to create a bridge, then invokes `lm.RunCmd()` which executes the external `lm` binary and streams output rune-by-rune through the callback handlers to the WebSocket client.
+**Prose**: `main.go` bootstraps the server by loading config via `conf.InitConf()` into `state.Conf`, then starts the Echo HTTP server. The `/ws` endpoint handles WebSocket connections, routing messages to `handleSystemMessage` (stop/confirmtool) or `handleCommandMessage` (agent/workflow execution). Command execution calls `callbacks.NewCallbackHandlers()` to create a bridge, then invokes `lm.RunCmd()` which executes the external `lm` binary via `cmdexec.CmdRunner` and streams output rune-by-rune through the callback handlers to the WebSocket client.
 
 ---
 
@@ -59,13 +60,13 @@ main.go
 
 - **Purpose**: Application bootstrap, flag parsing, config/key generation
 - **Key files**: `main.go`
-- **Key flags**: `-q` (quiet), `-debug`, `-conf` (generate config), `-key` (generate API key), `-port` (default 5184)
+- **Key flags**: `-q` (quiet), `-debug`, `-conf` (generate config), `-key` (generate API key), `-port` (default 5187)
 
 ### `conf` — Configuration Management
 
 - **Purpose**: Viper-based YAML config loading, API key generation
 - **Key files**: `conf/conf.go`
-- **Key functions**: `InitConf()`, `Create()`, `GenerateRandomKey()`
+- **Key functions**: `InitConf()`, `InitConfFromReader()`, `Create()`, `GenerateRandomKey()`
 - **Config file**: `server.config.yaml` — contains `api_key`, `origins`, and optional `groups`
 
 ### `state` — Global & Session State
@@ -102,7 +103,7 @@ main.go
 - **Purpose**: Execute the `lm` binary and stream its output via WebSocket
 - **Key files**: `lm/cmd.go`, `lm/utils.go`
 - **Key functions**: `RunCmd()`, `InterfaceToStringArray()`
-- **Pattern**: `exec.CommandContext` with `bufio.ScanRunes` for real-time token streaming
+- **Pattern**: `cmdexec.CmdRunner.CommandContext()` with `bufio.ScanRunes` for real-time token streaming
 
 ### `utils` — Utilities
 
@@ -110,6 +111,26 @@ main.go
 - **Key files**: `utils/awaiter.go`
 - **Key type**: `Awaiter` — buffered channel (`chan bool`) wrapper
 - **Key functions**: `CreateAwaiter()`, `Wait()`, `Resolve()`
+
+### `websock` — WebSocket Abstraction
+
+- **Purpose**: `WSConn` interface for testable WebSocket connections
+- **Key files**: `websock/websock.go`
+- **Key types**: `WSConn` interface, `RealWSConn` adapter
+- **Key functions**: `NewRealWSConn()`
+
+### `cmdexec` — Command Execution
+
+- **Purpose**: Abstract external command execution for testability
+- **Key files**: `cmdexec/cmdexec.go`, `cmdexec/real_cmd.go`
+- **Key types**: `Cmd` interface, `CmdRunner` interface, `RealCmdRunner`, `realCmd`
+- **Key functions**: `NewRealCmdRunner()`
+
+### `testutil` — Test Helpers
+
+- **Purpose**: Mock implementations for unit testing
+- **Key files**: `testutil/mock_wsconn.go`, `testutil/mock_cmdrunner.go`
+- **Key types**: `MockWSConn`, `MockCmd`, `MockCmdRunner`
 
 ---
 
@@ -141,7 +162,7 @@ main.go
 ```go
 // Build and run
 go build -o agent-smith-server .
-./agent-smith-server -port 5184
+./agent-smith-server -port 5187
 
 # Generate config and API key
 ./agent-smith-server -conf -key
@@ -188,6 +209,7 @@ const NewMsgType WsServerMsgType = "newmsg"
 | Debug streaming output | `lm/cmd.go` |
 | Add command authorization | `httpserver/ws_handler.go` (`isCommandAuthorized`) + `types/types.go` |
 | View module technical details | `.agents/documentation/codebase-summary.md` |
+| Write unit tests | `testutil/` — MockWSConn, MockCmdRunner |
 
 ---
 
@@ -199,7 +221,7 @@ const NewMsgType WsServerMsgType = "newmsg"
 | Project Overview | `.agents/documentation/project-overview.md` |
 | Navigation Map | `.agents/documentation/project-nav.md` (this file) |
 | Codebase Summary | `.agents/documentation/codebase-summary.md` |
-| AGENTS.md | `../../AGENTS.md` |
+| AGENTS.md | `AGENTS.md` |
 
 ---
 
@@ -213,3 +235,4 @@ const NewMsgType WsServerMsgType = "newmsg"
 | API key authorization | Main key allows all commands; group keys restricted to authorized command lists from config |
 | Streaming pattern | `bufio.ScanRunes` for real-time token output from lm binary |
 | Config management | Viper reads `server.config.yaml`; supports `api_key`, `origins`, and `groups` |
+| Testing pattern | Use `MockWSConn` and `MockCmdRunner` from `testutil/` for unit tests |
