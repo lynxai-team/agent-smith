@@ -20,4 +20,5 @@ coverage
 server.config.yaml
 .aider*
 .continue
-.agents/tasks
+/server/go/.agents/tasks
+/server/node/.agents/tasks
