@@ -83,7 +83,7 @@ type WsClientMsg struct {
     Command  string                 `json:"command"`
     Type     WsClientMsgType        `json:"type"`       // "command" or "system"
     Feature  string                 `json:"feature,omitempty"`
-    Payload  map[string]interface{} `json:"payload,omitempty"`
+    Payload  map[string]interface{} `json:"payload,omitempty"` // For agent: must contain "prompt" string
     Options  map[string]interface{} `json:"options,omitempty"`
 }
 

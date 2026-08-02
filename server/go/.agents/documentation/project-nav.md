@@ -147,7 +147,7 @@ main.go
 ### WebSocket Protocol
 
 **Client → Server** (`WsClientMsg`):
-- `type: "command"` + `feature: "agent"` + `command` + `payload` → runs agent inference
+- `type: "command"` + `feature: "agent"` + `command` + `payload.{prompt}` → runs agent inference
 - `type: "system"` + `command: "stop"` → abort (TODO)
 - `type: "system"` + `command: "confirmtool"` + `payload.{id, confirm}` → resolve tool confirmation
 
@@ -176,7 +176,7 @@ msg := types.WsClientMsg{
     Type:    "command",
     Feature: "agent",
     Command: "some-agent-cmd",
-    Payload: map[string]interface{}{"key": "value"},
+    Payload: map[string]interface{}{"prompt": "user prompt text"},
     Options: map[string]interface{}{"nocli": true},
 }
 ```

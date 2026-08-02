@@ -220,7 +220,7 @@ func TestIntegration_CommandMessage_Flow(t *testing.T) {
 		Type:    types.CommandMsgType,
 		Feature: "agent",
 		Command: "test-cmd",
-		Payload: map[string]interface{}{"query": "hello"},
+		Payload: map[string]interface{}{"prompt": "hello"},
 	}
 	require.NoError(t, sendWsJSON(ws, cmdMsg))
 
