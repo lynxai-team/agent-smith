@@ -485,7 +485,71 @@ func TestValidApiKey_MarshalUnmarshal(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// 10. PromptProcessingInProgressStats round-trip JSON serialization
+// 10. WsAuthMsg round-trip JSON serialization
+// ---------------------------------------------------------------------------
+
+func TestWsAuthMsg_MarshalUnmarshal(t *testing.T) {
+	t.Parallel()
+
+	original := WsAuthMsg{
+		Type: "auth",
+		Key:  "test-key",
+	}
+
+	// Marshal to JSON
+	data, err := json.Marshal(original)
+	assert.NoError(t, err, "Marshalling WsAuthMsg should not error")
+	assert.NotEmpty(t, data, "Marshaled data should not be empty")
+
+	// Verify expected JSON fields are present
+	var raw map[string]interface{}
+	err = json.Unmarshal(data, &raw)
+	assert.NoError(t, err)
+	assert.Equal(t, "auth", raw["type"])
+	assert.Equal(t, "test-key", raw["key"])
+
+	// Unmarshal back
+	var decoded WsAuthMsg
+	err = json.Unmarshal(data, &decoded)
+	assert.NoError(t, err, "Unmarshalling WsAuthMsg should not error")
+
+	// Round-trip assertions
+	assert.Equal(t, original.Type, decoded.Type)
+	assert.Equal(t, original.Key, decoded.Key)
+
+	// Test with empty key
+	emptyKey := WsAuthMsg{
+		Type: "auth",
+		Key:  "",
+	}
+	data2, err := json.Marshal(emptyKey)
+	assert.NoError(t, err)
+
+	var raw2 map[string]interface{}
+	err = json.Unmarshal(data2, &raw2)
+	assert.NoError(t, err)
+	assert.Equal(t, "auth", raw2["type"])
+	assert.Equal(t, "", raw2["key"])
+
+	var decoded2 WsAuthMsg
+	err = json.Unmarshal(data2, &decoded2)
+	assert.NoError(t, err)
+	assert.Equal(t, "auth", decoded2.Type)
+	assert.Equal(t, "", decoded2.Key)
+}
+
+// ---------------------------------------------------------------------------
+// 11. AuthMsgType constant verification
+// ---------------------------------------------------------------------------
+
+func TestAuthMsgType_Constant(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "auth", AuthMsgType, "AuthMsgType should be 'auth'")
+}
+
+// ---------------------------------------------------------------------------
+// 12. PromptProcessingInProgressStats round-trip JSON serialization
 // ---------------------------------------------------------------------------
 
 func TestPromptProcessingInProgressStats(t *testing.T) {

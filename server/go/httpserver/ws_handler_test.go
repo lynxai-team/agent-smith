@@ -412,7 +412,7 @@ func TestExecuteAgent_Unauthorized(t *testing.T) {
 		},
 	}
 
-	executeAgent(ws, session, msg)
+	executeAgent(ws, session, msg, "")
 
 	msgs := ws.GetSentMessages()
 	require.Len(t, msgs, 1)
@@ -449,11 +449,11 @@ func TestExecuteAgent_Success(t *testing.T) {
 		},
 	}
 
-	executeAgent(ws, session, msg)
+	executeAgent(ws, session, msg, "test-main-key-12345")
 
 	msgs := ws.GetSentMessages()
 
-	// The function should proceed past authorization (local dev mode with main key set)
+	// The function should proceed past authorization (main key matches)
 	// It will try to run lm.RunCmd which will fail (no lm binary)
 	// We verify that messages were sent (from the execution attempt)
 	require.NotEmpty(t, msgs, "Should send messages when authorized (execution flow proceeds)")
@@ -464,7 +464,7 @@ func TestExecuteAgent_Success(t *testing.T) {
 		err := json.Unmarshal(m, &rawMsg)
 		require.NoError(t, err)
 		assert.NotContains(t, rawMsg.Msg, "not authorized",
-			"Should not return 'not authorized' when main key is set (local dev mode)")
+			"Should not return 'not authorized' when main key is set")
 	}
 }
 
@@ -503,13 +503,40 @@ func TestIsCommandAuthorized_NoKey_NoMainKey(t *testing.T) {
 		"Empty key with no main key should not be authorized")
 }
 
-// TestIsCommandAuthorized_NoKey_WithMainKey verifies authorized (local dev) when no key but main key set.
-func TestIsCommandAuthorized_NoKey_WithMainKey(t *testing.T) {
+// TestIsCommandAuthorized_NoKey_Rejected verifies that empty keys are always rejected,
+// even when a main API key is configured. The dev bypass has been removed.
+func TestIsCommandAuthorized_NoKey_Rejected(t *testing.T) {
 	setupWSConf(t)
 
-	// No API key but main key is set → authorized (local dev mode)
-	assert.True(t, isCommandAuthorized("", "any-command"),
-		"Empty key with main key set should be authorized (local dev)")
+	// No API key but main key is set → still rejected (no dev bypass)
+	assert.False(t, isCommandAuthorized("", "any-command"),
+		"Empty key should always be rejected (no dev bypass)")
+}
+
+// ---------------------------------------------------------------------------
+// Validate API Key Tests
+// ---------------------------------------------------------------------------
+
+// TestValidateApiKey verifies the validateApiKey function accepts valid keys
+// and rejects invalid/missing ones.
+func TestValidateApiKey(t *testing.T) {
+	setupWSConf(t)
+
+	// Main API key should be accepted
+	assert.True(t, validateApiKey("test-main-key-12345"),
+		"Main API key should be accepted")
+
+	// Group API keys should be accepted (group "editor" is in conf.ApiKeys)
+	assert.True(t, validateApiKey("editor"),
+		"Group API key 'editor' should be accepted")
+
+	// Empty key should be rejected
+	assert.False(t, validateApiKey(""),
+		"Empty key should be rejected")
+
+	// Invalid/unknown key should be rejected
+	assert.False(t, validateApiKey("completely-wrong-key-xyz"),
+		"Invalid key should be rejected")
 }
 
 // ---------------------------------------------------------------------------

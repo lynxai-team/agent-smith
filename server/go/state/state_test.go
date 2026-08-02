@@ -3,6 +3,8 @@ package state
 import (
 	"context"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestWsSession_New verifies a new WsSession has nil AbortController and empty ConfirmToolCalls map.
@@ -146,4 +148,22 @@ func TestGlobalState_Defaults(t *testing.T) {
 	if IsInfering {
 		t.Error("IsInfering = true, want false")
 	}
+}
+
+// TestWsSession_ApiKey verifies the ApiKey field is stored and retrievable.
+func TestWsSession_ApiKey(t *testing.T) {
+	s := &WsSession{
+		ConfirmToolCalls: make(map[string]chan bool),
+		ApiKey:           "test-api-key-xyz",
+	}
+
+	assert.Equal(t, "test-api-key-xyz", s.ApiKey,
+		"ApiKey field should be stored and retrievable")
+
+	// Verify empty ApiKey is the zero value
+	empty := &WsSession{
+		ConfirmToolCalls: make(map[string]chan bool),
+	}
+	assert.Equal(t, "", empty.ApiKey,
+		"ApiKey should default to empty string")
 }

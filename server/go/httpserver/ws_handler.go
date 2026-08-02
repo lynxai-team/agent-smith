@@ -40,12 +40,19 @@ func WsHandler(c echo.Context) error {
 		// Authentication handshake: require auth message within 5 seconds
 		ws.SetReadDeadline(time.Now().Add(5 * time.Second))
 
-		var authMsg types.WsAuthMsg
-		err := wsConn.Receive(&authMsg)
+		var authRaw []byte
+		err := wsConn.Receive(&authRaw)
 		if err != nil {
 			if state.IsVerbose.Load() {
 				fmt.Printf("WebSocket auth timeout or error: %v\n", err)
 			}
+			ws.Close()
+			return
+		}
+
+		var authMsg types.WsAuthMsg
+		if err := json.Unmarshal(authRaw, &authMsg); err != nil {
+			sendWsError(wsConn, fmt.Sprintf("Failed to parse auth message: %v", err))
 			ws.Close()
 			return
 		}

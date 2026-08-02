@@ -135,6 +135,15 @@ func sendWsJSON(ws *websocket.Conn, v interface{}) error {
 	return websocket.Message.Send(ws, string(data))
 }
 
+// sendWsAuth sends the auth handshake message required to establish a WebSocket session.
+func sendWsAuth(ws *websocket.Conn, apiKey string) error {
+	authMsg := types.WsAuthMsg{
+		Type: string(types.AuthMsgType),
+		Key:  apiKey,
+	}
+	return sendWsJSON(ws, authMsg)
+}
+
 // receiveWsRaw reads one JSON message from the WebSocket as a string.
 // Uses *string because golang.org/x/net/websocket Message.Receive only
 // accepts *string or *[]byte (not *json.RawMessage).
@@ -186,6 +195,9 @@ func TestIntegration_WebSocketConnection(t *testing.T) {
 	require.NoError(t, err, "WebSocket dial should succeed")
 	defer ws.Close()
 
+	// Send auth handshake
+	require.NoError(t, sendWsAuth(ws, testAPIKey), "auth should succeed")
+
 	// Verify we can send and receive on the connection.
 	err = websocket.Message.Send(ws, `{"type":"system","command":"stop"}`)
 	require.NoError(t, err, "send should not error")
@@ -214,6 +226,9 @@ func TestIntegration_CommandMessage_Flow(t *testing.T) {
 	ws, err := websocket.Dial(wsURL, "", "http://localhost")
 	require.NoError(t, err)
 	defer ws.Close()
+
+	// Send auth handshake
+	require.NoError(t, sendWsAuth(ws, testAPIKey), "auth should succeed")
 
 	// Send a command message.
 	cmdMsg := types.WsClientMsg{
@@ -301,6 +316,9 @@ func TestIntegration_SystemMessage_ConfirmTool(t *testing.T) {
 	ws, err := websocket.Dial(wsURL, "", "http://localhost")
 	require.NoError(t, err)
 	defer ws.Close()
+
+	// Send auth handshake
+	require.NoError(t, sendWsAuth(ws, testAPIKey), "auth should succeed")
 
 	// --- 4a: confirmtool with missing payload → server error ---
 	badMsg1 := types.WsClientMsg{
