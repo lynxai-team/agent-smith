@@ -43,6 +43,7 @@ func SetConf(c types.Conf) {
 type WsSession struct {
 	AbortController  atomic.Pointer[context.CancelFunc]
 	ConfirmToolCalls map[string]chan bool
+	ApiKey           string
 }
 
 // SetAbortController sets the abort controller for this session.

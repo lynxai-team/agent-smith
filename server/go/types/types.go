@@ -27,6 +27,14 @@ const (
 	SystemMsgType  WsClientMsgType = "system"
 )
 
+// WsAuthMsg is the authentication handshake message sent as the first WebSocket frame.
+type WsAuthMsg struct {
+	Type string `json:"type"`
+	Key  string `json:"key"`
+}
+
+const AuthMsgType = "auth"
+
 type WsClientMsg struct {
 	Command  string                 `json:"command"`
 	Type     WsClientMsgType        `json:"type"`

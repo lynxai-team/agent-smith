@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"slices"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/synw/agent-smith/server/go/callbacks"
@@ -16,15 +17,59 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+// validateApiKey checks if the provided key matches the main API key or any group API key.
+func validateApiKey(key string) bool {
+	conf := state.GetConf()
+	if conf.CmdApiKey.IsValid && key == conf.CmdApiKey.Key {
+		return true
+	}
+	for _, apiKey := range conf.ApiKeys {
+		if string(apiKey) == key {
+			return true
+		}
+	}
+	return false
+}
+
 // WsHandler handles WebSocket connections.
 func WsHandler(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
 		// Wrap the real WebSocket connection with our interface
 		wsConn := websock.NewRealWSConn(ws)
 
+		// Authentication handshake: require auth message within 5 seconds
+		ws.SetReadDeadline(time.Now().Add(5 * time.Second))
+
+		var authMsg types.WsAuthMsg
+		err := wsConn.Receive(&authMsg)
+		if err != nil {
+			if state.IsVerbose.Load() {
+				fmt.Printf("WebSocket auth timeout or error: %v\n", err)
+			}
+			ws.Close()
+			return
+		}
+
+		// Validate auth message
+		if authMsg.Type != types.AuthMsgType || !validateApiKey(authMsg.Key) {
+			sendWsError(wsConn, "Authentication failed: invalid or missing auth message")
+			ws.Close()
+			return
+		}
+
+		// Auth successful — clear read deadline
+		ws.SetReadDeadline(time.Time{})
+
+		apiKey := authMsg.Key
+
+		if state.IsVerbose.Load() {
+			fmt.Printf("WebSocket authenticated with key: %s\n", apiKey)
+		}
+
 		// Per-session state
 		session := &state.WsSession{
 			ConfirmToolCalls: make(map[string]chan bool),
+			ApiKey:           apiKey,
 		}
 
 		if state.IsVerbose.Load() {
@@ -130,7 +175,7 @@ func handleCommandMessage(ws websock.WSConn, session *state.WsSession, msg types
 
 	switch msg.Feature {
 	case "agent":
-		executeAgent(ws, session, msg)
+		executeAgent(ws, session, msg, session.ApiKey)
 	case "workflow":
 		sendWsError(ws, "Workflow execution not yet implemented")
 	default:
@@ -139,10 +184,9 @@ func handleCommandMessage(ws websock.WSConn, session *state.WsSession, msg types
 }
 
 // executeAgent runs an agent via the lm binary with callback handlers.
-func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClientMsg) {
+func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClientMsg, apiKey string) {
 	//fmt.Println("MSG:", msg)
 	cmdName := msg.Command
-	apiKey := "" // No API key at WebSocket level yet — authorization is per-command
 	payload := msg.Payload
 	//fmt.Println("Payload:", payload)
 
@@ -226,12 +270,8 @@ func isCommandAuthorized(apiKey, cmd string) bool {
 		return slices.Contains(authorizedCmds, cmd)
 	}
 
-	// No API key provided — allow if main key is set (for local dev)
-	// In production, this should return false
-	if !conf.CmdApiKey.IsValid {
-		return false
-	}
-	return true
+	// No API key provided — reject in all cases. No dev bypass allowed.
+	return false
 }
 
 // sendWsError sends an error message over WebSocket.
