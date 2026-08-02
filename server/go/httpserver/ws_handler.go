@@ -123,11 +123,10 @@ func handleCommandMessage(ws websock.WSConn, session *state.WsSession, msg types
 		return
 	}
 
-	// Initialize options if nil, set nocli=true
+	// Initialize options if nil
 	if msg.Options == nil {
 		msg.Options = make(map[string]interface{})
 	}
-	msg.Options["nocli"] = true
 
 	switch msg.Feature {
 	case "agent":
@@ -194,8 +193,22 @@ func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClien
 	cmdRunner := cmdexec.NewRealCmdRunner()
 
 	// Call lm.RunCmd with params
-	fmt.Println("Run cmd:", cmdName, []string{payload["prompt"].(string)}, ws, cbHandler, session, cmdRunner)
-	lm.RunCmd(cmdName, []string{payload["prompt"].(string), "-v"}, ws, cbHandler, session, cmdRunner)
+	cmdOpts := []string{payload["prompt"].(string), "-v", "--nocli"}
+	for k, v := range serializableOptions {
+		switch val := v.(type) {
+		case string:
+			cmdOpts = append(cmdOpts, "--"+k)
+			cmdOpts = append(cmdOpts, val)
+		case bool:
+			if val == true {
+				cmdOpts = append(cmdOpts, "--"+k)
+			}
+		default:
+			fmt.Printf("OPT Not a string or bool, it's: %T\n", val)
+		}
+	}
+	fmt.Println("Run cmd:", cmdName, []string{payload["prompt"].(string)}, cmdOpts)
+	lm.RunCmd(cmdName, cmdOpts, ws, cbHandler, session, cmdRunner)
 }
 
 // isCommandAuthorized checks if an API key is authorized to run a command.
