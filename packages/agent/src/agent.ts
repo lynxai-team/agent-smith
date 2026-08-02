@@ -222,9 +222,11 @@ class Agent {
                 };
             }
         }
-        if (_res.text.length > 0) {
-            if (events.onAssistant) {
-                events.onAssistant(_res.text, this.name);
+        if (_res?.text) {
+            if (_res.text.length > 0) {
+                if (events.onAssistant) {
+                    events.onAssistant(_res.text, this.name);
+                }
             }
         }
         if (res?.toolCalls) {

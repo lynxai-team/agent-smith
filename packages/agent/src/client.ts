@@ -279,7 +279,7 @@ class Lm implements LmProvider {
             delete inferenceParams.extra;
         }
         let i = 1;
-        let text: string;
+        let text = "";
         let thinkingText = "";
         const toolCalls = new Array<ToolCallSpec>();
         if (!inferenceParams.stream) {
