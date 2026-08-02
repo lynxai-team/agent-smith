@@ -3,6 +3,7 @@ package httpserver
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"slices"
 
 	"github.com/labstack/echo/v4"
@@ -26,16 +27,16 @@ func WsHandler(c echo.Context) error {
 			ConfirmToolCalls: make(map[string]chan bool),
 		}
 
-		if state.IsVerbose {
+		if state.IsVerbose.Load() {
 			fmt.Printf("WebSocket connection established\n")
 		}
 
 		// Message receive loop
 		for {
-			var rawMsg json.RawMessage
+			var rawMsg []byte
 			err := wsConn.Receive(&rawMsg)
 			if err != nil {
-				if state.IsVerbose {
+				if state.IsVerbose.Load() {
 					fmt.Printf("WebSocket disconnect: %v\n", err)
 					fmt.Println("Msg:", &rawMsg)
 				}
@@ -58,7 +59,7 @@ func WsHandler(c echo.Context) error {
 			}
 		}
 
-		if state.IsVerbose {
+		if state.IsVerbose.Load() {
 			fmt.Printf("WebSocket connection closed\n")
 		}
 	}).ServeHTTP(c.Response(), c.Request())
@@ -70,7 +71,7 @@ func WsHandler(c echo.Context) error {
 func handleSystemMessage(ws websock.WSConn, session *state.WsSession, msg types.WsClientMsg) {
 	switch msg.Command {
 	case "stop":
-		if state.IsVerbose {
+		if state.IsVerbose.Load() {
 			fmt.Printf("Stop command received\n")
 		}
 		// TODO: Implement abort logic via context cancellation
@@ -98,7 +99,7 @@ func handleSystemMessage(ws websock.WSConn, session *state.WsSession, msg types.
 		if ch, exists := session.ConfirmToolCalls[id]; exists {
 			ch <- confirmVal
 			delete(session.ConfirmToolCalls, id)
-			if state.IsVerbose {
+			if state.IsVerbose.Load() {
 				fmt.Printf("Tool confirmation resolved: %s = %v\n", id, confirmVal)
 			}
 		} else {
@@ -106,7 +107,7 @@ func handleSystemMessage(ws websock.WSConn, session *state.WsSession, msg types.
 		}
 
 	default:
-		if state.IsVerbose {
+		if state.IsVerbose.Load() {
 			fmt.Printf("Unknown system command: %s\n", msg.Command)
 		}
 		sendWsError(ws, fmt.Sprintf("Unknown system command: %s", msg.Command))
@@ -169,7 +170,16 @@ func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClien
 		return
 	}
 
-	optsJSON, err := json.Marshal(options)
+	// Create serializable options (exclude callback functions which can't be JSON-encoded)
+	serializableOptions := make(map[string]interface{})
+	for k, v := range options {
+		// Skip function values (callbacks) — they're used internally in Go
+		if reflect.TypeOf(v).Kind() == reflect.Func {
+			continue
+		}
+		serializableOptions[k] = v
+	}
+	optsJSON, err := json.Marshal(serializableOptions)
 	if err != nil {
 		sendWsError(ws, fmt.Sprintf("Failed to marshal options: %v", err))
 		return
@@ -184,20 +194,22 @@ func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClien
 
 // isCommandAuthorized checks if an API key is authorized to run a command.
 func isCommandAuthorized(apiKey, cmd string) bool {
+	conf := state.GetConf()
+
 	// Main key allows all commands
-	if state.Conf.CmdApiKey.IsValid && apiKey == state.Conf.CmdApiKey.Key {
+	if conf.CmdApiKey.IsValid && apiKey == conf.CmdApiKey.Key {
 		return true
 	}
 
 	// If no main key, check group authorization
 	if apiKey != "" {
-		authorizedCmds := state.Conf.Groups[types.GroupApiKey(apiKey)]
+		authorizedCmds := conf.Groups[types.GroupApiKey(apiKey)]
 		return slices.Contains(authorizedCmds, cmd)
 	}
 
 	// No API key provided — allow if main key is set (for local dev)
 	// In production, this should return false
-	if !state.Conf.CmdApiKey.IsValid {
+	if !conf.CmdApiKey.IsValid {
 		return false
 	}
 	return true
@@ -212,13 +224,13 @@ func sendWsError(ws websock.WSConn, errMsg string) {
 	}
 	data, err := json.Marshal(msg)
 	if err != nil {
-		if state.IsDebug {
+		if state.IsDebug.Load() {
 			fmt.Printf("Failed to marshal error message: %v\n", err)
 		}
 		return
 	}
 	if err := ws.Send(data); err != nil {
-		if state.IsDebug {
+		if state.IsDebug.Load() {
 			fmt.Printf("Failed to send error message: %v\n", err)
 		}
 	}

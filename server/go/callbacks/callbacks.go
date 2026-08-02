@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"sync"
 
 	"github.com/synw/agent-smith/server/go/state"
 	"github.com/synw/agent-smith/server/go/types"
@@ -17,6 +18,7 @@ type CallbackHandlers struct {
 	ws               websock.WSConn
 	from             string
 	confirmToolCalls map[string]*utils.Awaiter
+	mu               sync.Mutex // protects confirmToolCalls map
 }
 
 // NewCallbackHandlers creates a new CallbackHandlers instance.
@@ -37,13 +39,13 @@ func (cb *CallbackHandlers) sendMsg(msgType types.WsServerMsgType, msg string) {
 	}
 	data, err := json.Marshal(rsm)
 	if err != nil {
-		if state.IsDebug {
+		if state.IsDebug.Load() {
 			fmt.Printf("Failed to marshal message: %v\n", err)
 		}
 		return
 	}
 	if err := cb.ws.Send(data); err != nil {
-		if state.IsDebug {
+		if state.IsDebug.Load() {
 			fmt.Printf("Failed to send message: %v\n", err)
 		}
 	}
@@ -149,10 +151,15 @@ func (cb *CallbackHandlers) BuildOptions() map[string]interface{} {
 			cb.sendMsg(types.ToolCallConfirmType, string(tcData))
 
 			awaiter := utils.CreateAwaiter()
-			cb.confirmToolCalls[tc["id"].(string)] = awaiter
+			tcID := tc["id"].(string)
+			cb.mu.Lock()
+			cb.confirmToolCalls[tcID] = awaiter
+			cb.mu.Unlock()
 
 			result := awaiter.Wait()
-			delete(cb.confirmToolCalls, tc["id"].(string))
+			cb.mu.Lock()
+			delete(cb.confirmToolCalls, tcID)
+			cb.mu.Unlock()
 			return result, nil
 		},
 		"nocli": true,
@@ -188,6 +195,8 @@ func (cb *CallbackHandlers) From() string {
 
 // ResolveToolConfirmation resolves a pending tool confirmation awaiter.
 func (cb *CallbackHandlers) ResolveToolConfirmation(id string, value bool) {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
 	if awaiter, exists := cb.confirmToolCalls[id]; exists {
 		awaiter.Resolve(value)
 		delete(cb.confirmToolCalls, id)

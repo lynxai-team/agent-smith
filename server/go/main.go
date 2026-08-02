@@ -31,14 +31,14 @@ func main() {
 
 	if *debug {
 		fmt.Println("Debug mode is on")
-		state.IsDebug = true
+		state.IsDebug.Store(true)
 	}
 
-	state.IsVerbose = !*quiet
-	state.Conf = conf.InitConf()
+	state.IsVerbose.Store(!*quiet)
+	state.SetConf(conf.InitConf())
 
-	if state.IsVerbose {
-		fmt.Println("Starting the WebSocket server with allowed origins", state.Conf.Origins)
+	if state.IsVerbose.Load() {
+		fmt.Println("Starting the WebSocket server with allowed origins", state.GetConf().Origins)
 	}
 
 	httpserver.RunServer(*port)

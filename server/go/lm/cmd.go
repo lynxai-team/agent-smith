@@ -18,7 +18,7 @@ import (
 func RunCmd(cmdName string, params []string, ws websock.WSConn, cbHandler *callbacks.CallbackHandlers, session *state.WsSession, runner cmdexec.CmdRunner) {
 	// Create the command with the arguments
 	fullParams := append([]string{cmdName}, params...)
-	if state.IsDebug {
+	if state.IsDebug.Load() {
 		fmt.Println("Cmd params:")
 		for _, p := range fullParams {
 			fmt.Println("-", p)
@@ -29,8 +29,8 @@ func RunCmd(cmdName string, params []string, ws websock.WSConn, cbHandler *callb
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Store session's AbortController
-	session.AbortController = cancel
+	// Store session's AbortController (atomic)
+	session.SetAbortController(cancel)
 
 	cmd := runner.CommandContext(ctx, "lm", fullParams...)
 
@@ -59,7 +59,7 @@ func RunCmd(cmdName string, params []string, ws websock.WSConn, cbHandler *callb
 		token := scanner.Text()
 		buf = append(buf, token)
 
-		if state.IsVerbose {
+		if state.IsVerbose.Load() {
 			fmt.Print(token)
 		}
 
@@ -77,7 +77,7 @@ func RunCmd(cmdName string, params []string, ws websock.WSConn, cbHandler *callb
 	// Wait for the command to finish
 	if err := cmd.Wait(); err != nil {
 		if ctx.Err() == context.Canceled {
-			if state.IsVerbose {
+			if state.IsVerbose.Load() {
 				fmt.Println("Command canceled by context")
 			}
 			return
@@ -98,7 +98,7 @@ func RunCmd(cmdName string, params []string, ws websock.WSConn, cbHandler *callb
 	cbHandler.SendFinalResult(result)
 
 	// Clear abort controller
-	session.AbortController = nil
+	session.ClearAbortController()
 }
 
 // sendWsError sends an error message directly over WebSocket.

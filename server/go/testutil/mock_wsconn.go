@@ -67,6 +67,10 @@ func (m *MockWSConn) Receive(data interface{}) error {
 	defer m.mu.Unlock()
 
 	if m.receiveIdx >= len(m.queued) {
+		// Set data to nil to indicate exhaustion
+		if dst, ok := data.(*[]byte); ok {
+			*dst = nil
+		}
 		return nil // EOF-like behavior
 	}
 

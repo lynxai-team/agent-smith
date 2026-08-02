@@ -12,6 +12,8 @@ import (
 
 // RunServer starts the Echo HTTP server with WebSocket and health endpoints.
 func RunServer(port int) {
+	conf := state.GetConf()
+
 	e := echo.New()
 
 	// logger
@@ -24,7 +26,7 @@ func RunServer(port int) {
 
 	// CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     state.Conf.Origins,
+		AllowOrigins:     conf.Origins,
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAuthorization},
 		AllowMethods:     []string{http.MethodGet, http.MethodOptions, http.MethodPost},
 		AllowCredentials: true,
@@ -41,13 +43,14 @@ func RunServer(port int) {
 	// Optional /api group with KeyAuth middleware for future REST endpoints
 	cmds := e.Group("/api")
 	cmds.Use(middleware.KeyAuth(func(key string, c echo.Context) (bool, error) {
-		if state.Conf.CmdApiKey.IsValid {
-			if key == state.Conf.CmdApiKey.Key {
+		conf := state.GetConf()
+		if conf.CmdApiKey.IsValid {
+			if key == conf.CmdApiKey.Key {
 				c.Set("apiKey", key)
 				return true, nil
 			}
 		}
-		for _, apiKey := range state.Conf.ApiKeys {
+		for _, apiKey := range conf.ApiKeys {
 			if string(apiKey) == key {
 				c.Set("apiKey", key)
 				return true, nil
@@ -57,8 +60,8 @@ func RunServer(port int) {
 	}))
 	// Future REST endpoints can be added here
 
-	if state.IsVerbose {
-		fmt.Printf("Starting the WebSocket server on port %d with allowed origins %v\n", port, state.Conf.Origins)
+	if state.IsVerbose.Load() {
+		fmt.Printf("Starting the WebSocket server on port %d with allowed origins %v\n", port, conf.Origins)
 	}
 
 	e.Start(fmt.Sprintf(":%d", port))

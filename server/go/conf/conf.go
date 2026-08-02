@@ -19,6 +19,9 @@ func InitConf() types.Conf {
 	v := viper.New()
 	v.SetConfigName("server.config")
 	v.AddConfigPath(".")
+	if err := v.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("fatal error reading config: %w", err))
+	}
 	return parseViperConfig(v)
 }
 
