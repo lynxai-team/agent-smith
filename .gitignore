@@ -22,3 +22,5 @@ server.config.yaml
 .continue
 /server/go/.agents/tasks
 /server/node/.agents/tasks
+/server/go/coverage.html
+/server/go/coverage.out
