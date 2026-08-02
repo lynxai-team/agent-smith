@@ -49,6 +49,8 @@ func WsHandler(c echo.Context) error {
 				continue
 			}
 
+			//fmt.Println("WS MSG", msg)
+
 			switch msg.Type {
 			case types.SystemMsgType:
 				handleSystemMessage(wsConn, session, msg)
@@ -139,15 +141,18 @@ func handleCommandMessage(ws websock.WSConn, session *state.WsSession, msg types
 
 // executeAgent runs an agent via the lm binary with callback handlers.
 func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClientMsg) {
+	//fmt.Println("MSG:", msg)
 	cmdName := msg.Command
 	apiKey := "" // No API key at WebSocket level yet — authorization is per-command
 	payload := msg.Payload
+	//fmt.Println("Payload:", payload)
 
 	// Create callback handlers
 	cbHandler := callbacks.NewCallbackHandlers(ws, cmdName)
 
 	// Build options map
 	options := cbHandler.BuildOptions()
+	//fmt.Println("Opts:", options)
 
 	// Merge client-provided options (non-callback fields)
 	for k, v := range msg.Options {
@@ -164,11 +169,11 @@ func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClien
 	}
 
 	// Serialize payload and options to JSON
-	payloadJSON, err := json.Marshal(payload)
+	/*payloadJSON, err := json.Marshal(payload)
 	if err != nil {
 		sendWsError(ws, fmt.Sprintf("Failed to marshal payload: %v", err))
 		return
-	}
+	}*/
 
 	// Create serializable options (exclude callback functions which can't be JSON-encoded)
 	serializableOptions := make(map[string]interface{})
@@ -179,17 +184,18 @@ func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClien
 		}
 		serializableOptions[k] = v
 	}
-	optsJSON, err := json.Marshal(serializableOptions)
+	/*optsJSON, err := json.Marshal(serializableOptions)
 	if err != nil {
 		sendWsError(ws, fmt.Sprintf("Failed to marshal options: %v", err))
 		return
-	}
+	}*/
 
 	// Use default command runner for production
 	cmdRunner := cmdexec.NewRealCmdRunner()
 
 	// Call lm.RunCmd with params
-	lm.RunCmd(cmdName, []string{"--payload", string(payloadJSON), "--options", string(optsJSON)}, ws, cbHandler, session, cmdRunner)
+	fmt.Println("Run cmd:", cmdName, []string{payload["prompt"].(string)}, ws, cbHandler, session, cmdRunner)
+	lm.RunCmd(cmdName, []string{payload["prompt"].(string), "-v"}, ws, cbHandler, session, cmdRunner)
 }
 
 // isCommandAuthorized checks if an API key is authorized to run a command.
