@@ -1,7 +1,7 @@
 # Go WebSocket Server
 
 ## Summary
-A Go WebSocket server that handles bidirectional communication with AI agent clients, streaming inference results and managing tool call confirmations via the external `lm` binary. Built on Echo framework with `golang.org/x/net/websocket`.
+A Go WebSocket server that handles bidirectional communication with AI agent clients, streaming inference results and managing tool call confirmations via the external `lm` binary. Built on Echo framework with `golang.org/x/net/websocket`. Includes first-frame authentication, per-session state isolation, and group-based command authorization.
 
 ## Dependencies
 - `github.com/labstack/echo/v4 v4.15.4` — HTTP web framework
@@ -24,11 +24,11 @@ A Go WebSocket server that handles bidirectional communication with AI agent cli
 | `main.go` | CLI entry point, flag parsing, server bootstrap |
 | `go.mod` | Go module definition (`github.com/synw/agent-smith/server/go`) |
 | `conf/conf.go` | Viper-based YAML config initialization and API key generation |
-| `state/state.go` | Global state vars + per-session WsSession struct |
-| `types/types.go` | All type definitions (config, WebSocket protocol, tool calls, inference results) |
+| `state/state.go` | Global state vars + per-session WsSession struct (AbortController, ConfirmToolCalls, ApiKey) |
+| `types/types.go` | All type definitions (config, WebSocket protocol, tool calls, inference results, PerformanceMetrics) |
 | `httpserver/router.go` | Echo server setup with CORS and routes |
-| `httpserver/ws_handler.go` | WebSocket handler with message routing and command authorization |
-| `callbacks/callbacks.go` | Callback bridge — 19+ handlers mapping lm binary events to WebSocket messages |
+| `httpserver/ws_handler.go` | WebSocket handler with auth handshake (5s timeout), message routing, command authorization |
+| `callbacks/callbacks.go` | Callback bridge — 19+ handlers mapping lm binary events to WebSocket messages, UUID generation |
 | `lm/cmd.go` | External lm binary execution with rune-by-rune streaming |
 | `lm/utils.go` | Utility helpers (InterfaceToStringArray) |
 | `utils/awaiter.go` | Channel-based promise pattern for tool confirmation |
@@ -46,13 +46,18 @@ main.go
   └── httpserver.RunServer(port)
         ├── GET /ping → health check
         ├── GET /ws → WsHandler
+        │     ├── Auth handshake (5s timeout): WsAuthMsg{Type:"auth", Key}
+        │     │     └── validateApiKey: main key or group keys
         │     ├── handleSystemMessage (stop, confirmtool)
         │     └── handleCommandMessage
-        │           └── executeAgent
-        │                 ├── callbacks.NewCallbackHandlers(ws, cmdName)
-        │                 ├── cbHandler.BuildOptions()
-        │                 └── lm.RunCmd(cmdName, params, ws, cbHandler, session, runner)
-        │                       └── exec.Command("lm", ...)
+        │           ├── feature="agent" → executeAgent
+        │           │     ├── callbacks.NewCallbackHandlers(ws, cmdName)
+        │           │     │     └── BuildOptions() → 19+ handler functions
+        │           │     ├── isCommandAuthorized(apiKey, cmdName)
+        │           │     └── lm.RunCmd(cmdName, params, ws, cbHandler, session, runner)
+        │           │           └── runner.CommandContext("lm", ...)
+        │           │                 └── bufio.ScanRunes → cbHandler.SendToken(token)
+        │           └── feature="workflow" → not implemented
         └── /api/* → KeyAuth middleware (future REST)
 ```
 

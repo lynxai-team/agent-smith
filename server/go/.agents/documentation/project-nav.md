@@ -1,6 +1,6 @@
 # Agent Smith — Go WebSocket Server — Navigation Map
 
-> **Purpose**: Single-reference map for AI coding agents to understand, navigate, and modify the Agent Smith Go WebSocket server codebase.
+> Purpose: Single-reference map for AI coding agents to understand, navigate, and modify the Agent Smith Go WebSocket server codebase.
 
 ---
 
@@ -19,9 +19,10 @@
 
 | Principle | Detail | Key Files |
 |-----------|--------|-----------|
+| Auth-First Handshake | Every WS connection requires `WsAuthMsg{Type:"auth", Key}` as first frame within 5s — no auth = disconnect | `httpserver/ws_handler.go` |
 | Callback Bridge | All lm binary events flow through `callbacks.CallbackHandlers` which maps them to WebSocket messages | `callbacks/callbacks.go` |
 | Channel-Based Promises | Async tool confirmation via buffered channels (`chan bool`) — no goroutines needed | `utils/awaiter.go` |
-| Per-Session State | Each WebSocket connection has independent `WsSession` with `AbortController` and `ConfirmToolCalls` | `state/state.go`, `httpserver/ws_handler.go` |
+| Per-Session State | Each WebSocket connection has independent `WsSession` with `AbortController` (atomic.Pointer), `ConfirmToolCalls`, and `ApiKey` | `state/state.go`, `httpserver/ws_handler.go` |
 | Rune-by-Rune Streaming | Real-time token streaming via `bufio.ScanRunes` from lm process stdout | `lm/cmd.go` |
 | Viper Config | YAML-based configuration with API keys, CORS origins, and group command authorization | `conf/conf.go`, `server.config.yaml` |
 | Interface-Based Testing | `websock.WSConn` and `cmdexec.CmdRunner` interfaces enable mocking for unit tests | `websock/websock.go`, `cmdexec/cmdexec.go` |
@@ -37,6 +38,8 @@ main.go
   └── httpserver.RunServer(port)
         ├── GET /ping → health check
         ├── GET /ws → WsHandler
+        │     ├── Auth handshake (5s timeout): WsAuthMsg{Type:"auth", Key}
+        │     │     └── validateApiKey: main key or group keys
         │     ├── handleSystemMessage (stop, confirmtool)
         │     └── handleCommandMessage
         │           ├── feature="agent" → executeAgent
@@ -50,7 +53,7 @@ main.go
         └── /api/* → KeyAuth middleware (future REST endpoints)
 ```
 
-**Prose**: `main.go` bootstraps the server by loading config via `conf.InitConf()` into `state.Conf`, then starts the Echo HTTP server. The `/ws` endpoint handles WebSocket connections, routing messages to `handleSystemMessage` (stop/confirmtool) or `handleCommandMessage` (agent/workflow execution). Command execution calls `callbacks.NewCallbackHandlers()` to create a bridge, then invokes `lm.RunCmd()` which executes the external `lm` binary via `cmdexec.CmdRunner` and streams output rune-by-rune through the callback handlers to the WebSocket client.
+**Prose**: `main.go` bootstraps the server by loading config via `conf.InitConf()` into `state.Conf`, then starts the Echo HTTP server. The `/ws` endpoint handles WebSocket connections with an auth-first handshake (5s timeout for `WsAuthMsg{Type:"auth", Key}`), routing messages to `handleSystemMessage` (stop/confirmtool) or `handleCommandMessage` (agent/workflow execution). Command execution calls `callbacks.NewCallbackHandlers()` to create a bridge, then invokes `lm.RunCmd()` which executes the external `lm` binary via `cmdexec.CmdRunner` and streams output rune-by-rune through the callback handlers to the WebSocket client.
 
 ---
 
@@ -73,29 +76,31 @@ main.go
 
 - **Purpose**: Application-wide state variables and per-WebSocket-session state
 - **Key files**: `state/state.go`
-- **Key types**: `WsSession` (AbortController, ConfirmToolCalls map)
+- **Key types**: `WsSession` (AbortController atomic.Pointer[context.CancelFunc], ConfirmToolCalls map[string]chan bool, ApiKey string)
 - **Global vars**: `IsVerbose`, `IsDebug`, `IsInfering`, `Conf`
+- **Key methods**: `GetConf()`, `SetConf()`, `WsSession.GetAbortController()`, `WsSession.ClearAbortController()`
 
 ### `types` — Type Definitions
 
 - **Purpose**: All shared type definitions — config, WebSocket protocol, inference results
 - **Key files**: `types/types.go`
-- **Key types**: `Conf`, `WsClientMsg`, `WsRawServerMsg`, `WsServerMsgType` (20 constants), `InferenceResult`, `PerformanceMetrics`
+- **Key types**: `Conf`, `ValidApiKey`, `GroupApiKey`, `AuthorizedCmds`, `WsClientMsg`, `WsAuthMsg`, `WsRawServerMsg`, `WsServerMsgType` (20 constants), `ToolCallSpec`, `PerformanceMetrics`, `InferenceResult`, `PromptProcessingInProgressStats`
 - **Message types**: error, startemit, token, thinkingtoken, turnstart, turnend, assistant, thinkingstart, thinkingend, toolcallinprogress, promptprocessingprogress, toolcalltoken, toolsturnstart, toolsturnend, toolcall, toolcallend, toolcallconfirm, finalresult, think, endemit
 
 ### `httpserver` — HTTP & WebSocket Server
 
-- **Purpose**: Echo server setup, CORS, routes, KeyAuth middleware, WebSocket message routing
+- **Purpose**: Echo server setup, CORS, routes, KeyAuth middleware, WebSocket message routing with auth
 - **Key files**: `httpserver/router.go`, `httpserver/ws_handler.go`
 - **Routes**: `GET /ping`, `GET /ws`, `GET /api/*` (future REST)
-- **Key functions**: `RunServer()`, `WsHandler()`, `handleSystemMessage()`, `handleCommandMessage()`, `executeAgent()`, `isCommandAuthorized()`
+- **Key functions**: `RunServer()`, `WsHandler()`, `validateApiKey()`, `handleSystemMessage()`, `handleCommandMessage()`, `executeAgent()`, `isCommandAuthorized()`, `sendWsError()`
+- **Auth flow**: First frame must be `{"type":"auth","key":"..."}` within 5s — validates against main key or group keys
 
 ### `callbacks` — Event Bridge
 
 - **Purpose**: Maps lm binary execution events to WebSocket messages (19+ handlers)
 - **Key files**: `callbacks/callbacks.go`
-- **Key type**: `CallbackHandlers` — holds ws conn, from string, confirmToolCalls map
-- **Key functions**: `NewCallbackHandlers()`, `BuildOptions()`, `sendMsg()`, `ResolveToolConfirmation()`
+- **Key type**: `CallbackHandlers` — holds ws conn, from string, confirmToolCalls map[string]*Awaiter, mutex
+- **Key functions**: `NewCallbackHandlers()`, `BuildOptions()`, `sendMsg()`, `ResolveToolConfirmation()`, `generateUUID()`
 - **Handler functions**: onStartEmit, onToken, onThinkingToken, onStartThinking, onEndThinking, onTurnStart, onTurnEnd, onAssistant, onThink, onEndEmit, onToolCallToken, onToolCallInProgress, onPromptProcessingProgress, onToolsTurnStart, onToolsTurnEnd, onToolCall, onToolCallEnd, onConfirmToolUsage
 
 ### `lm` — External Binary Execution
@@ -141,10 +146,15 @@ main.go
 | Method | Path | Handler | Auth | Description |
 |--------|------|---------|------|-------------|
 | GET | `/ping` | inline | None | Health check — returns `{"status":"ok"}` |
-| GET | `/ws` | `WsHandler` | None | WebSocket connection endpoint |
+| GET | `/ws` | `WsHandler` | Auth (first frame) | WebSocket connection endpoint — requires `WsAuthMsg` within 5s |
 | GET | `/api/*` | future | KeyAuth | Reserved for future REST endpoints |
 
 ### WebSocket Protocol
+
+**Auth Handshake** (`WsAuthMsg`):
+- Client sends `{"type":"auth","key":"..."}` as the first frame
+- Server validates against main key or group keys within 5s
+- Invalid/missing auth → disconnect with error
 
 **Client → Server** (`WsClientMsg`):
 - `type: "command"` + `feature: "agent"` + `command` + `payload.{prompt}` → runs agent inference
@@ -168,10 +178,13 @@ go build -o agent-smith-server .
 ./agent-smith-server -conf -key
 ```
 
-### Sending a Command via WebSocket
+### Sending a Command via WebSocket (Authenticated)
 
 ```go
-// Client sends command message
+// 1. Auth handshake (first frame)
+authMsg := types.WsAuthMsg{Type: "auth", Key: "your-api-key"}
+
+// 2. Client sends command message
 msg := types.WsClientMsg{
     Type:    "command",
     Feature: "agent",
@@ -210,6 +223,9 @@ const NewMsgType WsServerMsgType = "newmsg"
 | Add command authorization | `httpserver/ws_handler.go` (`isCommandAuthorized`) + `types/types.go` |
 | View module technical details | `.agents/documentation/codebase-summary.md` |
 | Write unit tests | `testutil/` — MockWSConn, MockCmdRunner |
+| Handle auth timeout/errors | `httpserver/ws_handler.go` → `ws.SetReadDeadline()` |
+| Add new callback handler | `callbacks/callbacks.go` → `BuildOptions()` |
+| Update PerformanceMetrics format | `types/types.go` → `PerformanceMetrics` struct |
 
 ---
 
@@ -229,10 +245,12 @@ const NewMsgType WsServerMsgType = "newmsg"
 
 | Convention | Detail |
 |------------|--------|
+| WebSocket auth | First frame must be `{"type":"auth","key":"..."}` — rejected if invalid or missing within 5s |
 | WebSocket message format | All messages are JSON `WsRawServerMsg{Type, From, Msg}` |
 | Tool confirmation pattern | Server sends `toolcallconfirm`, blocks on `Awaiter` channel, client resolves via `system` message with `command: "confirmtool"` |
+| AbortController | Atomic pointer to context.CancelFunc — use `GetAbortController()` and `ClearAbortController()` methods |
 | Error handling | Errors sent as `WsRawServerMsg` with `type: "error"`; debug-level errors only in verbose mode |
-| API key authorization | Main key allows all commands; group keys restricted to authorized command lists from config |
+| API key authorization | Main key allows all commands; group keys restricted to authorized command lists; **no API key = rejected** |
 | Streaming pattern | `bufio.ScanRunes` for real-time token output from lm binary |
 | Config management | Viper reads `server.config.yaml`; supports `api_key`, `origins`, and `groups` |
 | Testing pattern | Use `MockWSConn` and `MockCmdRunner` from `testutil/` for unit tests |

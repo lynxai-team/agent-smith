@@ -5,10 +5,10 @@ A Go WebSocket server that handles bidirectional communication with AI agent cli
 
 ## Conventions (for AI Agents)
 
-- **WebSocket protocol**: Client messages use `WsClientMsg` with `type` (`command`/`system`) and `feature` fields; server sends `WsRawServerMsg` with `type`, `from`, and `msg` (JSON)
-- **Callback bridge pattern**: `callbacks.CallbackHandlers` maps execution events from the `lm` binary to WebSocket messages — all 19+ message types flow through this layer
-- **Channel-based promise pattern**: `utils.Awaiter` implements async tool confirmation via buffered channels (`chan bool`)
-- **Per-session state**: `state.WsSession` holds per-connection state including `AbortController` (context cancellation) and `ConfirmToolCalls` map
+- **WebSocket auth handshake**: Client must send `WsAuthMsg{Type:"auth", Key}` as the first frame within 5s; validates against main key or group keys before any message processing
+- **Callback bridge pattern**: `callbacks.CallbackHandlers` maps 19+ execution events from the `lm` binary to WebSocket messages — all server message types flow through this layer
+- **Channel-based promise pattern**: `utils.Awaiter` implements async tool confirmation via buffered channels (`chan bool`) with mutex-protected map
+- **Per-session state**: `state.WsSession` holds per-connection state including `AbortController` (atomic.Pointer[context.CancelFunc]), `ConfirmToolCalls` map, and `ApiKey`
 - **YAML config via Viper**: Configuration loaded from `server.config.yaml` with support for API keys, CORS origins, and group-based command authorization
 
 ## Quick Start for AI Agents
