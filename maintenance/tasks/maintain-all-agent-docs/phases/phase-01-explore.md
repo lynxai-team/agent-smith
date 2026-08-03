@@ -8,7 +8,12 @@
 ---
 
 ## Phase Goal
-Walk the directory tree across all repos, identify structure, conventions, and patterns to inform all subsequent documentation phases.
+Walk the directory tree across all repos, identify structure, conventions, and patterns to inform all subsequent documentation phases. Produce a summary document that other agents will use to understand the codebase faster.
+
+---
+
+## Prerequisites
+- **Load the `smart-explore` skill** before starting exploration. This skill provides instructions about how to explore the codebase effectively.
 
 ---
 
@@ -43,7 +48,20 @@ Walk the directory tree across all repos, identify structure, conventions, and p
   - File structures (naming patterns, directory organization)
   - State management patterns
   - Package interdependencies
-- Create exploration notes document at `.agents/tasks/maintain-all-agent-docs/documents/exploration-notes.md`
 **Success Criteria:**
 - [ ] 3-5 key conventions documented
-- [ ] Exploration notes file created for subsequent agents to reference
+
+### Step 1.4: Produce Summary Document
+**Execution Plan:**
+- Create a comprehensive summary document at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- The summary must include:
+  - Repository map with paths and purposes
+  - Package/module dependency graph
+  - Key entry points for each module
+  - Conventions and patterns observed
+  - Notes on recent changes (from git history)
+- **This document will be used by all subsequent agents** to understand the codebase faster. Ensure it is clear, well-structured, and information-dense.
+**Success Criteria:**
+- [ ] Summary document created at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- [ ] Document covers all 5 repos and 13 modules
+- [ ] Document is structured for quick reference by other agents

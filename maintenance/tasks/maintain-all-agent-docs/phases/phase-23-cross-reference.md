@@ -7,6 +7,12 @@
 
 ---
 
+## Prerequisites
+- **Load the `smart-explore` skill** before starting. This skill provides instructions about how to explore the codebase effectively.
+- Read the exploration summary at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+
+---
+
 ## Phase Goal
 Ensure no duplicated content, all cross-references valid, and documentation quality is high.
 

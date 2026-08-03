@@ -11,7 +11,7 @@
 ## Phase Files
 | Phase Group | Phase | Module/Scope | File | Steps |
 |-------------|-------|--------------|------|-------|
-| **A: Foundation** | 1 | Explore the Project | `phases/phase-01-explore.md` | 3 |
+| **A: Foundation** | 1 | Explore the Project + produce summary | `phases/phase-01-explore.md` | 4 |
 | | 2 | Root AGENTS.md | `phases/phase-02-root-agents.md` | 4 |
 | **B: Per-Repo AGENTS.md** | 3 | `agent-smith-plugins` AGENTS.md | `phases/phase-03-agents-plugins.md` | 4 |
 | | 4 | `agent-smith-ui` AGENTS.md | `phases/phase-04-agents-ui.md` | 4 |
@@ -42,6 +42,7 @@
   - [ ] Step 1.1: Walk directory tree across all repos
   - [ ] Step 1.2: Identify repos, packages, entry points, dependencies
   - [ ] Step 1.3: Document key conventions and patterns
+  - [ ] Step 1.4: Produce summary document at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
 
 - [ ] Phase 2: Create Root AGENTS.md
   - [ ] Step 2.1: Read existing AGENTS.md (if exists)
@@ -195,7 +196,7 @@
 
 | Skill | When |
 |-------|------|
-| `smart-explore` | All phases — explore module directory tree |
+| `smart-explore` | **All phases (1-23)** — every executor agent must load this skill before starting |
 | `update-codebase-summary` | Phases 9-21 — create/update module summaries |
 | `update-project-nav` | Phase 22 — create/update navigation map |
 

@@ -28,7 +28,7 @@ Explore the project and create the root AGENTS.md.
 
 | Phase | Scope | Path | Phase File |
 |-------|-------|------|------------|
-| 1 | Explore the Project | All repos | `phases/phase-01-explore.md` |
+| 1 | Explore the Project + produce summary document | All repos | `phases/phase-01-explore.md` |
 | 2 | Create Root AGENTS.md | `agent-smith/` | `phases/phase-02-root-agents.md` |
 
 ### Phase Group B: Per-Repo AGENTS.md (4 phases)
@@ -158,6 +158,6 @@ Each phase follows the same workflow using the `update-codebase-summary` skill:
 
 | Skill | When |
 |-------|------|
-| `smart-explore` | All phases — explore module directory tree |
+| `smart-explore` | **All phases (1-23)** — every executor agent must load this skill before starting |
 | `update-codebase-summary` | Phases 9-21 — create/update module summaries |
 | `update-project-nav` | Phase 22 — create/update navigation map |

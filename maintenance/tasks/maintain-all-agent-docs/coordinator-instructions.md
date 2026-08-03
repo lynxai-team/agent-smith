@@ -3,7 +3,7 @@
 ## Phase Files
 | Phase Group | Phase | Module/Scope | File | Steps |
 |-------------|-------|--------------|------|-------|
-| **A: Foundation** | 1 | Explore the Project | `phases/phase-01-explore.md` | 3 |
+| **A: Foundation** | 1 | Explore the Project + produce summary | `phases/phase-01-explore.md` | 4 |
 | | 2 | Root AGENTS.md | `phases/phase-02-root-agents.md` | 4 |
 | **B: Per-Repo AGENTS.md** | 3 | `agent-smith-plugins` AGENTS.md | `phases/phase-03-agents-plugins.md` | 4 |
 | | 4 | `agent-smith-ui` AGENTS.md | `phases/phase-04-agents-ui.md` | 4 |
@@ -49,11 +49,16 @@ Phase 1 → Phase 2 → Phase 3 → ... → Phase 21 → Phase 22 → Phase 23 �
 
 ## Per-Phase Instructions
 
+### All Phases (1-23): Common Requirements
+- **Every executor agent must load the `smart-explore` skill** before starting their phase. This skill provides instructions about how to explore the codebase effectively.
+- **Every executor agent must read the exploration summary** at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md` (after Phase 1 completes) to understand the codebase faster.
+
 ### Phase 1: Explore the Project
-- Executor agent walks all repo directories
+- Walks all repo directories using the smart-explore skill
 - Identifies repos, packages, entry points, dependencies, key files
 - Documents conventions and patterns for use in subsequent phases
-- Output: Exploration notes for coordinator to share with subsequent agents
+- **Produces a summary document** at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- **All subsequent agents must read this summary document** to understand the codebase faster
 
 ### Phases 2-8: Foundation & Project-Level Docs
 - Executor agent creates documentation files following procedure templates

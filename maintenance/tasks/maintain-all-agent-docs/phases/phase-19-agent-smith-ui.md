@@ -9,6 +9,12 @@
 
 ---
 
+## Prerequisites
+- **Load the `smart-explore` skill** before starting. This skill provides instructions about how to explore the codebase effectively.
+- Read the exploration summary at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+
+---
+
 ## Phase Goal
 Update or create the codebase-summary.md for agent-smith-ui using the 7-section format.
 
