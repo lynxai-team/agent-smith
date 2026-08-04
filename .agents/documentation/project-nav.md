@@ -2,8 +2,8 @@
 
 > **Purpose**: Single-reference map for AI coding agents to understand, navigate, and modify the Agent Smith codebase.
 > **Role**: Comprehensive navigation map with dependency graph, task references, and code snippets.
-> **See also**: `.agents/documentation/decision-tree.md` to find the right doc for your task.
-> **See also**: `.agents/documentation/project-overview.md` for concise overview (~1 page).
+> **See also**: `/workspace/agent-smith/.agents/documentation/decision-tree.md` to find the right doc for your task.
+> **See also**: `/workspace/agent-smith/.agents/documentation/project-overview.md` for concise overview (~1 page).
 
 ---
 
@@ -327,30 +327,30 @@ ws.onopen = () => ws.send({ type: "agent_run", prompt: "Hello" });
 
 | Resource | Path |
 |----------|------|
-| Decision tree (find the right doc) | `.agents/documentation/decision-tree.md` |
-| Project overview (~1 page) | `.agents/documentation/project-overview.md` |
-| Root codebase summary | `.agents/documentation/codebase-summary.md` |
-| Documentation map | `.agents/documentation/documentation-map.md` |
-| Per-package: types | `packages/types/.agents/documentation/codebase-summary.md` |
-| Per-package: core | `packages/core/.agents/documentation/codebase-summary.md` |
-| Per-package: agent | `packages/agent/.agents/documentation/codebase-summary.md` |
-| Per-package: smem | `packages/smem/.agents/documentation/codebase-summary.md` |
-| Per-package: tmem | `packages/tmem/.agents/documentation/codebase-summary.md` |
-| Per-package: cli | `packages/cli/.agents/documentation/codebase-summary.md` |
-| Per-package: wscli | `packages/wscli/.agents/documentation/codebase-summary.md` |
-| UI summary | `agent-smith-ui/.agents/documentation/codebase-summary.md` |
-| UI code style | `agent-smith-ui/.agents/documentation/code_style_guidelines.md` |
-| UI CSS style | `agent-smith-ui/.agents/documentation/css-style-guide.md` |
-| Plugins summary | `agent-smith-plugins/.agents/documentation/codebase-summary.md` |
-| Apps summary | `agent-smith-apps/.agents/documentation/codebase-summary.md` |
-| Lynx Coder summary | `lynx-coder/.agents/documentation/codebase-summary.md` |
-| Go server docs | `server/go/AGENTS.md` |
-| Node server docs | `server/node/AGENTS.md` |
-| Full docsite | `agent-smith/docsite/public/doc/` (47+ docs, 6 sections) |
-| Docsite source | `agent-smith/docsite/src/` (Vue 3 app) |
-| Examples | `agent-smith/examples/` (YAML agents, JS/Python actions, library usage) |
-| Maintenance skills | `maintenance/skills/` (document-agent-smith-package, update-doc-map) |
-| Maintenance tasks | `maintenance/tasks/` (maintain-agent-docs, maintain-all-agent-docs) |
+| Decision tree (find the right doc) | `/workspace/agent-smith/.agents/documentation/decision-tree.md` |
+| Project overview (~1 page) | `/workspace/agent-smith/.agents/documentation/project-overview.md` |
+| Root codebase summary | `/workspace/agent-smith/.agents/documentation/codebase-summary.md` |
+| Documentation map | `/workspace/agent-smith/.agents/documentation/documentation-map.md` |
+| Per-package: types | `/workspace/agent-smith/packages/types/.agents/documentation/codebase-summary.md` |
+| Per-package: core | `/workspace/agent-smith/packages/core/.agents/documentation/codebase-summary.md` |
+| Per-package: agent | `/workspace/agent-smith/packages/agent/.agents/documentation/codebase-summary.md` |
+| Per-package: smem | `/workspace/agent-smith/packages/smem/.agents/documentation/codebase-summary.md` |
+| Per-package: tmem | `/workspace/agent-smith/packages/tmem/.agents/documentation/codebase-summary.md` |
+| Per-package: cli | `/workspace/agent-smith/packages/cli/.agents/documentation/codebase-summary.md` |
+| Per-package: wscli | `/workspace/agent-smith/packages/wscli/.agents/documentation/codebase-summary.md` |
+| UI summary | `/workspace/agent-smith-ui/.agents/documentation/codebase-summary.md` |
+| UI code style | `/workspace/agent-smith-ui/.agents/documentation/code_style_guidelines.md` |
+| UI CSS style | `/workspace/agent-smith-ui/.agents/documentation/css-style-guide.md` |
+| Plugins summary | `/workspace/agent-smith-plugins/.agents/documentation/codebase-summary.md` |
+| Apps summary | `/workspace/agent-smith-apps/.agents/documentation/codebase-summary.md` |
+| Lynx Coder summary | `/workspace/lynx-coder/.agents/documentation/codebase-summary.md` |
+| Go server docs | `/workspace/agent-smith/server/go/AGENTS.md` |
+| Node server docs | `/workspace/agent-smith/server/node/AGENTS.md` |
+| Full docsite | `/workspace/agent-smith/docsite/public/doc/` (47+ docs, 6 sections) |
+| Docsite source | `/workspace/agent-smith/docsite/src/` (Vue 3 app) |
+| Examples | `/workspace/agent-smith/examples/` (YAML agents, JS/Python actions, library usage) |
+| Maintenance skills | `/workspace/agent-smith/maintenance/skills/` (document-agent-smith-package, update-doc-map) |
+| Maintenance tasks | `/workspace/agent-smith/maintenance/tasks/` (maintain-agent-docs, maintain-all-agent-docs) |
 
 ---
 

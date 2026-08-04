@@ -10,14 +10,14 @@ Transient key-value memory module that wraps localForage (IndexedDB backend) wit
 - *(none currently — available for use by other packages such as cli, agent, or ui)*
 
 ## Entry Point
-- `src/main.ts` — Re-exports `Tmem` interface and `useTmem` factory function
+- `/workspace/agent-smith/packages/tmem/src/main.ts` — Re-exports `Tmem` interface and `useTmem` factory function
 
 ## Key Files
 | File | Purpose |
 |------|---------|
-| `src/main.ts` | Entry point: re-exports `Tmem` and `useTmem` |
-| `src/tmem.ts` | `useTmem<S>()` generic factory: creates a named localForage instance and returns a typed store with init/set/get/del/keys/all |
-| `src/tmeminterfaces.ts` | `Tmem<S>` interface defining the transient memory module shape |
+| `/workspace/agent-smith/packages/tmem/src/main.ts` | Entry point: re-exports `Tmem` and `useTmem` |
+| `/workspace/agent-smith/packages/tmem/src/tmem.ts` | `useTmem<S>()` generic factory: creates a named localForage instance and returns a typed store with init/set/get/del/keys/all |
+| `/workspace/agent-smith/packages/tmem/src/tmeminterfaces.ts` | `Tmem<S>` interface defining the transient memory module shape |
 
 ## Architecture
 - **Generic Factory**: `useTmem<S>()` creates a typed instance for a named store with optional initial data, using TypeScript generics to infer value types from keys.
@@ -26,5 +26,5 @@ Transient key-value memory module that wraps localForage (IndexedDB backend) wit
 - **Type-Safe Keys**: TypeScript generics constrain keys to `keyof S`, so `get("count")` returns the inferred type without explicit type parameters.
 
 ## Related
-- See `packages/smem` — complementary semantic (vector) memory; tmem handles simple key-value persistence while smem handles vector embeddings.
-- See `packages/types` — shared TypeScript types across the agent-smith monorepo.
+- See `/workspace/agent-smith/packages/smem` — complementary semantic (vector) memory; tmem handles simple key-value persistence while smem handles vector embeddings.
+- See `/workspace/agent-smith/packages/types` — shared TypeScript types across the agent-smith monorepo.

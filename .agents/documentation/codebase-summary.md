@@ -1,7 +1,7 @@
-# Agent Smith
+# Agent Smith (root)
 
 ## Summary
-Agent Smith is a TypeScript monorepo framework for building local-first AI agents that can think (LLM inference), work (tool calling), remember (semantic/transient memory), and interact (CLI/WebSocket I/O), with dual Go + Node servers and a Vue docsite.
+Agent Smith is a TypeScript monorepo framework for building local-first AI agents that can think (LLM inference), work (tool calling), remember (semantic/transient memory), and interact (CLI/WebSocket I/O), with dual Go + Node servers, a Vue docsite, and 8 interconnected packages.
 
 ## Dependencies
 - `@agent-smith/types` — shared interfaces for agents, tools, callbacks, inference, history, WebSocket protocol (leaf package)
@@ -15,6 +15,7 @@ Agent Smith is a TypeScript monorepo framework for building local-first AI agent
 - `server/node` — Koa backend exposing REST API (`/api/*`) and WebSocket (`/ws`) for remote agent execution
 - `server/go` — Echo-based Go server with HTTP, WebSocket handler, and CLI (`lm` subcommand)
 - `docsite` — Vue 3 + Vite documentation site with sidebar navigation and code examples
+- External: `better-sqlite3` (SQLite storage), `@vue/reactivity` (reactive state), `commander` (CLI), `koa` (Node server), `echo` (Go server)
 
 ## Used By
 - All packages depend transitively on `types` for shared interfaces
@@ -22,7 +23,10 @@ Agent Smith is a TypeScript monorepo framework for building local-first AI agent
 - `agent` uses `core` for config, DB access, and tool invocation
 - `server/node` and `server/go` use `core` and `types` to expose agent workflows over HTTP/WebSocket
 - `docsite` depends on `@agent-smith/smem` and `@agent-smith/tmem` for interactive memory examples
-- `examples` depends on `@agent-smith/smem`, `@agent-smith/tfm`, and `@inquirer/prompts` for demo scripts
+- `examples` depends on `@agent-smith/smem`, `@agent-smith/tmem`, and `@inquirer/prompts` for demo scripts
+- `agent-smith-ui` consumes `@agent-smith/server` and `@agent-smith/wscli` for real-time communication
+- `agent-smith-plugins` extends CLI with shell, fs, git, sqlite, search, video, and agents features
+- `lynx-coder` builds on `@agent-smith/core` for pre-built coding agents
 
 ## Entry Point
 - `packages/*/src/main.ts` — public API exports for each package
@@ -56,6 +60,9 @@ Agent Smith is a TypeScript monorepo framework for building local-first AI agent
 | `server/go/main.go` | Go Echo server with router, config, and state management |
 | `server/go/httpserver/ws_handler.go` | Go WebSocket handler for real-time agent communication |
 | `docsite/src/App.vue` | Vue docsite shell with header, sidebar, and content routing |
+| `.agents/documentation/decision-tree.md` | Quick guide to find the right documentation for any task |
+| `.agents/documentation/project-overview.md` | Concise project overview (~1 page) |
+| `.agents/documentation/project-nav.md` | Comprehensive navigation map with dependency graph |
 
 ## Architecture
 - **Feature-Based Discovery**: Agents, actions, workflows, adapters, and commands are defined as YAML/JS files on disk, auto-discovered from user directories, and registered in SQLite for fast lookup.

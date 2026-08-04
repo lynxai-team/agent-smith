@@ -4,12 +4,12 @@
 Semantic memory API for agents: stores, retrieves, and searches data using vector embeddings powered by LanceDB and Xenova transformers.
 
 ## Dependencies
-- `@lancedb/lancebd` — vector database for persistent storage and vector search
+- `@lancedb/lancedb` — vector database for persistent storage and vector search
 - `@xenova/transformers` — text embedding pipeline (`all-MiniLM-L6-v2`, 384-dim vectors)
-- `apache-arrow` — schema definition and data format for LanceDB tables
+- `apache-arrow` — schema definition and data format for LanceDB tables (dev dependency)
 
 ## Used By
-- No direct references found in workspace; designed for consumption by CLI and server packages.
+- No direct references found in workspace; designed for consumption by CLI, server, and agent packages.
 
 ## Entry Point
 - `src/main.ts` — Exports `useSmem`, `useSnode`, `SmemNodeFieldSchema`, `SmemNodeSchema`, `SmemNode`, `Smem`

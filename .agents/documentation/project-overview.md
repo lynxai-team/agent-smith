@@ -1,8 +1,8 @@
 # Agent Smith — Project Overview
 
 > **Role**: Concise "what is this" for context loading (~1 page overview).
-> **See also**: `.agents/documentation/decision-tree.md` to find the right doc for your task.
-> **See also**: `.agents/documentation/project-nav.md` for detailed navigation and task references.
+> **See also**: `/workspace/agent-smith/.agents/documentation/decision-tree.md` to find the right doc for your task.
+> **See also**: `/workspace/agent-smith/.agents/documentation/project-nav.md` for detailed navigation and task references.
 
 ---
 
@@ -26,7 +26,7 @@ Agent Smith is a **local-first AI agent framework** that enables thinking (LLM i
 
 | Repo | Path | Purpose |
 |------|------|---------|
-| `agent-smith` | `/workspace/agent-smith/` | Runtime packages (7), Node.js/Koa server, Go server, docsite, examples |
+| `agent-smith` | `/workspace/agent-smith/` | Runtime packages (8), Node.js/Koa server, Go server, docsite, examples |
 | `agent-smith-plugins` | `/workspace/agent-smith-plugins/` | Feature plugins: agents, git, sqlite, fs, shell, search, video |
 | `agent-smith-ui` | `/workspace/agent-smith-ui/` | Vue 3 + PrimeVue web dashboard for agent management |
 | `agent-smith-apps` | `/workspace/agent-smith-apps/` | Dashboard extensions (debate app with multi-agent coordination) |
@@ -134,15 +134,14 @@ const result = await agent.run("Hello, explain quantum computing", {
 
 | Resource | Path |
 |----------|------|
-| Decision tree (find the right doc) | `.agents/documentation/decision-tree.md` |
-| Navigation map (detailed) | `.agents/documentation/project-nav.md` |
-| Root codebase summary | `agent-smith/.agents/documentation/codebase-summary.md` |
-| Per-package summaries | `agent-smith/packages/<pkg>/.agents/documentation/codebase-summary.md` (7 packages) |
-| UI summary | `agent-smith-ui/.agents/documentation/codebase-summary.md` |
-| Plugins summary | `agent-smith-plugins/.agents/documentation/codebase-summary.md` |
-| Apps summary | `agent-smith-apps/.agents/documentation/codebase-summary.md` |
-| Lynx Coder summary | `lynx-coder/.agents/documentation/codebase-summary.md` |
-| Full docsite | `agent-smith/docsite/public/doc/` (47+ files) |
-| Examples | `agent-smith/examples/` (YAML agents, JS/Python actions, library usage) |
-
-→ See `AGENTS.md` for full conventions summary.
+| Decision tree (find the right doc) | `/workspace/agent-smith/.agents/documentation/decision-tree.md` |
+| Navigation map (detailed) | `/workspace/agent-smith/.agents/documentation/project-nav.md` |
+| Root codebase summary | `/workspace/agent-smith/.agents/documentation/codebase-summary.md` |
+| Per-package summaries | `/workspace/agent-smith/packages/<pkg>/.agents/documentation/codebase-summary.md` (8 packages) |
+| UI summary | `/workspace/agent-smith-ui/.agents/documentation/codebase-summary.md` |
+| Plugins summary | `/workspace/agent-smith-plugins/.agents/documentation/codebase-summary.md` |
+| Apps summary | `/workspace/agent-smith-apps/.agents/documentation/codebase-summary.md` |
+| Lynx Coder summary | `/workspace/lynx-coder/.agents/documentation/codebase-summary.md` |
+| Full docsite | `/workspace/agent-smith/docsite/public/doc/` (47+ files) |
+| Examples | `/workspace/agent-smith/examples/` (YAML agents, JS/Python actions, library usage) |
+| Conventions | `/workspace/agent-smith/AGENTS.md` |

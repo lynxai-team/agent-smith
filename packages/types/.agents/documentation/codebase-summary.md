@@ -5,7 +5,8 @@ Pure TypeScript type definitions library shared across all Agent Smith packages.
 
 ## Dependencies
 - None (leaf package; all other packages depend on this one).
-- External (devDependencies): `openai` (for `ChatCompletionRole`, `ChatCompletionMessageToolCall`, `ChatCompletionContentPart` types), `restmix` (for `useApi` return type), `vue-reactivity` (for `Ref<T>`, `ShallowReactive<T>` reactive types).
+- External (dependencies): `openai` (^6.49.0) for `ChatCompletionRole`, `ChatCompletionMessageToolCall`, `ChatCompletionContentPart` types; `vue-reactivity` (^1.0.3) for `Ref<T>`, `ShallowReactive<T>` reactive types.
+- External (devDependencies): `restmix` (^0.6.1) for `useApi` return type; `typescript` (^7.0.2); `vue` (3.5.40).
 
 ## Used By
 - Every other `@agent-smith/*` package and the `server`.
@@ -62,7 +63,7 @@ verbosity.ts → standalone
 ```
 
 ## Related
-- See `packages/core` — uses types for DB schema definitions and feature specs.
-- See `packages/agent` — uses `AgentParams`, `ToolSpec`, `HistoryTurn` for the inference loop.
-- See `packages/cli` — uses `Settings`, `InputMode`, `OutputMode`, `RunMode` for CLI configuration.
-- See `server` — uses `WsRawServerMsg` / `WsClientMsg` for WebSocket protocol.
+- See `/workspace/agent-smith/packages/core` — uses types for DB schema definitions and feature specs.
+- See `/workspace/agent-smith/packages/agent` — uses `AgentParams`, `ToolSpec`, `HistoryTurn` for the inference loop.
+- See `/workspace/agent-smith/packages/cli` — uses `Settings`, `InputMode`, `OutputMode`, `RunMode` for CLI configuration.
+- See `/workspace/agent-smith/server` — uses `WsRawServerMsg` / `WsClientMsg` for WebSocket protocol.
