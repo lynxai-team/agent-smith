@@ -13,37 +13,37 @@ Create or update all AI agent navigation documentation files across the entire A
 ### Project Root (`/workspace/agent-smith/`)
 | File | Purpose |
 |------|---------|
-| `AGENTS.md` | Project index with mission, conventions, quick start, doc links |
-| `.agents/documentation/decision-tree.md` | Quick guide: find the right doc for your task |
-| `.agents/documentation/project-overview.md` | Concise project overview (~1 page) |
-| `.agents/documentation/codebase-summary.md` | Root codebase summary (7 sections + Documentation) |
-| `.agents/documentation/project-nav.md` | Comprehensive navigation map |
+| `/workspace/agent-smith/AGENTS.md` | Project index with mission, conventions, quick start, doc links |
+| `/workspace/agent-smith/.agents/documentation/decision-tree.md` | Quick guide: find the right doc for your task |
+| `/workspace/agent-smith/.agents/documentation/project-overview.md` | Concise project overview (~1 page) |
+| `/workspace/agent-smith/.agents/documentation/codebase-summary.md` | Root codebase summary (7 sections + Documentation) |
+| `/workspace/agent-smith/.agents/documentation/project-nav.md` | Comprehensive navigation map |
 
 ### Per-Repo AGENTS.md (Multi-Repo Only)
 | Repo | Path | File |
 |------|------|------|
 | `agent-smith` | `/workspace/agent-smith/` | Already covered by root AGENTS.md |
-| `agent-smith-plugins` | `/workspace/agent-smith-plugins/` | `AGENTS.md` |
-| `agent-smith-ui` | `/workspace/agent-smith-ui/` | `AGENTS.md` |
-| `agent-smith-apps` | `/workspace/agent-smith-apps/` | `AGENTS.md` |
-| `lynx-coder` | `/workspace/lynx-coder/` | `AGENTS.md` |
+| `agent-smith-plugins` | `/workspace/agent-smith-plugins/` | `/workspace/agent-smith-plugins/AGENTS.md` |
+| `agent-smith-ui` | `/workspace/agent-smith-ui/` | `/workspace/agent-smith-ui/AGENTS.md` |
+| `agent-smith-apps` | `/workspace/agent-smith-apps/` | `/workspace/agent-smith-apps/AGENTS.md` |
+| `lynx-coder` | `/workspace/lynx-coder/` | `/workspace/lynx-coder/AGENTS.md` |
 
 ### codebase-summary.md (Every Repo/Module)
 | # | Module | Path | Summary File |
 |---|--------|------|-------------|
-| 1 | `agent-smith` (root) | `/workspace/agent-smith/` | `.agents/documentation/codebase-summary.md` |
-| 2 | `@agent-smith/types` | `agent-smith/packages/types/` | `packages/types/.agents/documentation/codebase-summary.md` |
-| 3 | `@agent-smith/core` | `agent-smith/packages/core/` | `packages/core/.agents/documentation/codebase-summary.md` |
-| 4 | `@agent-smith/agent` | `agent-smith/packages/agent/` | `packages/agent/.agents/documentation/codebase-summary.md` |
-| 5 | `@agent-smith/smem` | `agent-smith/packages/smem/` | `packages/smem/.agents/documentation/codebase-summary.md` |
-| 6 | `@agent-smith/tmem` | `agent-smith/packages/tmem/` | `packages/tmem/.agents/documentation/codebase-summary.md` |
-| 7 | `@agent-smith/cli` | `agent-smith/packages/cli/` | `packages/cli/.agents/documentation/codebase-summary.md` |
-| 8 | `@agent-smith/wscli` | `agent-smith/packages/wscli/` | `packages/wscli/.agents/documentation/codebase-summary.md` |
-| 9 | `server` | `agent-smith/server/` | `server/.agents/documentation/codebase-summary.md` |
-| 10 | `agent-smith-plugins` | `/workspace/agent-smith-plugins/` | `.agents/documentation/codebase-summary.md` |
-| 11 | `agent-smith-ui` | `/workspace/agent-smith-ui/` | `.agents/documentation/codebase-summary.md` |
-| 12 | `agent-smith-apps` | `/workspace/agent-smith-apps/` | `.agents/documentation/codebase-summary.md` |
-| 13 | `lynx-coder` | `/workspace/lynx-coder/` | `.agents/documentation/codebase-summary.md` |
+| 1 | `agent-smith` (root) | `/workspace/agent-smith/` | `/workspace/agent-smith/.agents/documentation/codebase-summary.md` |
+| 2 | `@agent-smith/types` | `/workspace/agent-smith/packages/types/` | `/workspace/agent-smith/packages/types/.agents/documentation/codebase-summary.md` |
+| 3 | `@agent-smith/core` | `/workspace/agent-smith/packages/core/` | `/workspace/agent-smith/packages/core/.agents/documentation/codebase-summary.md` |
+| 4 | `@agent-smith/agent` | `/workspace/agent-smith/packages/agent/` | `/workspace/agent-smith/packages/agent/.agents/documentation/codebase-summary.md` |
+| 5 | `@agent-smith/smem` | `/workspace/agent-smith/packages/smem/` | `/workspace/agent-smith/packages/smem/.agents/documentation/codebase-summary.md` |
+| 6 | `@agent-smith/tmem` | `/workspace/agent-smith/packages/tmem/` | `/workspace/agent-smith/packages/tmem/.agents/documentation/codebase-summary.md` |
+| 7 | `@agent-smith/cli` | `/workspace/agent-smith/packages/cli/` | `/workspace/agent-smith/packages/cli/.agents/documentation/codebase-summary.md` |
+| 8 | `@agent-smith/wscli` | `/workspace/agent-smith/packages/wscli/` | `/workspace/agent-smith/packages/wscli/.agents/documentation/codebase-summary.md` |
+| 9 | `server` | `/workspace/agent-smith/server/` | `/workspace/agent-smith/server/.agents/documentation/codebase-summary.md` |
+| 10 | `agent-smith-plugins` | `/workspace/agent-smith-plugins/` | `/workspace/agent-smith-plugins/.agents/documentation/codebase-summary.md` |
+| 11 | `agent-smith-ui` | `/workspace/agent-smith-ui/` | `/workspace/agent-smith-ui/.agents/documentation/codebase-summary.md` |
+| 12 | `agent-smith-apps` | `/workspace/agent-smith-apps/` | `/workspace/agent-smith-apps/.agents/documentation/codebase-summary.md` |
+| 13 | `lynx-coder` | `/workspace/lynx-coder/` | `/workspace/lynx-coder/.agents/documentation/codebase-summary.md` |
 
 ## Success Criteria
 

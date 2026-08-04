@@ -13,6 +13,7 @@ Walk the directory tree across all repos, identify structure, conventions, and p
 ---
 
 ## Prerequisites
+- **Load the `execute-task-phase` skill** before proceeding. This skill defines the behavioral contract for executor agents running an assigned phase.
 - **Load the `smart-explore` skill** before starting exploration. This skill provides instructions about how to explore the codebase effectively.
 
 ---
@@ -53,7 +54,7 @@ Walk the directory tree across all repos, identify structure, conventions, and p
 
 ### Step 1.4: Produce Summary Document
 **Execution Plan:**
-- Create a comprehensive summary document at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- Create a comprehensive summary document at `/workspace/.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
 - The summary must include:
   - Repository map with paths and purposes
   - Package/module dependency graph
@@ -62,6 +63,11 @@ Walk the directory tree across all repos, identify structure, conventions, and p
   - Notes on recent changes (from git history)
 - **This document will be used by all subsequent agents** to understand the codebase faster. Ensure it is clear, well-structured, and information-dense.
 **Success Criteria:**
-- [ ] Summary document created at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- [ ] Summary document created at `/workspace/.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
 - [ ] Document covers all 5 repos and 13 modules
 - [ ] Document is structured for quick reference by other agents
+
+---
+
+## Reporting
+At the end of this phase, report all files created or modified. Include the full absolute path (starting with `/workspace`) for each file.

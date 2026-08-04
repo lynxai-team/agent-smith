@@ -11,29 +11,29 @@
 ## Phase Files
 | Phase Group | Phase | Module/Scope | File | Steps |
 |-------------|-------|--------------|------|-------|
-| **A: Foundation** | 1 | Explore the Project + produce summary | `phases/phase-01-explore.md` | 4 |
-| | 2 | Root AGENTS.md | `phases/phase-02-root-agents.md` | 4 |
-| **B: Per-Repo AGENTS.md** | 3 | `agent-smith-plugins` AGENTS.md | `phases/phase-03-agents-plugins.md` | 4 |
-| | 4 | `agent-smith-ui` AGENTS.md | `phases/phase-04-agents-ui.md` | 4 |
-| | 5 | `agent-smith-apps` AGENTS.md | `phases/phase-05-agents-apps.md` | 4 |
-| | 6 | `lynx-coder` AGENTS.md | `phases/phase-06-agents-lynx.md` | 4 |
-| **C: Project-Level Docs** | 7 | `decision-tree.md` | `phases/phase-07-decision-tree.md` | 4 |
-| | 8 | `project-overview.md` | `phases/phase-08-project-overview.md` | 4 |
-| **D: codebase-summary.md** | 9 | `@agent-smith/types` | `phases/phase-09-types.md` | 5 |
-| | 10 | `@agent-smith/core` | `phases/phase-10-core.md` | 5 |
-| | 11 | `@agent-smith/agent` | `phases/phase-11-agent.md` | 5 |
-| | 12 | `@agent-smith/smem` | `phases/phase-12-smem.md` | 5 |
-| | 13 | `@agent-smith/tmem` | `phases/phase-13-tmem.md` | 5 |
-| | 14 | `@agent-smith/cli` | `phases/phase-14-cli.md` | 5 |
-| | 15 | `@agent-smith/wscli` | `phases/phase-15-wscli.md` | 5 |
-| | 16 | `server` | `phases/phase-16-server.md` | 5 |
-| | 17 | `agent-smith` (root) | `phases/phase-17-agent-smith-root.md` | 5 |
-| | 18 | `agent-smith-plugins` | `phases/phase-18-plugins.md` | 5 |
-| | 19 | `agent-smith-ui` | `phases/phase-19-ui.md` | 5 |
-| | 20 | `agent-smith-apps` | `phases/phase-20-apps.md` | 5 |
-| | 21 | `lynx-coder` | `phases/phase-21-lynx-coder.md` | 5 |
-| **E: Navigation & Verify** | 22 | `project-nav.md` | `phases/phase-22-project-nav.md` | 4 |
-| | 23 | Cross-reference verification | `phases/phase-23-cross-reference.md` | 3 |
+| **A: Foundation** | 1 | Explore the Project + produce summary | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-01-explore.md` | 4 |
+| | 2 | Root AGENTS.md | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-02-root-agents.md` | 4 |
+| **B: Per-Repo AGENTS.md** | 3 | `agent-smith-plugins` AGENTS.md | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-03-agents-plugins.md` | 4 |
+| | 4 | `agent-smith-ui` AGENTS.md | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-04-agents-ui.md` | 4 |
+| | 5 | `agent-smith-apps` AGENTS.md | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-05-agents-apps.md` | 4 |
+| | 6 | `lynx-coder` AGENTS.md | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-06-agents-lynx.md` | 4 |
+| **C: Project-Level Docs** | 7 | `decision-tree.md` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-07-decision-tree.md` | 4 |
+| | 8 | `project-overview.md` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-08-project-overview.md` | 4 |
+| **D: codebase-summary.md** | 9 | `@agent-smith/types` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-09-types.md` | 5 |
+| | 10 | `@agent-smith/core` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-10-core.md` | 5 |
+| | 11 | `@agent-smith/agent` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-11-agent.md` | 5 |
+| | 12 | `@agent-smith/smem` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-12-smem.md` | 5 |
+| | 13 | `@agent-smith/tmem` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-13-tmem.md` | 5 |
+| | 14 | `@agent-smith/cli` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-14-cli.md` | 5 |
+| | 15 | `@agent-smith/wscli` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-15-wscli.md` | 5 |
+| | 16 | `server` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-16-server.md` | 5 |
+| | 17 | `agent-smith` (root) | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-17-agent-smith-root.md` | 5 |
+| | 18 | `agent-smith-plugins` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-18-plugins.md` | 5 |
+| | 19 | `agent-smith-ui` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-19-ui.md` | 5 |
+| | 20 | `agent-smith-apps` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-20-apps.md` | 5 |
+| | 21 | `lynx-coder` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-21-lynx-coder.md` | 5 |
+| **E: Navigation & Verify** | 22 | `project-nav.md` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-22-project-nav.md` | 4 |
+| | 23 | Cross-reference verification | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-23-cross-reference.md` | 3 |
 
 ## Progress
 
@@ -42,7 +42,7 @@
   - [ ] Step 1.1: Walk directory tree across all repos
   - [ ] Step 1.2: Identify repos, packages, entry points, dependencies
   - [ ] Step 1.3: Document key conventions and patterns
-  - [ ] Step 1.4: Produce summary document at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+  - [ ] Step 1.4: Produce summary document at `/workspace/.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
 
 - [ ] Phase 2: Create Root AGENTS.md
   - [ ] Step 2.1: Read existing AGENTS.md (if exists)
@@ -196,6 +196,7 @@
 
 | Skill | When |
 |-------|------|
+| `execute-task-phase` | **All phases (1-23)** — every executor agent must load this skill before proceeding |
 | `smart-explore` | **All phases (1-23)** — every executor agent must load this skill before starting |
 | `update-codebase-summary` | Phases 9-21 — create/update module summaries |
 | `update-project-nav` | Phase 22 — create/update navigation map |
@@ -206,3 +207,4 @@
 - Each phase must complete before moving to the next
 - Phase 22 depends on all phases 1-21 being complete
 - Phase 23 depends on Phase 22 being complete
+- **All agents must report created files**: At the end of each phase, every executor agent must report what files it created or modified, using absolute paths starting with `/workspace`

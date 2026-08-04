@@ -4,14 +4,15 @@
 - **Task ID:** maintain-all-agent-docs
 - **Repo:** `agent-smith-plugins` — Plugin system for Agent Smith
 - **Path:** `/workspace/agent-smith-plugins/`
-- **Target File:** `agent-smith-plugins/AGENTS.md`
+- **Target File:** `/workspace/agent-smith-plugins/AGENTS.md`
 - **Prerequisites:** Phase 1 (Explore) complete
 
 ---
 
 ## Prerequisites
+- **Load the `execute-task-phase` skill** before proceeding. This skill defines the behavioral contract for executor agents running an assigned phase.
 - **Load the `smart-explore` skill** before starting. This skill provides instructions about how to explore the codebase effectively.
-- Read the exploration summary at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- Read the exploration summary at `/workspace/.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
 
 ---
 
@@ -22,7 +23,7 @@ Create or update the per-repo AGENTS.md for agent-smith-plugins following the pr
 
 ### Step 3.1: Explore Repo Structure
 **Execution Plan:**
-- Walk `agent-smith-plugins/` directory tree
+- Walk `/workspace/agent-smith-plugins/` directory tree
 - Identify key directories (categories, plugins)
 - Note repo-specific conventions
 **Success Criteria:**
@@ -73,6 +74,11 @@ Write using this exact structure:
 - Verify structure table lists key directories
 - Verify conventions include repo-specific patterns
 - Verify Quick Start references local codebase-summary.md first
-- Verify Documentation links back to root `../../AGENTS.md`
+- Verify Documentation links back to root `/workspace/agent-smith/AGENTS.md`
 **Success Criteria:**
 - [ ] All success criteria met
+
+---
+
+## Reporting
+At the end of this phase, report all files created or modified. Include the full absolute path (starting with `/workspace`) for each file.

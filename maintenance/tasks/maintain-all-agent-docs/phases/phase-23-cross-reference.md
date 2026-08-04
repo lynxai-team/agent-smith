@@ -8,8 +8,9 @@
 ---
 
 ## Prerequisites
+- **Load the `execute-task-phase` skill** before proceeding. This skill defines the behavioral contract for executor agents running an assigned phase.
 - **Load the `smart-explore` skill** before starting. This skill provides instructions about how to explore the codebase effectively.
-- Read the exploration summary at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- Read the exploration summary at `/workspace/.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
 
 ---
 
@@ -53,7 +54,6 @@ expected_files = {
     "cs_cli": "/workspace/agent-smith/packages/cli/.agents/documentation/codebase-summary.md",
     "cs_wscli": "/workspace/agent-smith/packages/wscli/.agents/documentation/codebase-summary.md",
     "cs_server_node": "/workspace/agent-smith/server/node/.agents/documentation/codebase-summary.md",
-    "cs_server_go": "/workspace/agent-smith/server/go/.agents/documentation/codebase-summary.md",
     "cs_plugins": "/workspace/agent-smith-plugins/.agents/documentation/codebase-summary.md",
     "cs_ui": "/workspace/agent-smith-ui/.agents/documentation/codebase-summary.md",
     "cs_apps": "/workspace/agent-smith-apps/.agents/documentation/codebase-summary.md",
@@ -115,8 +115,8 @@ Instead of reading all 26 files, read only the "header/summary" portions of each
    - Repository table definitions
 
 **Files to Spot-Check (read full content):**
-- Root `AGENTS.md` vs per-repo `AGENTS.md` — ensure per-repo files don't repeat root conventions
-- `project-nav.md` vs `project-overview.md` — ensure overview is concise, nav is comprehensive
+- Root `/workspace/agent-smith/AGENTS.md` vs per-repo `AGENTS.md` — ensure per-repo files don't repeat root conventions
+- `/workspace/agent-smith/.agents/documentation/project-nav.md` vs `/workspace/agent-smith/.agents/documentation/project-overview.md` — ensure overview is concise, nav is comprehensive
 - Each `codebase-summary.md` — ensure technical details aren't duplicated in AGENTS.md
 
 **Success Criteria:**
@@ -132,16 +132,16 @@ Instead of reading all 26 files, read only the "header/summary" portions of each
 **Execution Plan:**
 Instead of checking every reference, verify the key cross-reference patterns:
 
-1. **Root AGENTS.md** — verify it links to: decision-tree.md, project-overview.md, project-nav.md, codebase-summary.md, per-repo AGENTS.md
-2. **Per-repo AGENTS.md** — verify each links to its local codebase-summary.md and back to root `../../AGENTS.md`
-3. **decision-tree.md** — verify it references all doc files and ends with link to root AGENTS.md
+1. **Root `/workspace/agent-smith/AGENTS.md`** — verify it links to: decision-tree.md, project-overview.md, project-nav.md, codebase-summary.md, per-repo AGENTS.md (all using absolute paths)
+2. **Per-repo AGENTS.md** — verify each links to its local codebase-summary.md and back to root `/workspace/agent-smith/AGENTS.md`
+3. **`/workspace/agent-smith/.agents/documentation/decision-tree.md`** — verify it references all doc files and ends with link to root `/workspace/agent-smith/AGENTS.md`
 
 **Method:** Read these 6 key files (root AGENTS.md + 4 per-repo AGENTS.md + decision-tree.md) and verify the expected links are present.
 
 **Success Criteria:**
-- [ ] Root AGENTS.md has all expected navigation links
-- [ ] Per-repo AGENTS.md files link to local codebase-summary.md
-- [ ] decision-tree.md references all documentation files
+- [ ] Root `/workspace/agent-smith/AGENTS.md` has all expected navigation links with absolute paths
+- [ ] Per-repo AGENTS.md files link to local codebase-summary.md using absolute paths
+- [ ] `/workspace/agent-smith/.agents/documentation/decision-tree.md` references all documentation files with absolute paths
 
 ---
 
@@ -149,16 +149,21 @@ Instead of checking every reference, verify the key cross-reference patterns:
 
 **Execution Plan:**
 Read the complete content of 3 representative files to assess quality:
-1. One root-level doc (e.g., `decision-tree.md`)
-2. One codebase-summary.md (e.g., `core/.agents/documentation/codebase-summary.md`)
-3. One per-repo AGENTS.md (e.g., `agent-smith-plugins/AGENTS.md`)
+1. One root-level doc (e.g., `/workspace/agent-smith/.agents/documentation/decision-tree.md`)
+2. One codebase-summary.md (e.g., `/workspace/agent-smith/packages/core/.agents/documentation/codebase-summary.md`)
+3. One per-repo AGENTS.md (e.g., `/workspace/agent-smith-plugins/AGENTS.md`)
 
 **Quality Criteria:**
 - Information-dense: tables, bullets, one-line descriptions
 - No verbose explanations or filler content
-- Paths are correct and consistent
+- All paths are absolute (starting with `/workspace`) and consistent
 - Format follows templates exactly
 
 **Success Criteria:**
 - [ ] Sampled files are concise, accurate, and actionable
 - [ ] All success criteria from goals.md are met
+
+---
+
+## Reporting
+At the end of this phase, report all files created or modified. Include the full absolute path (starting with `/workspace`) for each file.

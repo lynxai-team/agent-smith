@@ -4,14 +4,15 @@
 - **Task ID:** maintain-all-agent-docs
 - **Module:** `@agent-smith/types` — Shared interfaces (leaf package)
 - **Path:** `/workspace/agent-smith/packages/types/`
-- **Target File:** `agent-smith/packages/types/.agents/documentation/codebase-summary.md`
+- **Target File:** `/workspace/agent-smith/packages/types/.agents/documentation/codebase-summary.md`
 - **Prerequisites:** Phases 1-8 complete
 
 ---
 
 ## Prerequisites
+- **Load the `execute-task-phase` skill** before proceeding. This skill defines the behavioral contract for executor agents running an assigned phase.
 - **Load the `smart-explore` skill** before starting. This skill provides instructions about how to explore the codebase effectively.
-- Read the exploration summary at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- Read the exploration summary at `/workspace/.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
 
 ---
 
@@ -33,7 +34,7 @@ Update or create the codebase-summary.md for the types package using the 7-secti
 
 ### Step 9.1: Explore Directory Structure
 **Execution Plan:**
-- Use the `smart-explore` skill to walk `agent-smith/packages/types/` directory tree
+- Use the `smart-explore` skill to walk `/workspace/agent-smith/packages/types/` directory tree
 - Prioritize files identified as changed in Step 9.0 (git diff)
 - Identify entry points (`src/main.ts`, etc.)
 - List all type definition files in `src/`
@@ -42,7 +43,7 @@ Update or create the codebase-summary.md for the types package using the 7-secti
 
 ### Step 9.2: Check Existing Documentation
 **Execution Plan:**
-- Read existing `packages/types/.agents/documentation/codebase-summary.md` (if exists)
+- Read existing `/workspace/agent-smith/packages/types/.agents/documentation/codebase-summary.md` (if exists)
 - Note what's missing or outdated
 **Success Criteria:**
 - [ ] Current state of documentation assessed
@@ -64,6 +65,11 @@ Load the `update-codebase-summary` skill and write using 7-section format:
 ### Step 9.4: Verify
 **Execution Plan:**
 - Verify file format matches template
-- Verify all cross-references are valid
+- Verify all cross-references use absolute paths (starting with `/workspace`)
 **Success Criteria:**
 - [ ] Documentation is accurate and complete
+
+---
+
+## Reporting
+At the end of this phase, report all files created or modified. Include the full absolute path (starting with `/workspace`) for each file.

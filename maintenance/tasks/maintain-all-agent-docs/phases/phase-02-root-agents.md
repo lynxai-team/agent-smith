@@ -4,14 +4,15 @@
 - **Task ID:** maintain-all-agent-docs
 - **Module:** Agent Smith project root
 - **Path:** `/workspace/agent-smith/`
-- **Target File:** `agent-smith/AGENTS.md`
+- **Target File:** `/workspace/agent-smith/AGENTS.md`
 - **Prerequisites:** Phase 1 (Explore) complete — read exploration notes
 
 ---
 
 ## Prerequisites
+- **Load the `execute-task-phase` skill** before proceeding. This skill defines the behavioral contract for executor agents running an assigned phase.
 - **Load the `smart-explore` skill** before starting. This skill provides instructions about how to explore the codebase effectively.
-- Read the exploration summary at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- Read the exploration summary at `/workspace/.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
 
 ---
 
@@ -22,7 +23,7 @@ Create or update the root AGENTS.md following the procedure's exact template.
 
 ### Step 2.1: Read Existing AGENTS.md
 **Execution Plan:**
-- Read existing `agent-smith/AGENTS.md` (if exists)
+- Read existing `/workspace/agent-smith/AGENTS.md` (if exists)
 - Note what's missing or outdated
 **Success Criteria:**
 - [ ] Current state of documentation assessed
@@ -85,3 +86,8 @@ Write using this exact structure:
 - Verify Documentation section lists all doc files
 **Success Criteria:**
 - [ ] All success criteria met
+
+---
+
+## Reporting
+At the end of this phase, report all files created or modified. Include the full absolute path (starting with `/workspace`) for each file.

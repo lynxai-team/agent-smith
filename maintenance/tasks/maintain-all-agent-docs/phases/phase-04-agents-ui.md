@@ -4,14 +4,15 @@
 - **Task ID:** maintain-all-agent-docs
 - **Repo:** `agent-smith-ui` — UI for Agent Smith
 - **Path:** `/workspace/agent-smith-ui/`
-- **Target File:** `agent-smith-ui/AGENTS.md`
+- **Target File:** `/workspace/agent-smith-ui/AGENTS.md`
 - **Prerequisites:** Phase 1 (Explore) complete
 
 ---
 
 ## Prerequisites
+- **Load the `execute-task-phase` skill** before proceeding. This skill defines the behavioral contract for executor agents running an assigned phase.
 - **Load the `smart-explore` skill** before starting. This skill provides instructions about how to explore the codebase effectively.
-- Read the exploration summary at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- Read the exploration summary at `/workspace/.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
 
 ---
 
@@ -22,7 +23,7 @@ Create or update the per-repo AGENTS.md for agent-smith-ui following the procedu
 
 ### Step 4.1: Explore Repo Structure
 **Execution Plan:**
-- Walk `agent-smith-ui/` directory tree
+- Walk `/workspace/agent-smith-ui/` directory tree
 - Identify key directories (src, components, pages)
 - Note repo-specific conventions
 **Success Criteria:**
@@ -54,6 +55,11 @@ Write using the per-repo AGENTS.md template from the procedure:
 - Verify structure table lists key directories
 - Verify conventions include repo-specific patterns
 - Verify Quick Start references local codebase-summary.md first
-- Verify Documentation links back to root `../../AGENTS.md`
+- Verify Documentation links back to root `/workspace/agent-smith/AGENTS.md`
 **Success Criteria:**
 - [ ] All success criteria met
+
+---
+
+## Reporting
+At the end of this phase, report all files created or modified. Include the full absolute path (starting with `/workspace`) for each file.

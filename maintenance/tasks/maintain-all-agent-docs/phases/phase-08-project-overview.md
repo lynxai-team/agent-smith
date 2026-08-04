@@ -4,14 +4,15 @@
 - **Task ID:** maintain-all-agent-docs
 - **Scope:** Project root documentation
 - **Path:** `/workspace/agent-smith/`
-- **Target File:** `agent-smith/.agents/documentation/project-overview.md`
+- **Target File:** `/workspace/agent-smith/.agents/documentation/project-overview.md`
 - **Prerequisites:** Phases 1-7 complete
 
 ---
 
 ## Prerequisites
+- **Load the `execute-task-phase` skill** before proceeding. This skill defines the behavioral contract for executor agents running an assigned phase.
 - **Load the `smart-explore` skill** before starting. This skill provides instructions about how to explore the codebase effectively.
-- Read the exploration summary at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- Read the exploration summary at `/workspace/.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
 
 ---
 
@@ -22,7 +23,7 @@ Create or update project-overview.md following the procedure's exact template (~
 
 ### Step 8.1: Read Existing project-overview.md
 **Execution Plan:**
-- Read existing `.agents/documentation/project-overview.md` (if exists)
+- Read existing `/workspace/agent-smith/.agents/documentation/project-overview.md` (if exists)
 - Note what's missing or outdated
 **Success Criteria:**
 - [ ] Current state of documentation assessed
@@ -41,13 +42,13 @@ Create or update project-overview.md following the procedure's exact template (~
 
 ### Step 8.3: Write project-overview.md
 **Execution Plan:**
-Write using this exact structure:
+Write using this exact structure (use absolute paths starting with `/workspace`):
 ```markdown
 # Agent Smith — Project Overview
 
 > **Role**: Concise "what is this" for context loading (~1 page overview).
-> **See also**: `.agents/documentation/decision-tree.md` to find the right doc for your task.
-> **See also**: `.agents/documentation/project-nav.md` for detailed navigation and task references.
+> **See also**: `/workspace/agent-smith/.agents/documentation/decision-tree.md` to find the right doc for your task.
+> **See also**: `/workspace/agent-smith/.agents/documentation/project-nav.md` for detailed navigation and task references.
 
 ---
 
@@ -69,7 +70,7 @@ Write using this exact structure:
 
 ---
 
-## Runtime Packages (`agent-smith/packages/`)
+## Runtime Packages (`/workspace/agent-smith/packages/`)
 | Package | Purpose |
 |---------|---------|
 ...
@@ -108,10 +109,15 @@ Write using this exact structure:
 
 ### Step 8.4: Verify
 **Execution Plan:**
-- Verify header notes reference decision-tree.md and project-nav.md
+- Verify header notes reference `/workspace/agent-smith/.agents/documentation/decision-tree.md` and `/workspace/agent-smith/.agents/documentation/project-nav.md`
 - Verify core capabilities are current
 - Verify repository structure table complete
 - Verify code snippets showing typical usage patterns
-- Verify documentation links table at end
+- Verify documentation links table at end uses absolute paths
 **Success Criteria:**
 - [ ] All success criteria met
+
+---
+
+## Reporting
+At the end of this phase, report all files created or modified. Include the full absolute path (starting with `/workspace`) for each file.

@@ -4,14 +4,15 @@
 - **Task ID:** maintain-all-agent-docs
 - **Module:** `agent-smith-apps` — Applications — debate app and others
 - **Path:** `/workspace/agent-smith-apps/`
-- **Target File:** `agent-smith-apps/.agents/documentation/codebase-summary.md`
+- **Target File:** `/workspace/agent-smith-apps/.agents/documentation/codebase-summary.md`
 - **Prerequisites:** Phases 1-19 complete
 
 ---
 
 ## Prerequisites
+- **Load the `execute-task-phase` skill** before proceeding. This skill defines the behavioral contract for executor agents running an assigned phase.
 - **Load the `smart-explore` skill** before starting. This skill provides instructions about how to explore the codebase effectively.
-- Read the exploration summary at `.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
+- Read the exploration summary at `/workspace/.agents/tasks/maintain-all-agent-docs/documents/project-exploration-summary.md`
 
 ---
 
@@ -23,8 +24,8 @@ Update or create the codebase-summary.md for agent-smith-apps using the 7-sectio
 ### Step 20.0: Check Recent Changes (Git)
 **Execution Plan:**
 - cd into `/workspace/agent-smith-apps` (the repo containing this module)
-- Run `git log --oneline -10 -- agent-smith-apps` to see recent commits
-- Run `git diff HEAD~10 -- agent-smith-apps/src/` to identify code changes
+- Run `git log --oneline -10 -- .` to see recent commits
+- Run `git diff HEAD~10 -- src/` to identify code changes
 - Focus exploration on modified files identified in the diff
 **Success Criteria:**
 - [ ] Correct repo directory (`/workspace/agent-smith-apps`) cd'd into
@@ -33,7 +34,7 @@ Update or create the codebase-summary.md for agent-smith-apps using the 7-sectio
 
 ### Step 20.1: Explore Directory Structure
 **Execution Plan:**
-- Use the `smart-explore` skill to walk `agent-smith-apps` directory tree
+- Use the `smart-explore` skill to walk `/workspace/agent-smith-apps` directory tree
 - Prioritize files identified as changed in Step 20.0 (git diff)
 - Identify entry points, key files, dependencies
 **Success Criteria:**
@@ -41,7 +42,7 @@ Update or create the codebase-summary.md for agent-smith-apps using the 7-sectio
 
 ### Step 20.2: Check Existing Documentation
 **Execution Plan:**
-- Read existing `agent-smith-apps/.agents/documentation/codebase-summary.md` (if exists)
+- Read existing `/workspace/agent-smith-apps/.agents/documentation/codebase-summary.md` (if exists)
 - Note what's missing or outdated
 **Success Criteria:**
 - [ ] Current state of documentation assessed
@@ -63,6 +64,11 @@ Load the `update-codebase-summary` skill and write using 7-section format:
 ### Step 20.4: Verify
 **Execution Plan:**
 - Verify file format matches template
-- Verify all cross-references are valid
+- Verify all cross-references use absolute paths (starting with `/workspace`)
 **Success Criteria:**
 - [ ] Documentation is accurate and complete
+
+---
+
+## Reporting
+At the end of this phase, report all files created or modified. Include the full absolute path (starting with `/workspace`) for each file.

@@ -28,53 +28,53 @@ Explore the project and create the root AGENTS.md.
 
 | Phase | Scope | Path | Phase File |
 |-------|-------|------|------------|
-| 1 | Explore the Project + produce summary document | All repos | `phases/phase-01-explore.md` |
-| 2 | Create Root AGENTS.md | `agent-smith/` | `phases/phase-02-root-agents.md` |
+| 1 | Explore the Project + produce summary document | All repos | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-01-explore.md` |
+| 2 | Create Root AGENTS.md | `/workspace/agent-smith/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-02-root-agents.md` |
 
 ### Phase Group B: Per-Repo AGENTS.md (4 phases)
 Create localized AGENTS.md for each external repo.
 
 | Phase | Repo | Path | Phase File |
 |-------|------|------|------------|
-| 3 | `agent-smith-plugins` | `/workspace/agent-smith-plugins/` | `phases/phase-03-agents-plugins.md` |
-| 4 | `agent-smith-ui` | `/workspace/agent-smith-ui/` | `phases/phase-04-agents-ui.md` |
-| 5 | `agent-smith-apps` | `/workspace/agent-smith-apps/` | `phases/phase-05-agents-apps.md` |
-| 6 | `lynx-coder` | `/workspace/lynx-coder/` | `phases/phase-06-agents-lynx.md` |
+| 3 | `agent-smith-plugins` | `/workspace/agent-smith-plugins/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-03-agents-plugins.md` |
+| 4 | `agent-smith-ui` | `/workspace/agent-smith-ui/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-04-agents-ui.md` |
+| 5 | `agent-smith-apps` | `/workspace/agent-smith-apps/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-05-agents-apps.md` |
+| 6 | `lynx-coder` | `/workspace/lynx-coder/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-06-agents-lynx.md` |
 
 ### Phase Group C: Project-Level Docs (2 phases)
 Create decision-tree.md and project-overview.md.
 
 | Phase | File | Phase File |
 |-------|------|------------|
-| 7 | `decision-tree.md` | `phases/phase-07-decision-tree.md` |
-| 8 | `project-overview.md` | `phases/phase-08-project-overview.md` |
+| 7 | `decision-tree.md` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-07-decision-tree.md` |
+| 8 | `project-overview.md` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-08-project-overview.md` |
 
 ### Phase Group D: codebase-summary.md (13 phases)
 Create/update codebase-summary.md for every module using the `update-codebase-summary` skill.
 
 | Phase | Module | Path | Phase File |
 |-------|--------|------|------------|
-| 9 | `@agent-smith/types` | `agent-smith/packages/types/` | `phases/phase-09-types.md` |
-| 10 | `@agent-smith/core` | `agent-smith/packages/core/` | `phases/phase-10-core.md` |
-| 11 | `@agent-smith/agent` | `agent-smith/packages/agent/` | `phases/phase-11-agent.md` |
-| 12 | `@agent-smith/smem` | `agent-smith/packages/smem/` | `phases/phase-12-smem.md` |
-| 13 | `@agent-smith/tmem` | `agent-smith/packages/tmem/` | `phases/phase-13-tmem.md` |
-| 14 | `@agent-smith/cli` | `agent-smith/packages/cli/` | `phases/phase-14-cli.md` |
-| 15 | `@agent-smith/wscli` | `agent-smith/packages/wscli/` | `phases/phase-15-wscli.md` |
-| 16 | `server` | `agent-smith/server/` | `phases/phase-16-server.md` |
-| 17 | `agent-smith` (root) | `agent-smith/` | `phases/phase-17-agent-smith-root.md` |
-| 18 | `agent-smith-plugins` | `agent-smith-plugins/` | `phases/phase-18-plugins.md` |
-| 19 | `agent-smith-ui` | `agent-smith-ui/` | `phases/phase-19-ui.md` |
-| 20 | `agent-smith-apps` | `agent-smith-apps/` | `phases/phase-20-apps.md` |
-| 21 | `lynx-coder` | `lynx-coder/` | `phases/phase-21-lynx-coder.md` |
+| 9 | `@agent-smith/types` | `/workspace/agent-smith/packages/types/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-09-types.md` |
+| 10 | `@agent-smith/core` | `/workspace/agent-smith/packages/core/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-10-core.md` |
+| 11 | `@agent-smith/agent` | `/workspace/agent-smith/packages/agent/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-11-agent.md` |
+| 12 | `@agent-smith/smem` | `/workspace/agent-smith/packages/smem/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-12-smem.md` |
+| 13 | `@agent-smith/tmem` | `/workspace/agent-smith/packages/tmem/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-13-tmem.md` |
+| 14 | `@agent-smith/cli` | `/workspace/agent-smith/packages/cli/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-14-cli.md` |
+| 15 | `@agent-smith/wscli` | `/workspace/agent-smith/packages/wscli/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-15-wscli.md` |
+| 16 | `server` | `/workspace/agent-smith/server/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-16-server.md` |
+| 17 | `agent-smith` (root) | `/workspace/agent-smith/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-17-agent-smith-root.md` |
+| 18 | `agent-smith-plugins` | `/workspace/agent-smith-plugins/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-18-plugins.md` |
+| 19 | `agent-smith-ui` | `/workspace/agent-smith-ui/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-19-ui.md` |
+| 20 | `agent-smith-apps` | `/workspace/agent-smith-apps/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-20-apps.md` |
+| 21 | `lynx-coder` | `/workspace/lynx-coder/` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-21-lynx-coder.md` |
 
 ### Phase Group E: Navigation & Verification (2 phases)
 Create project-nav.md and perform cross-reference verification.
 
 | Phase | Scope | Phase File |
 |-------|-------|------------|
-| 22 | Create `project-nav.md` | `phases/phase-22-project-nav.md` |
-| 23 | Cross-reference verification & final quality check | `phases/phase-23-cross-reference.md` |
+| 22 | Create `project-nav.md` | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-22-project-nav.md` |
+| 23 | Cross-reference verification & final quality check | `/workspace/.agents/tasks/maintain-all-agent-docs/phases/phase-23-cross-reference.md` |
 
 ---
 
@@ -158,6 +158,7 @@ Each phase follows the same workflow using the `update-codebase-summary` skill:
 
 | Skill | When |
 |-------|------|
+| `execute-task-phase` | **All phases (1-23)** — every executor agent must load this skill before proceeding |
 | `smart-explore` | **All phases (1-23)** — every executor agent must load this skill before starting |
 | `update-codebase-summary` | Phases 9-21 — create/update module summaries |
 | `update-project-nav` | Phase 22 — create/update navigation map |
