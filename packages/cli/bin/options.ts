@@ -3,6 +3,7 @@ import { InvalidArgumentError, Option } from "commander";
 const displayOptions: Array<Option> = [
     new Option("-v, --verbose", "use the verbose mode"),
     new Option("-d, --debug", "use the debug mode"),
+    new Option("--nocli", "use raw output, no cli formating"),
 ];
 
 const inferenceOptions: Array<Option> = [

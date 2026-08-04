@@ -51,7 +51,7 @@ const useInferenceCallbacks = (
 
     const onThinkingToken: InferenceCallbacks["onThinkingToken"] = (t: string, from: string) => {
         if (options?.debug || options?.verbose) {
-            printToken(t, options?.showTokens, options?.showTokens ? false : true)
+            printToken(t, options?.showTokens, (options?.showTokens || options?.nocli) ? false : true)
         } else {
             let msg = `${color.dim("Thinking")} ${from} ${color.bold(emittedThinkingTokens.toString())} ${color.dim("tokens")}`;
             msg = msg + " " + color.dim(perfTimer.time());
