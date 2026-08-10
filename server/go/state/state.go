@@ -17,9 +17,6 @@ func init() {
 	IsDebug.Store(false)
 }
 
-// inference state
-var IsInfering = false
-
 var Conf types.Conf
 
 // confMu protects concurrent access to Conf.

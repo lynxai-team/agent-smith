@@ -145,9 +145,6 @@ func TestGlobalState_Defaults(t *testing.T) {
 	if IsDebug.Load() {
 		t.Error("IsDebug = true, want false")
 	}
-	if IsInfering {
-		t.Error("IsInfering = true, want false")
-	}
 }
 
 // TestWsSession_ApiKey verifies the ApiKey field is stored and retrievable.
