@@ -38,9 +38,10 @@ func SetConf(c types.Conf) {
 
 // WsSession holds per-session WebSocket state
 type WsSession struct {
-	AbortController  atomic.Pointer[context.CancelFunc]
-	ConfirmToolCalls map[string]chan bool
-	ApiKey           string
+	AbortController    atomic.Pointer[context.CancelFunc]
+	ConfirmToolCalls   map[string]chan bool
+	confirmMu          sync.Mutex // protects ConfirmToolCalls map
+	ApiKey             string
 }
 
 // SetAbortController sets the abort controller for this session.
@@ -61,4 +62,26 @@ func (s *WsSession) GetAbortController() context.CancelFunc {
 func (s *WsSession) ClearAbortController() {
 	var nilCancel context.CancelFunc
 	s.AbortController.Store(&nilCancel)
+}
+
+// GetConfirmChannel returns the confirmation channel for a tool call ID, or false if not found.
+func (s *WsSession) GetConfirmChannel(id string) (chan bool, bool) {
+	s.confirmMu.Lock()
+	defer s.confirmMu.Unlock()
+	ch, ok := s.ConfirmToolCalls[id]
+	return ch, ok
+}
+
+// SetConfirmChannel adds or updates a confirmation channel for a tool call ID.
+func (s *WsSession) SetConfirmChannel(id string, ch chan bool) {
+	s.confirmMu.Lock()
+	defer s.confirmMu.Unlock()
+	s.ConfirmToolCalls[id] = ch
+}
+
+// DeleteConfirmChannel removes a confirmation channel entry for a tool call ID.
+func (s *WsSession) DeleteConfirmChannel(id string) {
+	s.confirmMu.Lock()
+	defer s.confirmMu.Unlock()
+	delete(s.ConfirmToolCalls, id)
 }

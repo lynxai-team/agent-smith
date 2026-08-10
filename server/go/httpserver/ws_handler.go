@@ -150,9 +150,9 @@ func handleSystemMessage(ws websock.WSConn, session *state.WsSession, msg types.
 		}
 
 		// Resolve the awaiter for this tool call ID
-		if ch, exists := session.ConfirmToolCalls[id]; exists {
+		if ch, exists := session.GetConfirmChannel(id); exists {
 			ch <- confirmVal
-			delete(session.ConfirmToolCalls, id)
+			session.DeleteConfirmChannel(id)
 			if state.IsVerbose.Load() {
 				fmt.Printf("Tool confirmation resolved: %s = %v\n", id, confirmVal)
 			}

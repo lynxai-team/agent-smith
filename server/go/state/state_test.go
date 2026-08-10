@@ -17,7 +17,7 @@ func TestWsSession_New(t *testing.T) {
 	}
 
 	// ConfirmToolCalls should be empty (nil or zero-length map)
-	if s.ConfirmToolCalls != nil && len(s.ConfirmToolCalls) != 0 {
+	if len(s.ConfirmToolCalls) != 0 {
 		t.Errorf("ConfirmToolCalls length = %d, want 0", len(s.ConfirmToolCalls))
 	}
 }
@@ -103,12 +103,12 @@ func TestWsSession_ConfirmToolCalls(t *testing.T) {
 	// Initialize the map
 	s.ConfirmToolCalls = make(map[string]chan bool)
 
-	// Add an entry
+	// Add an entry using helper method
 	ch := make(chan bool, 1)
-	s.ConfirmToolCalls["tool-1"] = ch
+	s.SetConfirmChannel("tool-1", ch)
 
-	// Get the entry
-	gotCh, ok := s.ConfirmToolCalls["tool-1"]
+	// Get the entry using helper method
+	gotCh, ok := s.GetConfirmChannel("tool-1")
 	if !ok {
 		t.Fatal("ConfirmToolCalls[\"tool-1\"] not found after add")
 	}
@@ -123,17 +123,20 @@ func TestWsSession_ConfirmToolCalls(t *testing.T) {
 		t.Error("channel did not receive expected true value")
 	}
 
-	// Delete the entry
-	delete(s.ConfirmToolCalls, "tool-1")
+	// Delete the entry using helper method
+	s.DeleteConfirmChannel("tool-1")
 
-	// Verify it's gone
-	if _, ok := s.ConfirmToolCalls["tool-1"]; ok {
+	// Verify it's gone using helper method
+	if _, ok := s.GetConfirmChannel("tool-1"); ok {
 		t.Error("ConfirmToolCalls[\"tool-1\"] still exists after delete")
 	}
 
-	// Verify map is empty
-	if len(s.ConfirmToolCalls) != 0 {
-		t.Errorf("ConfirmToolCalls length = %d, want 0", len(s.ConfirmToolCalls))
+	// Verify map is empty (using helper to check length indirectly)
+	s.confirmMu.Lock()
+	length := len(s.ConfirmToolCalls)
+	s.confirmMu.Unlock()
+	if length != 0 {
+		t.Errorf("ConfirmToolCalls length = %d, want 0", length)
 	}
 }
 

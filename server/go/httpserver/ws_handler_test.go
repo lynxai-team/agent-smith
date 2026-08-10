@@ -83,10 +83,10 @@ func TestHandleSystemMessage_ConfirmTool_Valid(t *testing.T) {
 		ConfirmToolCalls: make(map[string]chan bool),
 	}
 
-	// Set up a pending confirmation
+	// Set up a pending confirmation using helper method
 	toolID := "tc-123"
 	confirmCh := make(chan bool, 1)
-	session.ConfirmToolCalls[toolID] = confirmCh
+	session.SetConfirmChannel(toolID, confirmCh)
 
 	msg := types.WsClientMsg{
 		Type:    types.SystemMsgType,
@@ -111,8 +111,8 @@ func TestHandleSystemMessage_ConfirmTool_Valid(t *testing.T) {
 		t.Fatal("Channel was not resolved")
 	}
 
-	// Verify the confirmation was removed from session
-	_, exists := session.ConfirmToolCalls[toolID]
+	// Verify the confirmation was removed from session using helper method
+	_, exists := session.GetConfirmChannel(toolID)
 	assert.False(t, exists, "Confirmation should be removed after resolution")
 }
 
