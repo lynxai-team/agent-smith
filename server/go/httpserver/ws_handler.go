@@ -197,6 +197,13 @@ func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClien
 	payload := msg.Payload
 	//fmt.Println("Payload:", payload)
 
+	// Validate prompt is present and is a string (CWE-476: prevent type assertion panics)
+	promptVal, ok := payload["prompt"].(string)
+	if !ok || promptVal == "" {
+		sendWsError(ws, "Invalid or missing 'prompt' in payload")
+		return
+	}
+
 	// Create callback handlers
 	cbHandler := callbacks.NewCallbackHandlers(ws, cmdName)
 
@@ -244,7 +251,7 @@ func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClien
 	cmdRunner := cmdexec.NewRealCmdRunner()
 
 	// Call lm.RunCmd with params
-	cmdOpts := []string{payload["prompt"].(string), "-v", "--nocli"}
+	cmdOpts := []string{promptVal, "-v", "--nocli"}
 	for k, v := range serializableOptions {
 		switch val := v.(type) {
 		case string:
@@ -258,7 +265,7 @@ func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClien
 			fmt.Printf("OPT Not a string or bool, it's: %T\n", val)
 		}
 	}
-	fmt.Println("Run cmd:", cmdName, []string{payload["prompt"].(string)}, cmdOpts)
+	fmt.Println("Run cmd:", cmdName, []string{promptVal}, cmdOpts)
 	lm.RunCmd(cmdName, cmdOpts, ws, cbHandler, session, cmdRunner)
 }
 

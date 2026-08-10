@@ -408,7 +408,8 @@ func TestExecuteAgent_Unauthorized(t *testing.T) {
 		Feature: "agent",
 		Command: "test-cmd",
 		Payload: map[string]interface{}{
-			"key": "value",
+			"key":    "value",
+			"prompt": "test prompt",
 		},
 	}
 
