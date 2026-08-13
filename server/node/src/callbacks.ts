@@ -155,7 +155,7 @@ function buildCallbacks(msg: WsClientMsg, ctx: Context,
                 toolResData = JSON.stringify(tr)
             }
         } else {
-            toolResData = tr.toString();
+            toolResData = `${tr}`;
         }
         const payload = { tc: tc, type: type, from: from };
         const rsm: WsRawServerMsg = {
