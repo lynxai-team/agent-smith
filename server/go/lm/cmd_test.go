@@ -297,7 +297,7 @@ func TestRunCmd_StdoutPipeError(t *testing.T) {
 	var rsm types.WsRawServerMsg
 	json.Unmarshal(messages[0], &rsm)
 	assert.Equal(t, types.ErrorMsgType, rsm.Type, "Expected error message type")
-	assert.Contains(t, rsm.Msg, "Error creating stdout pipe", "Expected error about stdout pipe")
+	assert.Contains(t, rsm.Msg, "Error creating output pipe", "Expected error about output pipe")
 }
 
 // TestRunCmd_WaitError verifies that a non-cancellation Wait error sends an error message.

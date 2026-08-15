@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/synw/agent-smith/server/go/conf"
@@ -36,7 +37,11 @@ func main() {
 	}
 
 	state.IsVerbose.Store(!*quiet)
-	state.SetConf(conf.InitConf())
+	conf, err := conf.InitConf()
+	if err != nil {
+		log.Fatal(err)
+	}
+	state.SetConf(conf)
 
 	if state.IsVerbose.Load() {
 		fmt.Println("Starting the WebSocket server with allowed origins", state.GetConf().Origins)

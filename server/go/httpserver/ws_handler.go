@@ -70,7 +70,10 @@ func WsHandler(c echo.Context) error {
 
 		var authMsg types.WsAuthMsg
 		if err := json.Unmarshal(authRaw, &authMsg); err != nil {
-			sendWsError(wsConn, fmt.Sprintf("Failed to parse auth message: %v", err))
+			if state.IsVerbose.Load() {
+				fmt.Printf("Failed to parse auth message: %v\n", err)
+			}
+			sendWsError(wsConn, "Failed to parse authentication message")
 			ws.Close()
 			return
 		}
@@ -119,7 +122,10 @@ func WsHandler(c echo.Context) error {
 
 			var msg types.WsClientMsg
 			if err := json.Unmarshal(rawMsg, &msg); err != nil {
-				sendWsError(wsConn, fmt.Sprintf("Failed to parse message: %v", err))
+				if state.IsVerbose.Load() {
+					fmt.Printf("Failed to parse message: %v\n", err)
+				}
+				sendWsError(wsConn, "Failed to parse message")
 				continue
 			}
 
@@ -144,7 +150,10 @@ func WsHandler(c echo.Context) error {
 			case types.CommandMsgType:
 				handleCommandMessage(wsConn, session, msg)
 			default:
-				sendWsError(wsConn, fmt.Sprintf("Unknown message type: %s", msg.Type))
+				if state.IsVerbose.Load() {
+					fmt.Printf("Unknown message type: %s\n", msg.Type)
+				}
+				sendWsError(wsConn, "Unknown message type")
 			}
 		}
 
@@ -192,14 +201,17 @@ func handleSystemMessage(ws websock.WSConn, session *state.WsSession, msg types.
 				fmt.Printf("Tool confirmation resolved: %s = %v\n", id, confirmVal)
 			}
 		} else {
-			sendWsError(ws, fmt.Sprintf("No pending confirmation for tool call ID: %s", id))
+			if state.IsVerbose.Load() {
+				fmt.Printf("No pending confirmation for tool call ID: %s\n", id)
+			}
+			sendWsError(ws, "No pending confirmation found")
 		}
 
 	default:
 		if state.IsVerbose.Load() {
 			fmt.Printf("Unknown system command: %s\n", msg.Command)
 		}
-		sendWsError(ws, fmt.Sprintf("Unknown system command: %s", msg.Command))
+		sendWsError(ws, "Unknown system command")
 	}
 }
 
@@ -221,7 +233,10 @@ func handleCommandMessage(ws websock.WSConn, session *state.WsSession, msg types
 	case "workflow":
 		sendWsError(ws, "Workflow execution not yet implemented")
 	default:
-		sendWsError(ws, fmt.Sprintf("Unsupported feature type: %s", msg.Feature))
+		if state.IsVerbose.Load() {
+			fmt.Printf("Unsupported feature type: %s\n", msg.Feature)
+		}
+		sendWsError(ws, "Unsupported feature type")
 	}
 }
 
@@ -256,7 +271,10 @@ func executeAgent(ws websock.WSConn, session *state.WsSession, msg types.WsClien
 
 	// Validate API key authorization
 	if !isCommandAuthorized(apiKey, cmdName) {
-		sendWsError(ws, fmt.Sprintf("Command '%s' is not authorized", cmdName))
+		if state.IsVerbose.Load() {
+			fmt.Printf("Command '%s' is not authorized for key\n", cmdName)
+		}
+		sendWsError(ws, "Command not authorized")
 		return
 	}
 

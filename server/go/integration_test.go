@@ -57,7 +57,9 @@ func startTestServer(t *testing.T) *testServer {
 	defer stateMu.Unlock()
 
 	// 1. Initialise global config.
-	state.SetConf(conf.InitConfFromReader([]byte(testConfigYAML)))
+	c, err := conf.InitConfFromReader([]byte(testConfigYAML))
+	require.NoError(t, err)
+	state.SetConf(c)
 	state.IsVerbose.Store(false)
 	state.IsDebug.Store(false)
 

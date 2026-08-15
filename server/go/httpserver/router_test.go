@@ -28,7 +28,9 @@ groups:
     - "read"
     - "write"
 `)
-	state.SetConf(conf.InitConfFromReader(yamlData))
+	c, err := conf.InitConfFromReader(yamlData)
+	require.NoError(t, err)
+	state.SetConf(c)
 }
 
 // ---------------------------------------------------------------------------

@@ -37,13 +37,19 @@ func RunCmd(cmdName string, params []string, ws websock.WSConn, cbHandler *callb
 	// Create a pipe to capture the command's output
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		sendWsError(ws, fmt.Sprintf("Error creating stdout pipe: %v", err))
+		if state.IsVerbose.Load() {
+			fmt.Printf("Error creating stdout pipe: %v\n", err)
+		}
+		sendWsError(ws, "Error creating output pipe")
 		return
 	}
 
 	// Start the command
 	if err := cmd.Start(); err != nil {
-		sendWsError(ws, fmt.Sprintf("Error starting command: %v", err))
+		if state.IsVerbose.Load() {
+			fmt.Printf("Error starting command: %v\n", err)
+		}
+		sendWsError(ws, "Error starting command")
 		return
 	}
 
@@ -69,9 +75,10 @@ func RunCmd(cmdName string, params []string, ws websock.WSConn, cbHandler *callb
 
 	// Check for errors during scanning
 	if err := scanner.Err(); err != nil {
-		msg := fmt.Sprintf("Error reading output: %v", err)
-		fmt.Println(msg)
-		sendWsError(ws, msg)
+		if state.IsVerbose.Load() {
+			fmt.Printf("Error reading output: %v\n", err)
+		}
+		sendWsError(ws, "Error reading output")
 	}
 
 	// Wait for the command to finish
@@ -82,7 +89,10 @@ func RunCmd(cmdName string, params []string, ws websock.WSConn, cbHandler *callb
 			}
 			return
 		}
-		sendWsError(ws, fmt.Sprintf("Command finished with error: %v", err))
+		if state.IsVerbose.Load() {
+			fmt.Printf("Command finished with error: %v\n", err)
+		}
+		sendWsError(ws, "Command finished with error")
 		return
 	}
 
@@ -108,6 +118,16 @@ func sendWsError(ws websock.WSConn, errMsg string) {
 		From: "server",
 		Msg:  errMsg,
 	}
-	data, _ := json.Marshal(rawMsg)
-	ws.Send(data)
+	data, err := json.Marshal(rawMsg)
+	if err != nil {
+		if state.IsDebug.Load() {
+			fmt.Printf("Failed to marshal error message: %v\n", err)
+		}
+		return
+	}
+	if err := ws.Send(data); err != nil {
+		if state.IsDebug.Load() {
+			fmt.Printf("Failed to send error message: %v\n", err)
+		}
+	}
 }

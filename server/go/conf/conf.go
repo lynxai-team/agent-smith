@@ -14,26 +14,26 @@ import (
 )
 
 // InitConf loads configuration from the default server.config.yaml file.
-// Panics if the config file cannot be read.
-func InitConf() types.Conf {
+// Returns an error if the config file cannot be read.
+func InitConf() (types.Conf, error) {
 	v := viper.New()
 	v.SetConfigName("server.config")
 	v.AddConfigPath(".")
 	if err := v.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error reading config: %w", err))
+		return types.Conf{}, fmt.Errorf("fatal error reading config: %w", err)
 	}
-	return parseViperConfig(v)
+	return parseViperConfig(v), nil
 }
 
 // InitConfFromReader loads configuration from a YAML reader (e.g., for testing).
 // Accepts any io.Reader that provides YAML-formatted config data.
-func InitConfFromReader(yamlData []byte) types.Conf {
+func InitConfFromReader(yamlData []byte) (types.Conf, error) {
 	v := viper.New()
 	v.SetConfigType("yaml")
 	if err := v.ReadConfig(bytes.NewReader(yamlData)); err != nil {
-		panic(fmt.Errorf("fatal error parsing config: %w", err))
+		return types.Conf{}, fmt.Errorf("fatal error parsing config: %w", err)
 	}
-	return parseViperConfig(v)
+	return parseViperConfig(v), nil
 }
 
 // parseViperConfig extracts configuration from a viper instance.

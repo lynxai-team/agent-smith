@@ -1,7 +1,6 @@
 package conf
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -64,7 +63,8 @@ groups:
     - "write"
 `)
 
-	conf := InitConfFromReader(yamlData)
+	conf, err := InitConfFromReader(yamlData)
+	require.NoError(t, err)
 
 	// Verify api_key
 	assert.True(t, conf.CmdApiKey.IsValid, "API key should be valid when non-empty")
@@ -99,7 +99,8 @@ origins:
   - "http://localhost:3000"
 `)
 
-	conf := InitConfFromReader(yamlData)
+	conf, err := InitConfFromReader(yamlData)
+	require.NoError(t, err)
 
 	// Empty api_key should result in IsValid == false
 	assert.False(t, conf.CmdApiKey.IsValid, "Empty API key should have IsValid == false")
@@ -128,7 +129,8 @@ groups:
     - "read"
 `)
 
-	conf := InitConfFromReader(yamlData)
+	conf, err := InitConfFromReader(yamlData)
+	require.NoError(t, err)
 
 	// Verify all three groups exist
 	require.Len(t, conf.Groups, 3, "Should have exactly 3 groups")
@@ -161,7 +163,8 @@ func TestInitConfFromReader_DefaultOrigins(t *testing.T) {
 api_key: "some-key"
 `)
 
-	conf := InitConfFromReader(yamlData)
+	conf, err := InitConfFromReader(yamlData)
+	require.NoError(t, err)
 
 	assert.ElementsMatch(t, []string{"localhost"}, conf.Origins,
 		"Missing origins should default to [\"localhost\"]")
@@ -185,7 +188,8 @@ groups:
 `)
 
 	// Should not panic — the function skips invalid entries
-	conf := InitConfFromReader(yamlData)
+	conf, err := InitConfFromReader(yamlData)
+	require.NoError(t, err)
 
 	// Only the valid group should be present
 	assert.Contains(t, conf.Groups, types.GroupApiKey("valid_group"), "Valid group should be present")
@@ -212,7 +216,8 @@ func TestInitConfFromReader_MissingFields(t *testing.T) {
 # Completely minimal config
 `)
 
-	conf := InitConfFromReader(yamlData)
+	conf, err := InitConfFromReader(yamlData)
+	require.NoError(t, err)
 
 	// Defaults should be applied
 	assert.ElementsMatch(t, []string{"localhost"}, conf.Origins,
@@ -261,7 +266,8 @@ groups:
 	assert.Contains(t, string(data), "file-test-key-xyz", "Config file should contain the API key")
 
 	// Load config using InitConf (which reads from current directory)
-	conf := InitConf()
+	conf, err := InitConf()
+	require.NoError(t, err)
 
 	// Verify all fields
 	assert.True(t, conf.CmdApiKey.IsValid, "API key should be valid")
@@ -291,27 +297,12 @@ func TestInitConf_MissingFile(t *testing.T) {
 	_, statErr := os.Stat("server.config.yaml")
 	assert.True(t, os.IsNotExist(statErr), "Config file should not exist in temp dir")
 
-	// InitConf should panic when config file is missing.
-	// Use defer/recover to capture the panic value for verification.
-	var recovered interface{}
-	func() {
-		defer func() {
-			recovered = recover()
-		}()
-		InitConf()
-	}()
-
-	require.NotNil(t, recovered, "InitConf should panic when config file is missing")
-
-	// The panic value is an error (from fmt.Errorf in the source code)
-	var panicErr error
-	if e, ok := recovered.(error); ok {
-		panicErr = e
-	} else {
-		panicErr = fmt.Errorf("%v", recovered)
-	}
-	assert.Contains(t, panicErr.Error(), "server.config",
-		"Panic message should reference the config file name: %s", panicErr.Error())
+	// InitConf should return an error when config file is missing.
+	conf, err := InitConf()
+	assert.Error(t, err, "InitConf should return an error when config file is missing")
+	assert.Empty(t, conf, "Conf should be empty on error")
+	assert.Contains(t, err.Error(), "server.config",
+		"Error message should reference the config file name: %s", err.Error())
 }
 
 // ---------------------------------------------------------------------------
@@ -343,7 +334,8 @@ func TestCreate_NewFile(t *testing.T) {
 	require.NoError(t, err, "Config file should exist after Create()")
 
 	// Verify the file is valid YAML with expected fields
-	conf := InitConf()
+	conf, err := InitConf()
+	require.NoError(t, err)
 	assert.True(t, conf.CmdApiKey.IsValid, "Created config should have a valid API key")
 	assert.NotEmpty(t, conf.CmdApiKey.Key, "API key should not be empty")
 	assert.Len(t, conf.CmdApiKey.Key, 64, "API key should be 64 hex characters")

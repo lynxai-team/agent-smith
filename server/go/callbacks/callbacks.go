@@ -55,7 +55,11 @@ func (cb *CallbackHandlers) sendMsg(msgType types.WsServerMsgType, msg string) {
 func (cb *CallbackHandlers) BuildOptions() map[string]interface{} {
 	return map[string]interface{}{
 		"onStartEmit": func(p types.PromptProcessingInProgressStats, from string) {
-			data, _ := json.Marshal(p)
+			data, err := json.Marshal(p)
+			if err != nil {
+				fmt.Printf("Failed to marshal start emit: %v\n", err)
+				return
+			}
 			cb.sendMsg(types.StartEmitType, string(data))
 		},
 		"onToken": func(t string, from string) {
@@ -74,7 +78,11 @@ func (cb *CallbackHandlers) BuildOptions() map[string]interface{} {
 			cb.sendMsg(types.TurnStartType, "")
 		},
 		"onTurnEnd": func(ht map[string]interface{}, from string) {
-			data, _ := json.Marshal(ht)
+			data, err := json.Marshal(ht)
+			if err != nil {
+				fmt.Printf("Failed to marshal turn end: %v\n", err)
+				return
+			}
 			cb.sendMsg(types.TurnEndType, string(data))
 		},
 		"onAssistant": func(txt string, from string) {
@@ -84,27 +92,51 @@ func (cb *CallbackHandlers) BuildOptions() map[string]interface{} {
 			cb.sendMsg(types.ThinkType, txt)
 		},
 		"onEndEmit": func(res types.InferenceResult, from string) {
-			data, _ := json.Marshal(res)
+			data, err := json.Marshal(res)
+			if err != nil {
+				fmt.Printf("Failed to marshal end emit: %v\n", err)
+				return
+			}
 			cb.sendMsg(types.EndEmitType, string(data))
 		},
 		"onToolCallToken": func(t string, from string) {
-			data, _ := json.Marshal(t)
+			data, err := json.Marshal(t)
+			if err != nil {
+				fmt.Printf("Failed to marshal tool call token: %v\n", err)
+				return
+			}
 			cb.sendMsg(types.ToolCallTokenType, string(data))
 		},
 		"onToolCallInProgress": func(tcs []interface{}, from string) {
-			data, _ := json.Marshal(tcs)
+			data, err := json.Marshal(tcs)
+			if err != nil {
+				fmt.Printf("Failed to marshal tool call in progress: %v\n", err)
+				return
+			}
 			cb.sendMsg(types.ToolCallInProgressType, string(data))
 		},
 		"onPromptProcessingProgress": func(progress types.PromptProcessingInProgressStats, from string) {
-			data, _ := json.Marshal(progress)
+			data, err := json.Marshal(progress)
+			if err != nil {
+				fmt.Printf("Failed to marshal prompt processing progress: %v\n", err)
+				return
+			}
 			cb.sendMsg(types.PromptProcessingProgress, string(data))
 		},
 		"onToolsTurnStart": func(tcs map[string]interface{}, from string) {
-			data, _ := json.Marshal(tcs)
+			data, err := json.Marshal(tcs)
+			if err != nil {
+				fmt.Printf("Failed to marshal tools turn start: %v\n", err)
+				return
+			}
 			cb.sendMsg(types.ToolsTurnStartType, string(data))
 		},
 		"onToolsTurnEnd": func(tr map[string]interface{}, from string) {
-			data, _ := json.Marshal(tr)
+			data, err := json.Marshal(tr)
+			if err != nil {
+				fmt.Printf("Failed to marshal tools turn end: %v\n", err)
+				return
+			}
 			cb.sendMsg(types.ToolsTurnEndType, string(data))
 		},
 		"onToolCall": func(tc map[string]interface{}, typeStr string, from string) {
@@ -116,7 +148,11 @@ func (cb *CallbackHandlers) BuildOptions() map[string]interface{} {
 				"type": typeStr,
 				"from": from,
 			}
-			data, _ := json.Marshal(payload)
+			data, err := json.Marshal(payload)
+			if err != nil {
+				fmt.Printf("Failed to marshal tool call: %v\n", err)
+				return
+			}
 			cb.sendMsg(types.ToolCallType, string(data))
 		},
 		"onToolCallEnd": func(tc map[string]interface{}, tr interface{}, typeStr string, from string) {
@@ -139,7 +175,11 @@ func (cb *CallbackHandlers) BuildOptions() map[string]interface{} {
 				"type": typeStr,
 				"from": from,
 			}
-			payloadData, _ := json.Marshal(payload)
+			payloadData, err := json.Marshal(payload)
+			if err != nil {
+				fmt.Printf("Failed to marshal tool call end payload: %v\n", err)
+				return
+			}
 			toolCallEndMsg := string(payloadData) + "<|xtool_call_id|>" + toolResData
 			cb.sendMsg(types.ToolCallEndType, toolCallEndMsg)
 		},
@@ -147,7 +187,11 @@ func (cb *CallbackHandlers) BuildOptions() map[string]interface{} {
 			if tcID, ok := tc["id"].(string); !ok || tcID == "" {
 				tc["id"] = generateUUID()
 			}
-			tcData, _ := json.Marshal(tc)
+			tcData, err := json.Marshal(tc)
+			if err != nil {
+				fmt.Printf("Failed to marshal tool confirmation: %v\n", err)
+				return false, err
+			}
 			cb.sendMsg(types.ToolCallConfirmType, string(tcData))
 
 			awaiter := utils.CreateAwaiter()
@@ -178,13 +222,21 @@ func (cb *CallbackHandlers) SendThinkingToken(token string) {
 
 // SendEndEmit sends an endemit message.
 func (cb *CallbackHandlers) SendEndEmit(result types.InferenceResult) {
-	data, _ := json.Marshal(result)
+	data, err := json.Marshal(result)
+	if err != nil {
+		fmt.Printf("Failed to marshal end emit result: %v\n", err)
+		return
+	}
 	cb.sendMsg(types.EndEmitType, string(data))
 }
 
 // SendFinalResult sends a finalresult message.
 func (cb *CallbackHandlers) SendFinalResult(result types.InferenceResult) {
-	data, _ := json.Marshal(result)
+	data, err := json.Marshal(result)
+	if err != nil {
+		fmt.Printf("Failed to marshal final result: %v\n", err)
+		return
+	}
 	cb.sendMsg(types.FinalResultType, string(data))
 }
 
