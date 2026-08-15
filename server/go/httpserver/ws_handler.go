@@ -19,6 +19,15 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+// maskApiKey masks an API key for safe logging.
+// Returns "****" for keys <= 8 chars, otherwise shows first 4 and last 4 characters with "****" in between.
+func maskApiKey(key string) string {
+	if len(key) <= 8 {
+		return "****"
+	}
+	return key[:4] + "****" + key[len(key)-4:]
+}
+
 // validateApiKey checks if the provided key matches the main API key or any group API key.
 func validateApiKey(key string) bool {
 	conf := state.GetConf()
@@ -79,7 +88,7 @@ func WsHandler(c echo.Context) error {
 		apiKey := authMsg.Key
 
 		if state.IsVerbose.Load() {
-			fmt.Printf("WebSocket authenticated with key: %s\n", apiKey)
+			fmt.Printf("WebSocket authenticated with key: %s\n", maskApiKey(apiKey))
 		}
 
 		// Per-session state

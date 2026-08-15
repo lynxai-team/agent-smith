@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/synw/agent-smith/server/go/conf"
 	"github.com/synw/agent-smith/server/go/httpserver"
@@ -25,7 +26,7 @@ func main() {
 
 	if *genkey {
 		key := conf.GenerateRandomKey()
-		fmt.Println(key)
+		fmt.Fprintln(os.Stderr, "Generated API key (store securely):", key)
 		return
 	}
 

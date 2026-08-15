@@ -14,7 +14,7 @@ var IsDebug atomic.Bool
 var ActiveWsConnections atomic.Int64
 
 func init() {
-	IsVerbose.Store(true)
+	IsVerbose.Store(false)
 	IsDebug.Store(false)
 }
 

@@ -142,8 +142,8 @@ func TestWsSession_ConfirmToolCalls(t *testing.T) {
 
 // TestGlobalState_Defaults verifies default values of IsVerbose, IsDebug, IsInfering.
 func TestGlobalState_Defaults(t *testing.T) {
-	if !IsVerbose.Load() {
-		t.Error("IsVerbose = false, want true")
+	if IsVerbose.Load() {
+		t.Error("IsVerbose = true, want false")
 	}
 	if IsDebug.Load() {
 		t.Error("IsDebug = true, want false")

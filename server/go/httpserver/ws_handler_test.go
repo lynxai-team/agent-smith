@@ -563,5 +563,18 @@ func TestSendWsError(t *testing.T) {
 	assert.Equal(t, "test error message", rawMsg.Msg)
 }
 
+// TestMaskApiKey verifies the maskApiKey function masks keys correctly.
+func TestMaskApiKey(t *testing.T) {
+	// Short key (<=8 chars) returns "****"
+	assert.Equal(t, "****", maskApiKey("short"))
+	assert.Equal(t, "****", maskApiKey("12345678"))
+
+	// Normal key (e.g., 16 chars) returns first 4 + "****" + last 4
+	assert.Equal(t, "abcd****mnop", maskApiKey("abcdefghijklmnop"))
+
+	// Empty string returns "****"
+	assert.Equal(t, "****", maskApiKey(""))
+}
+
 // Verify MockWSConn implements websock.WSConn interface.
 var _ websock.WSConn = (*testutil.MockWSConn)(nil)
