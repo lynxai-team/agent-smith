@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -112,12 +113,12 @@ func TestKeyAuth_ValidKey(t *testing.T) {
 		return func(c echo.Context) error {
 			key := c.Request().Header.Get("Authorization")
 			conf := state.GetConf()
-			if conf.CmdApiKey.IsValid && key == conf.CmdApiKey.Key {
+			if conf.CmdApiKey.IsValid && subtle.ConstantTimeCompare([]byte(key), []byte(conf.CmdApiKey.Key)) == 1 {
 				c.Set("apiKey", key)
 				return next(c)
 			}
 			for _, apiKey := range conf.ApiKeys {
-				if string(apiKey) == key {
+				if subtle.ConstantTimeCompare([]byte(string(apiKey)), []byte(key)) == 1 {
 					c.Set("apiKey", key)
 					return next(c)
 				}
@@ -151,12 +152,12 @@ func TestKeyAuth_InvalidKey(t *testing.T) {
 		return func(c echo.Context) error {
 			key := c.Request().Header.Get("Authorization")
 			conf := state.GetConf()
-			if conf.CmdApiKey.IsValid && key == conf.CmdApiKey.Key {
+			if conf.CmdApiKey.IsValid && subtle.ConstantTimeCompare([]byte(key), []byte(conf.CmdApiKey.Key)) == 1 {
 				c.Set("apiKey", key)
 				return next(c)
 			}
 			for _, apiKey := range conf.ApiKeys {
-				if string(apiKey) == key {
+				if subtle.ConstantTimeCompare([]byte(string(apiKey)), []byte(key)) == 1 {
 					c.Set("apiKey", key)
 					return next(c)
 				}
@@ -189,12 +190,12 @@ func TestKeyAuth_NoKey(t *testing.T) {
 		return func(c echo.Context) error {
 			key := c.Request().Header.Get("Authorization")
 			conf := state.GetConf()
-			if conf.CmdApiKey.IsValid && key == conf.CmdApiKey.Key {
+			if conf.CmdApiKey.IsValid && subtle.ConstantTimeCompare([]byte(key), []byte(conf.CmdApiKey.Key)) == 1 {
 				c.Set("apiKey", key)
 				return next(c)
 			}
 			for _, apiKey := range conf.ApiKeys {
-				if string(apiKey) == key {
+				if subtle.ConstantTimeCompare([]byte(string(apiKey)), []byte(key)) == 1 {
 					c.Set("apiKey", key)
 					return next(c)
 				}
@@ -227,12 +228,12 @@ func TestKeyAuth_GroupKey(t *testing.T) {
 		return func(c echo.Context) error {
 			key := c.Request().Header.Get("Authorization")
 			conf := state.GetConf()
-			if conf.CmdApiKey.IsValid && key == conf.CmdApiKey.Key {
+			if conf.CmdApiKey.IsValid && subtle.ConstantTimeCompare([]byte(key), []byte(conf.CmdApiKey.Key)) == 1 {
 				c.Set("apiKey", key)
 				return next(c)
 			}
 			for _, apiKey := range conf.ApiKeys {
-				if string(apiKey) == key {
+				if subtle.ConstantTimeCompare([]byte(string(apiKey)), []byte(key)) == 1 {
 					c.Set("apiKey", key)
 					return next(c)
 				}

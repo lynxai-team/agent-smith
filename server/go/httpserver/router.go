@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"crypto/subtle"
 	"fmt"
 	"net/http"
 
@@ -32,6 +33,9 @@ func RunServer(port int) {
 		AllowCredentials: true,
 	}))
 
+	// Rate limiting — 10 requests per second per IP
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(10)))
+
 	// WebSocket route — no API key auth at HTTP level
 	e.GET("/ws", WsHandler)
 
@@ -45,13 +49,13 @@ func RunServer(port int) {
 	cmds.Use(middleware.KeyAuth(func(key string, c echo.Context) (bool, error) {
 		conf := state.GetConf()
 		if conf.CmdApiKey.IsValid {
-			if key == conf.CmdApiKey.Key {
+			if subtle.ConstantTimeCompare([]byte(key), []byte(conf.CmdApiKey.Key)) == 1 {
 				c.Set("apiKey", key)
 				return true, nil
 			}
 		}
 		for _, apiKey := range conf.ApiKeys {
-			if string(apiKey) == key {
+			if subtle.ConstantTimeCompare([]byte(string(apiKey)), []byte(key)) == 1 {
 				c.Set("apiKey", key)
 				return true, nil
 			}

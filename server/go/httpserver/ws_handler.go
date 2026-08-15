@@ -1,8 +1,10 @@
 package httpserver
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
 	"slices"
 	"time"
@@ -20,11 +22,11 @@ import (
 // validateApiKey checks if the provided key matches the main API key or any group API key.
 func validateApiKey(key string) bool {
 	conf := state.GetConf()
-	if conf.CmdApiKey.IsValid && key == conf.CmdApiKey.Key {
+	if conf.CmdApiKey.IsValid && subtle.ConstantTimeCompare([]byte(key), []byte(conf.CmdApiKey.Key)) == 1 {
 		return true
 	}
 	for _, apiKey := range conf.ApiKeys {
-		if string(apiKey) == key {
+		if subtle.ConstantTimeCompare([]byte(string(apiKey)), []byte(key)) == 1 {
 			return true
 		}
 	}
@@ -33,6 +35,13 @@ func validateApiKey(key string) bool {
 
 // WsHandler handles WebSocket connections.
 func WsHandler(c echo.Context) error {
+	// Check concurrent connection limit (max 100)
+	if state.ActiveWsConnections.Load() >= 100 {
+		return c.JSON(http.StatusTooManyRequests, map[string]string{"error": "too many concurrent connections"})
+	}
+	state.ActiveWsConnections.Add(1)
+	defer state.ActiveWsConnections.Add(-1)
+
 	websocket.Handler(func(ws *websocket.Conn) {
 		// Wrap the real WebSocket connection with our interface
 		wsConn := websock.NewRealWSConn(ws)
@@ -83,6 +92,10 @@ func WsHandler(c echo.Context) error {
 			fmt.Printf("WebSocket connection established\n")
 		}
 
+		// Per-connection message rate limiting (50 msg/s)
+		var msgCount int
+		var msgWindow time.Time
+
 		// Message receive loop
 		for {
 			var rawMsg []byte
@@ -99,6 +112,19 @@ func WsHandler(c echo.Context) error {
 			if err := json.Unmarshal(rawMsg, &msg); err != nil {
 				sendWsError(wsConn, fmt.Sprintf("Failed to parse message: %v", err))
 				continue
+			}
+
+			// Per-connection message rate limiting (50 msg/s)
+			now := time.Now()
+			if now.Sub(msgWindow).Seconds() >= 1.0 {
+				msgCount = 0
+				msgWindow = now
+			}
+			msgCount++
+			if msgCount > 50 {
+				sendWsError(wsConn, "Rate limit exceeded: too many messages per second")
+				ws.Close()
+				return
 			}
 
 			//fmt.Println("WS MSG", msg)
@@ -274,7 +300,7 @@ func isCommandAuthorized(apiKey, cmd string) bool {
 	conf := state.GetConf()
 
 	// Main key allows all commands
-	if conf.CmdApiKey.IsValid && apiKey == conf.CmdApiKey.Key {
+	if conf.CmdApiKey.IsValid && subtle.ConstantTimeCompare([]byte(apiKey), []byte(conf.CmdApiKey.Key)) == 1 {
 		return true
 	}
 
