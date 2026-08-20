@@ -21,7 +21,7 @@ server.config.yaml
 .aider*
 .continue
 /server/go/.agents/tasks
-/server/go/.agents/documents
+/server/go/.agents/projects
 /server/node/.agents/tasks
 /server/go/coverage.html
 /server/go/coverage.out
