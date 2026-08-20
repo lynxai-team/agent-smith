@@ -16,11 +16,13 @@ import {
 import { AssetsPathConfig, Wllama } from '@wllama/wllama/esm/index.js';
 import { LmBrowserProviderParams } from './interfaces.js';
 import type { ModelSource } from '@wllama/wllama';
+//import { CacheManager } from '@wllama/wllama';
 
 class WllamaProvider implements LmProvider {
     name: string;
     api = useApi();
     onToken?: (t: string, from: string) => void;
+    onThinkingToken?: (t: string, from: string) => void;
     onStartEmit?: (data: PromptProcessingInProgressStats, from: string) => void;
     onEndEmit?: (result: InferenceResult, from: string) => void;
     onError?: (err: any, from: string) => void;
@@ -40,8 +42,11 @@ class WllamaProvider implements LmProvider {
     });
 
     constructor(options: LmProviderParams) {
+        //const cm = new CacheManager();
+        //cm.clear()
         this.name = options.name;
         this.onToken = options.onToken;
+        this.onThinkingToken = options.onThinkingToken;
         this.onStartEmit = options.onStartEmit;
         this.onError = options.onError;
         this.onEndEmit = options.onEndEmit;
@@ -150,6 +155,8 @@ class WllamaProvider implements LmProvider {
         await this.wllama.loadModelFromUrl(source, {
             progressCallback: progressCallback,
             n_ctx: ctx ?? -1,
+            //n_threads: 2,
+            //cache_type_v: 'q8_0',
         });
         this.model = name;
         //this.model.ctx = ctx ?? -1;
@@ -161,14 +168,9 @@ class WllamaProvider implements LmProvider {
         if (!this.wllama.isModelLoaded()) {
             throw new Error("No model loaded")
         }
-        const localOptions: Record<string, any> = {};
+        let localOptions: Record<string, any> = { ...options };
         this.abortInference = false;
-        let _prompt = prompt;
-        let samplingOptions: Record<string, any> = {};
         if (options) {
-            if ("max_tokens" in options) {
-                localOptions.max_tokens = options.max_tokens;
-            }
             if ("stop" in options) {
                 let st = new Array<string>();
                 for (const t of (localOptions?.stop ?? [])) {
@@ -176,52 +178,64 @@ class WllamaProvider implements LmProvider {
                 }
                 localOptions.stop = st;
             }
-            if ("temperature" in options) {
-                samplingOptions.temp = options.temperature;
-            }
-            if ("top_k" in options) {
-                samplingOptions.top_k = options.top_k;
-            }
-            if ("top_p" in options) {
-                samplingOptions.top_p = options.top_p;
-            }
-            if ("min_p" in options) {
-                samplingOptions.min_p = options.min_p;
-            }
-            if ("repeat_penalty" in options) {
-                samplingOptions.penalty_repeat = options.repeat_penalty;
-            }
-            if ("grammar" in options) {
-                samplingOptions.grammar = options.grammar;
-            }
             if ("extra" in options) {
-                samplingOptions = { ...samplingOptions, ...(options.extra as Record<string, any>) }
+                localOptions = { ...localOptions, ...(options.extra as Record<string, any>) }
             }
         }
-        localOptions.sampling = samplingOptions;
         let i = 1;
-        const decoder = new TextDecoder('utf-8');
-        // @ts-ignore
-        localOptions.onNewToken = (token: string, piece: any, currentText: string, { abortSignal }) => {
+        const buf = new Array<string>();
+        localOptions.onData = (chunk: Record<string, any>) => {
+            //console.log("CHUNK", chunk);
+            const token = chunk?.choices[0]?.text ? chunk.choices[0].text : chunk?.choices[0]?.delta?.content;
+            const reasoningToken = chunk?.choices[0]?.delta?.reasoning_content;
             if (i == 1) {
                 if (this.onStartEmit) {
                     this.onStartEmit({} as PromptProcessingInProgressStats, this.name)
                 }
             }
-            if (this.onToken) {
-                const t = decoder.decode(piece);
-                this.onToken(t, this.name);
+            if (token) {
+                if (localOptions?.onToken) {
+                    localOptions.onToken(token, this.name);
+                } else if (this?.onToken) {
+                    this.onToken(token, this.name);
+                }
+                buf.push(token)
+            }
+            if (reasoningToken) {
+                if (localOptions?.onThinkingToken) {
+                    localOptions.onThinkingToken(reasoningToken, this.name);
+                } else if (this?.onThinkingToken) {
+                    this.onThinkingToken(reasoningToken, this.name);
+                }
             }
             if (this.abortInference) {
-                abortSignal()
+                localOptions?.abortSignal()
             }
             ++i
         };
         /*const stats = useStats();
         stats.start();*/
         //console.log(_prompt);
-        localOptions.prompt = prompt;
-        const txt = await this.wllama.createChatCompletion(localOptions as any);
+        //localOptions.prompt = prompt;
+        localOptions.model = this.model;
+        localOptions.stream = true;
+        //console.log("LM CLIENT OPS", localOptions);
+        //console.log("PROMPT:", prompt);
+        localOptions.messages = [{ role: "user", content: [{ type: "text", text: prompt }] }];
+        if (localOptions?.images) {
+            // @ts-ignore
+            localOptions.images.forEach(img => {
+                localOptions.messages[0].content.push({ type: "image", data: img })
+            });
+            delete localOptions.images;
+        }
+        //console.log("RUN OPTS", localOptions);
+        try {
+            await this.wllama.createChatCompletion(localOptions as any);
+        } catch (e) {
+            console.error("[Error]:", e);
+            //throw new Error(e)
+        }
         /*const finalStats = stats.inferenceEnds(i);
         let data: Record<string, any> = {};
         if (parseJson) {
@@ -229,7 +243,7 @@ class WllamaProvider implements LmProvider {
         }*/
         //const ct = txt.choices[0].message.role == "assistant"
         const res: InferenceResult = {
-            text: txt.choices[0].message.content ?? "",
+            text: buf.join(""),
             thinkingText: "",
             stats: {} as PerformanceMetrics,
         };
