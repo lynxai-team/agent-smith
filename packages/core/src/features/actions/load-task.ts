@@ -73,13 +73,13 @@ async function action(args: Record<string, any>, options: Record<string, any>) {
     }
     let destDir: string;
     if (args?.destinationpath) {
-        const { ok, msg } = parsePath(args.destinationpath, options);
+        const { ok, msg } = parsePath({ path: args.destinationpath }, options);
         if (!ok) {
             throw new Error(msg)
         }
         destDir = msg;
     } else {
-        const { ok, msg } = parsePath("/workspace/.agents/tasks", options);
+        const { ok, msg } = parsePath({ path: "/workspace/.agents/tasks" }, options);
         if (!ok) {
             throw new Error(msg)
         }

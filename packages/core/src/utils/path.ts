@@ -1,39 +1,27 @@
-import type { AgentInferenceOptions } from "@agent-smith/types";
+import * as fs from 'fs';
+import path from "path";
 
-function parsePath(path: string, options: AgentInferenceOptions & Record<string, any>) {
+function parsePath(args: Record<string, any>, options: Record<string, any>) {
     // check required args
-    const location = options?.variables?.path ?? options?.variables?.workspace;
+    const location = options?.variables?.workspace;
     if (!location) {
-        return { ok: false, msg: "[Error]: missing path or workspace parameter" };
+        return { ok: false, msg: "[Error]: missing the workspace parameter" };
     }
-    let requestedPath = path;
-    if (path.startsWith("./")) {
-        requestedPath = process.cwd() + path.slice(2);
+    if (!args?.path) {
+        return { ok: false, msg: "[Error]: provide a file path argument" };
     }
+    if (!args.path.startsWith("/workspace")) {
+        return { ok: false, msg: "[Error]: the file path must be absolute and start with /workspace" };
+    }
+    let requestedPath = args.path;
     let ok = false;
     let fp;
     //console.log("PPA", args);
     //console.log("PPO", options);
     // check for workspace
     if (options?.variables?.workspace) {
-        fp = requestedPath.replace("/workspace", options.variables.workspace);
+        fp = requestedPath.replace("/workspace", location);
         ok = true;
-    }
-    // check for authorized paths if no workspace
-    else if (options?.variables?.path) {
-        const aps = options.variables.path.split(",");
-        for (const ap of aps) {
-            const authorizedPath = [".", "./"].includes(ap) ? process.cwd() : ap;
-            //console.log("Auth path", authorizedPath);
-            if (requestedPath.startsWith(authorizedPath)) {
-                fp = requestedPath;
-                ok = true;
-                break;
-            }
-        }
-    }
-    if (!fp) {
-        throw new Error("parse path: no fp " + path)
     }
     if (!ok) {
         return { ok: false, msg: "[Error]: unauthorized file path" };
@@ -43,4 +31,4 @@ function parsePath(path: string, options: AgentInferenceOptions & Record<string,
 
 export {
     parsePath,
-}
+};

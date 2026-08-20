@@ -74,9 +74,9 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 backendName = backend.value.name;
             }
     } else {
-        if (localOptions?.propagateModel) {
+        if (localOptions?.propagateBackend) {
             if (!localOptions?.backend) {
-                const m = `${name} agent executor: set a backend in options if propagateModel is false`;
+                const m = `${name} agent executor: set a backend in options if propagateBackend is true`;
                 console.error(m);
                 throw new Error(m)
             }
@@ -87,23 +87,23 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
             } else {
                 // if not specified use the default backend
                 if (!backend.value) {
-                    const m = `${name} agent executor: no default backend or agent spec backend specified for propagateModel false.`;
+                    const m = `${name} agent executor: no default backend or agent spec backend specified for propagateBackend false.`;
                     console.error(m, "Default backend:", toRaw(backend), "Backends:", toRaw(backends));
                     throw new Error(m)
                 }
                 backendName = backend.value.name
             }
         }
-        if (localOptions?.system) {
-            // in context agent
-            if (!agentSpec?.template) {
-                agentSpec.template = { system: localOptions.system }
-            } else {
-                agentSpec.template.system = localOptions.system
-            }
-        }
+        /* if (localOptions?.system) {
+             // in context agent
+             if (!agentSpec?.template) {
+                 agentSpec.template = { system: localOptions.system }
+             } else {
+                 agentSpec.template.system = localOptions.system
+             }
+         }*/
     }
-    if (agentSpec?.template?.system) {
+    if (agentSpec?.template?.system && (!localOptions?.system || localOptions?.isToolCall)) {
         localOptions.system = agentSpec.template.system
     }
     if (!(backendName in backends)) {
@@ -123,7 +123,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
         lm: backends[backendName],
     }, agentSpec);
     //console.log("AGENT BK", backends[backendName], "\nagb:", agent.lm.name)
-    if (!localOptions?.model) {
+    if (!localOptions?.model && !options?.propagateModel) {
         if (hasSettings) {
             if (settings?.model) {
                 localOptions.model = settings.model;
@@ -238,8 +238,10 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
             localOptions.onToken = processToken;
         }
         localOptions.baseDir = agentDir;
-        localOptions.variables = vars;
-        if (!localOptions?.tools) {
+        if (!localOptions.variables) {
+            localOptions.variables = vars;
+        }
+        if (!localOptions?.tools || localOptions?.isToolCall) {
             localOptions.tools = agentSpec.tools;
         }
         let out: InferenceResult;

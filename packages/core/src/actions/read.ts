@@ -11,7 +11,9 @@ function createJsAction(action: CallableFunction): FeatureExecutor {
             /*if (e?.text) {
                 throw new Error(`executing action:${e.text()}. Args: ${args}`);
             }*/
-            throw new Error(`executing js action:${e}. Args: ${JSON.stringify(args, null, 2)}`);
+            const msg = `executing js action:${e}`;
+            console.error(msg);
+            throw new Error(msg);
         }
     };
     return run

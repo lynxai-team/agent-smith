@@ -210,6 +210,17 @@ async function readAgent(
                             const res = await executeAction(toolName, params as { prompt: string & Record<string, any> }, toolOpts, quiet);
                             return res
                         case "agent":
+                            //console.log("TC AGENT PARAMS", params);
+                            //console.log("TOOL", tool.name, "ARGS", tool.arguments)
+                            const sp = params ?? {};
+                            const vars: Record<string, any> = {};
+                            for (const k of Object.keys(sp)) {
+                                if (k !== "prompt") {
+                                    vars[k] = sp[k]
+                                }
+                            }
+                            toolOpts.variables = vars;
+                            //console.log("TOOL VARS", toolOpts.variables)
                             const agres = await executeAgent(toolName, params as { prompt: string & Record<string, any> }, toolOpts);
                             //console.log("WFTRESP", tres.answer.text);
                             if (agres?.text) {

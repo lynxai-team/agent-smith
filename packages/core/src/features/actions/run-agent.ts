@@ -41,6 +41,11 @@ async function action(args: Record<string, any>, options: Record<string, any>) {
     if (aOpts?.tools) {
         delete aOpts.tools;
     }
+    if (aOpts?.debug) {
+        console.log("Running agent", args.name);
+        console.log(args.prompt);
+        console.log("Options:", aOpts);
+    }
     const ax = await useAgentExecutor(args.name, { prompt: args.prompt }, aOpts);
     const res = await ax.execute();
     //console.log("AH", ax.agent.history);

@@ -133,7 +133,7 @@ function pythonAction(
                 //throw new Error(`python error: ${error}`) 
             }
         }*/
-        console.log("PYTC TXT", final)
+        //console.log("PYTC TXT", final)
         return final
     }
     return run
