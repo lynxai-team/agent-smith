@@ -393,6 +393,7 @@ class Lm implements LmProvider {
                 const jerr = await response.json();
                 const err = jerr?.error ?? await response.text();
                 if (events?.onError) {
+                    console.error(localOptions?.agentName, err)
                     events.onError(err, localOptions?.agentName ?? "");
                     return {} as InferenceResult;
                 } else {
@@ -401,7 +402,9 @@ class Lm implements LmProvider {
             }
             if (!response.body) {
                 if (events?.onError) {
-                    events.onError(new Error("No response body"), localOptions?.agentName ?? "");
+                    const err = "No response body";
+                    console.error(localOptions?.agentName, err)
+                    events.onError(new Error(err), localOptions?.agentName ?? "");
                 };
                 throw new Error("No response body")
             }
@@ -432,15 +435,15 @@ class Lm implements LmProvider {
                     if (!done) {
                         const payload = JSON.parse(event.data);
                         //console.log("PL", this?.onPromptProcessingProgress, payload);
-                        if (events?.onPromptProcessingProgress) {
-                            if (payload?.prompt_progress) {
+                        if (payload?.prompt_progress) {
+                            if (events?.onPromptProcessingProgress) {
                                 const rpr = payload.prompt_progress as PromptProcessingProgress;
                                 const pr = calcPromptProcessingProgress(rpr);
                                 promptProcessingStats = rpr;
                                 events.onPromptProcessingProgress(pr, this.name);
                             }
                         }
-                        if (i == 1 && !payload?.prompt_progress) {
+                        else if (i == 1) {
                             if (events.onStartEmit) {
                                 events.onStartEmit(calcPromptProcessingProgress(promptProcessingStats), localOptions?.agentName ?? this.name)
                             }

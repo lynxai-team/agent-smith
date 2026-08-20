@@ -1,7 +1,7 @@
 import { HistoryTurn, AgentSpec, type AgentInferenceOptions } from "@agent-smith/types";
 
 function applyVariables(agentSpec: AgentSpec, options: AgentInferenceOptions): AgentSpec {
-    //console.log("\n--------TD", typeof agentSpec, Object.keys(agentSpec))
+    //console.log("\n--------APPLY VARS OPTS", options)
     // check agentSpec variables
     if (agentSpec?.variables) {
         if (!options?.variables) {

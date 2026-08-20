@@ -80,7 +80,7 @@ class Agent {
             this.history = [hist];
             console.log("END AGENT TC HIST", this.name, localOptions.history);
         } else*/
-        if (localOptions?.history) {
+        if (localOptions?.history && !localOptions?.isToolCall) {
             this.history = localOptions.history;
         }
         this.tools = {};
@@ -101,6 +101,9 @@ class Agent {
                     }
                     localOptions.model = this.spec.model;
                 }
+                if (!localOptions.params) {
+                    localOptions.params = this.spec.inferParams;
+                }
             } else {
                 if (!options?.propagateModel) {
                     if (!this.spec?.model) {
@@ -108,24 +111,20 @@ class Agent {
                     }
                     localOptions.model = this.spec.model;
                 }
+                if (!options?.propagateInferParams) {
+                    localOptions.params = this.spec.inferParams;
+                }
+                if (this.spec?.tools) {
+                    localOptions.tools = this.spec.tools;
+                }
+                localOptions.history = []
             }
-            /*console.log("A", this.name, "TC", localOptions?.isToolCall, "P", localOptions?.propagateModel);
-            console.log("M", localOptions?.model);
+            //console.log("OPTS", this.name, localOptions);
+            /*console.log("M", localOptions?.model);
             console.log("B", localOptions?.backend);
             console.log("ASB", this?.spec?.backend);*/
             // variables
             applyVariables(this.spec, localOptions);
-            // infer params
-            if (!options?.isToolCall) {
-                if (!localOptions.params) {
-                    localOptions.params = this.spec.inferParams;
-                }
-                //localOptions.params = formatInferParams(this.spec.inferParams ?? {}, localOptions ?? {});
-            } else {
-                if (!options?.propagateInferParams) {
-                    localOptions.params = this.spec.inferParams;
-                }
-            }
             //console.log("IPOPTS", localOptions?.params);
             //console.log("SPECOPTS", this?.spec?.name, this?.spec?.inferParams);
             // prompt
@@ -230,7 +229,7 @@ class Agent {
                 if (events.onAssistant) {
                     events.onAssistant(_res.text, this.name);
                 }
-                const ht: HistoryTurn = { assistant: res.thinkingText, stats: res?.stats ? convertStats(res.stats) : undefined };
+                const ht: HistoryTurn = { assistant: res.text, stats: res?.stats ? convertStats(res.stats) : undefined };
                 this.history.push(ht)
             }
         }
