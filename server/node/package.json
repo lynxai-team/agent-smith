@@ -1,6 +1,6 @@
 {
   "name": "@agent-smith/server",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Agent Smith Nodejs server",
   "repository": {
     "type": "git",
@@ -14,7 +14,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@agent-smith/core": "^0.0.16",
+    "@agent-smith/core": "^0.0.17",
     "@koa/cors": "^5.0.0",
     "@koa/router": "^15.7.0",
     "ansi-colors": "^4.1.3",

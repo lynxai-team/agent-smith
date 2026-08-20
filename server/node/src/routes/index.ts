@@ -5,7 +5,6 @@ import { getAgentRoute, getAgentsRoute } from "./agents.js";
 import { createConfRoute, getConfRoute } from "./conf.js";
 import { getToolsRoute } from "./tools.js";
 import { getStateRoute } from "./state.js";
-import { installPluginRoute } from "./plugins.js";
 import { addFolderRoute } from "./folders.js";
 import { getWorkflowRoute, getWorkflowsRoute } from "./workflows.js";
 import { getBackendsRoute, setBackendRoute } from "./backends.js";
@@ -26,7 +25,6 @@ const baseRoutes = new Array<((r: Router) => void)>(
     getStateRoute,
     createConfRoute,
     updateAgentSettingsCmd,
-    installPluginRoute,
     addFolderRoute,
     getWorkflowRoute,
     getWorkflowsRoute,
