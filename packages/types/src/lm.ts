@@ -27,7 +27,6 @@ import type { InferenceResult } from "./inference.js";
 import type { ModelInfo } from "./model.js";
 import type { InferenceCallbacks } from "./callbacks.js";
 import type { ToolSpec } from "./tools.js";
-import type { ChatCompletionContentPart, ChatCompletionMessageToolCall, ChatCompletionRole } from "openai/resources/index.js";
 import type { ChatCompletionHistoryTurn } from "./history.js";
 
 /**

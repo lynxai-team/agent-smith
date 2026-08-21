@@ -127,7 +127,7 @@ interface UiHistoryTurn extends HistoryTurn {
  *
  * @interface ToolTurn
  * @property {ToolCallSpec} call - The tool call specification.
- * @property {any} response - The response from the tool call.
+ * @property {any [ undefined]} response - The response from the tool call.
  * @property {string} from - The source that initiated the tool call.
  * @property {string} type - The type/category of the tool turn.
  * @example
@@ -140,7 +140,7 @@ interface UiHistoryTurn extends HistoryTurn {
  */
 interface ToolTurn {
     call: ToolCallSpec;
-    response: any;
+    response?: any;
     from: string;
     type: string;
 }

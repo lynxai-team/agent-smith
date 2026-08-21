@@ -29,7 +29,6 @@
 
 import type { FeatureType } from "./core.js";
 import type { ToolCallSpec } from "./tools.js";
-import type { HistoryTurn, ToolTurn } from "./history.js";
 import type { InferenceParams } from "./inference.js";
 import type { AllCallbacks } from "./callbacks.js";
 

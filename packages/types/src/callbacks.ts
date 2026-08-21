@@ -70,7 +70,7 @@ interface InferenceCallbacks {
  * @property {(tc: Array<ToolCallSpec>, from: string) => void} [onToolsTurnStart] - Callback for tools turn start.
  * @property {(tt: Array<ToolTurn>, from: string) => void} [onToolsTurnEnd] - Callback for tools turn end.
  * @property {(from: string) => void} [onTurnStart] - Callback when a new turn starts.
- * @property {(ht: HistoryTurn, from: string) => void} [onTurnEnd] - Callback for turn end.
+ * @property {(ht: Array<HistoryTurn>, from: string) => void} [onTurnEnd] - Callback for turn end.
  * @property {(txt: string, from: string) => void} [onAssistant] - Callback for assistant text.
  * @property {(txt: string, from: string) => void} [onThink] - Callback for thinking text.
  * @example
@@ -86,7 +86,7 @@ interface AgentCallbacks {
     onToolsTurnStart?: (tc: Array<ToolCallSpec>, from: string) => void;
     onToolsTurnEnd?: (tt: Array<ToolTurn>, from: string) => void;
     onTurnStart?: (from: string) => void;
-    onTurnEnd?: (ht: HistoryTurn, from: string) => void;
+    onTurnEnd?: (ht: Array<HistoryTurn>, from: string) => void;
     onAssistant?: (txt: string, from: string) => void;
     onThink?: (txt: string, from: string) => void;
 }
