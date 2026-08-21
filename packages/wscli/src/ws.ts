@@ -150,7 +150,7 @@ const useWsServer = (params: ServerParams, port = 5184) => {
                 break
             case "finalresult":
                 //console.log("FINAL RES", msg);
-                const history = JSON.parse(msg) as HistoryTurn;
+                const history = JSON.parse(msg) as Array<HistoryTurn>;
                 //console.log("HIST", history);
                 if (params?.onTurnEnd) {
                     params.onTurnEnd(history, from)
