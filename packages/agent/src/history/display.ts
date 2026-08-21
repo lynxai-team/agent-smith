@@ -15,10 +15,10 @@ function displayMessagesHistory(msgs: Array<{
             console.log(0, "SYSTEM:", formatLimitTxt(`${msg.content}`));
             continue
         }
-        if (msg.role == "user") {
+        else if (msg.role == "user") {
             console.log(i, "USER:", formatLimitTxt(`${msg.content}`))
         }
-        if (msg.role == "assistant") {
+        else if (msg.role == "assistant") {
             if (msg.reasoning_content) {
                 console.log(i, "THINK:", formatLimitTxt(msg.reasoning_content))
             }
@@ -27,13 +27,18 @@ function displayMessagesHistory(msgs: Array<{
             }
             if (msg?.tool_calls) {
                 console.log(i, "TOOL CALLS:");
-                msg.tool_calls.forEach(t => {
+                for (const t of msg.tool_calls) {
+                    // @ts-ignore
+                    if (t?.role == "tool") {
+                        // tool response
+                        continue
+                    }
                     // @ts-ignore
                     const tcn = t.function.name;
                     // @ts-ignore
                     const tca = formatLimitTxt(t.function.arguments);
                     console.log("-", tcn, tca)
-                })
+                }
             }
         }
         if (msg.role == "tool") {

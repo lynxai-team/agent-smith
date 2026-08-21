@@ -41,7 +41,7 @@ function buildMessagesHistory(
             reasoning_content?: string,
             tool_calls?: Array<ChatCompletionMessageToolCall>
         } = {
-            role: "assistant"
+            role: "assistant",
         };
         if (turn?.assistant) {
             assistantMsg.content = turn.assistant;
@@ -54,28 +54,38 @@ function buildMessagesHistory(
             }
         }
         const toolResponses = new Array<any>();
+        //console.log("TURNTOOLS", turn?.tools);
         if (turn?.tools) {
             const toolCalls = new Array<ChatCompletionMessageToolCall>();
             turn.tools.forEach(tt => {
-                toolCalls.push({
-                    id: tt.call.id ?? "",
-                    type: "function",
-                    "function": {
-                        name: tt.call.name,
-                        arguments: JSON.stringify(tt.call.arguments)
-                    }
-                });
-                toolResponses.push({
-                    role: "tool",
-                    tool_call_id: tt.call.id,
-                    content: JSON.stringify(tt.response),
-                })
+                if (tt?.response) {
+                    toolResponses.push({
+                        role: "tool",
+                        tool_call_id: tt.call.id,
+                        content: JSON.stringify(tt.response),
+                    })
+                } else {
+                    toolCalls.push({
+                        id: tt.call.id,
+                        type: "function",
+                        "function": {
+                            name: tt.call.name,
+                            arguments: JSON.stringify(tt.call.arguments)
+                        }
+                    });
+                    // @ts-ignore
+                    assistantMsg = { ...assistantMsg, tool_calls: toolCalls }
+                }
             });
-            // @ts-ignore
-            assistantMsg = { ...assistantMsg, tool_calls: toolCalls }
         }
         // @ts-ignore
-        if (assistantMsg?.content || assistantMsg?.tool_calls) {
+        if (assistantMsg?.content || assistantMsg?.reasoning_content || assistantMsg?.tool_calls) {
+            if (assistantMsg?.reasoning_content && !assistantMsg?.tool_calls) {
+                if (!assistantMsg?.content) {
+                    // patch to not send an assistant message with only reasoning content
+                    assistantMsg.content = "...";
+                }
+            }
             msgs.push(assistantMsg);
         }
         if (toolResponses.length > 0) {

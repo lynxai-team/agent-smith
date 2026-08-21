@@ -16,7 +16,7 @@ class Agent {
     onToolsTurnStart?: (tc: Array<ToolCallSpec>, from: string) => void;
     onToolsTurnEnd?: (tt: Array<ToolTurn>, from: string) => void;
     onTurnStart?: (from: string) => void;
-    onTurnEnd?: (ht: HistoryTurn, from: string) => void;
+    onTurnEnd?: (ht: Array<HistoryTurn>, from: string) => void;
     onAssistant?: (txt: string, from: string) => void;
     onThink?: (txt: string, from: string) => void;
 
@@ -213,15 +213,14 @@ class Agent {
         //console.log(it, this.name, "tc:", localOptions?.isToolCall, "history:");
         //console.dir(this.history, { depth: 5 })
         let _res = res;
-        //console.log("RES", res);
+        const historyTurn: HistoryTurn = { stats: res?.stats ? convertStats(res.stats) : undefined };
         const toolsResults = new Array<ToolTurn>();
         if (_res?.thinkingText) {
             if (_res.thinkingText.length > 0) {
                 if (events.onThink) {
                     events.onThink(_res.thinkingText, this.name);
                 };
-                const ht: HistoryTurn = { think: res.thinkingText, stats: res?.stats ? convertStats(res.stats) : undefined };
-                this.history.push(ht)
+                historyTurn.think = res.thinkingText;
             }
         }
         if (_res?.text) {
@@ -229,8 +228,7 @@ class Agent {
                 if (events.onAssistant) {
                     events.onAssistant(_res.text, this.name);
                 }
-                const ht: HistoryTurn = { assistant: res.text, stats: res?.stats ? convertStats(res.stats) : undefined };
-                this.history.push(ht)
+                historyTurn.assistant = res.text;
             }
         }
         if (res?.toolCalls) {
@@ -238,6 +236,7 @@ class Agent {
             if (events.onToolsTurnStart) {
                 events.onToolsTurnStart(res.toolCalls, this.name);
             }
+            historyTurn.tools = [];
             const toolNames = Object.keys(this.tools);
             const syncTools = new Array<() => Promise<void>>();
             const parallelTools = new Array<() => Promise<void>>();
@@ -246,6 +245,7 @@ class Agent {
                 if (!toolNames.includes(tc.name)) {
                     throw new Error(`Inexistant tool ${tc.name} called (available tools: ${toolNames})`)
                 }
+                historyTurn.tools.push({ call: tc, response: null, from: this.name, type: "" })
                 const tool = this.tools[tc.name];
                 //console.log("AGENT TOOL", tool);
                 let canRun = true;
@@ -361,7 +361,7 @@ class Agent {
             if (events?.onToolsTurnEnd) {
                 events.onToolsTurnEnd(toolsResults, this.name);
             }
-            const ht: HistoryTurn = { tools: toolsResults, stats: res?.stats ? convertStats(res.stats) : undefined };
+            //historyTurn.tools = toolsResults;
             //console.log(this.name, it, localOptions?.isToolCall, it == 1 && !localOptions?.isToolCall);
             /*if (it > 1 && !localOptions?.isToolCall) {
                 ht.user = prompt
@@ -373,8 +373,7 @@ class Agent {
                 ht.assistant = res.text
             }*/
             //console.log("TC HT", this.name, "tc", localOptions?.isToolCall ?? false);
-            //console.dir(ht, { depth: 5 })
-            this.history.push(ht);
+            //console.dir(ht, { depth: 5 })            
             //localOptions.history?.push(ht);
             //console.log("TC HIST", this.name, "tc", localOptions?.isToolCall ?? false);
             //console.dir(this.history, { depth: 5 })
@@ -388,7 +387,7 @@ class Agent {
                 }
                 //console.log("TURN END ROUTING", this.name, toolsResults.map(tr => tr.response));
                 if (events?.onTurnEnd) {
-                    events.onTurnEnd(this.history[this.history.length - 1], this.name)
+                    events.onTurnEnd(this.history, this.name)
                 }
                 return fres
             }
@@ -403,9 +402,14 @@ class Agent {
                 localOptions.tools = Object.values(this.tools);
             }
             //console.log("TURN END Tc", this.name);
-            if (events?.onTurnEnd) {
-                events.onTurnEnd(this.history[this.history.length - 1], this.name)
+            this.history.push(historyTurn);
+            if (toolsResults) {
+                this.history.push({ tools: toolsResults })
             }
+            if (events?.onTurnEnd) {
+                events.onTurnEnd(this.history, this.name)
+            }
+            //console.log("HISTORY TURN\n", historyTurn);
             localOptions.history = this.history;
             //console.log("END LOOP HIST", this.name + ":");
             //console.dir(this.history, { depth: 6 });
@@ -423,8 +427,9 @@ class Agent {
             //console.log("PUSH TURN", turn);
             this.history.push(turn);*/
             //console.log("TURN END NO TC", this.name);
+            this.history.push(historyTurn);
             if (events?.onTurnEnd) {
-                events.onTurnEnd(this.history[this.history.length - 1], this.name)
+                events.onTurnEnd(this.history, this.name)
             }
         }
         return _res

@@ -234,6 +234,7 @@ class Lm implements LmProvider {
         let msgs = new Array<ChatCompletionHistoryTurn>();
         if (localOptions?.history) {
             msgs = buildMessagesHistory(localOptions.history, localOptions);
+            //console.log("Local history:\n", msgs)
         }
         //console.log("\nCLIENT HIST OUT", localOptions?.agentName ?? this.name, localOptions?.isToolCall, msgs);
         //console.log("AGENT IP", inferenceParams);
@@ -329,6 +330,7 @@ class Lm implements LmProvider {
             }
         } else {
             //console.log("C OPTS", localOptions?.onPromptProcessingProgress !== undefined ? true : false, localOptions?.onPromptProcessingProgress)
+            //console.log("Local history:\n", msgs);
             const ip: ChatCompletionCreateParamsStreaming & { return_progress?: boolean } = {
                 // @ts-ignore
                 messages: msgs,
@@ -360,7 +362,9 @@ class Lm implements LmProvider {
                 }
                 if (localOptions?.history && localOptions.history.length > 0) {
                     console.log(`-------------------- History ${localOptions?.agentName} -----------------------`);
-                    displayMessagesHistory(msgs)
+                    displayMessagesHistory(msgs);
+                    //const hms = buildMessagesHistory(localOptions.history, localOptions);
+                    //console.dir(hms, { depth: 4 })
                 } else {
                     console.log(`-------------------- History ${localOptions?.agentName} -----------------------`);
                     if (localOptions?.system) {
@@ -395,9 +399,9 @@ class Lm implements LmProvider {
                 if (events?.onError) {
                     console.error(localOptions?.agentName, err)
                     events.onError(err, localOptions?.agentName ?? "");
-                    return {} as InferenceResult;
+                    return { text: `Inference response error: ${err}` } as InferenceResult;
                 } else {
-                    throw new Error(`Inference server error: ${JSON.stringify(err, null, 2)}`)
+                    throw new Error(`Inference server error: ${err}`)
                 }
             }
             if (!response.body) {
