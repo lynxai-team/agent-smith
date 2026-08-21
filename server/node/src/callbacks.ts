@@ -59,11 +59,11 @@ function buildCallbacks(msg: WsClientMsg, ctx: Context,
         }
         ctx.websocket.send(JSON.stringify(rsm));
     };
-    msg.options.onTurnEnd = (ht: Record<string, any>, from: string) => {
+    msg.options.onTurnEnd = (hts: Array<Record<string, any>>, from: string) => {
         const rsm: WsRawServerMsg = {
             type: "turnend",
             from: from,
-            msg: JSON.stringify(ht),
+            msg: JSON.stringify(hts),
         }
         ctx.websocket.send(JSON.stringify(rsm));
     };
