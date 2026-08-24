@@ -58,7 +58,8 @@ function buildMessagesHistory(
         if (turn?.tools) {
             const toolCalls = new Array<ChatCompletionMessageToolCall>();
             turn.tools.forEach(tt => {
-                if (tt?.response) {
+                // null/undefined = pending call; falsy-but-valid results ("", 0, false) are real responses
+                if (tt?.response !== undefined && tt?.response !== null) {
                     toolResponses.push({
                         role: "tool",
                         tool_call_id: tt.call.id,

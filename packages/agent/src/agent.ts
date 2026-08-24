@@ -310,7 +310,8 @@ class Agent {
                         if (verbosity?.toolResults && ok) {
                             console.log("[x] Executed tool", tool.name + ":\n", toolCallResult);
                         }
-                        toolsResults.push({ call: tc, response: toolCallResult, from: this.name, type: tool.type });
+                        const storedResponse = toolCallResult === undefined ? "[Tool returned no output]" : toolCallResult;
+                        toolsResults.push({ call: tc, response: storedResponse, from: this.name, type: tool.type });
                         if (events?.onAssistant && tool.type == "agent") {
                             if (typeof toolCallResult == "object") {
                                 const ln = Object.keys(toolCallResult).length;
@@ -338,6 +339,8 @@ class Agent {
                         syncTools.push(f);
                     }
                 } else {
+                    // record a synthetic result so the history never ends with an unresolved tool call
+                    toolsResults.push({ call: tc, response: `[Tool ${tool.name} execution refused]`, from: this.name, type: tool.type });
                     if (verbosity?.events) {
                         const m = `[-] Tool", ${tool.name}, "execution refused`;
                         if (events?.onToolCallEnd) {
