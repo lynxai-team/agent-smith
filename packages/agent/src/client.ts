@@ -396,12 +396,14 @@ class Lm implements LmProvider {
             if (!response.ok) {
                 const jerr = await response.json();
                 const err = jerr?.error ?? await response.text();
+                const perr = typeof err == "string" ? JSON.parse(err) : err;
+                const msg = perr.message;
                 if (events?.onError) {
                     console.error(localOptions?.agentName, err)
-                    events.onError(err, localOptions?.agentName ?? "");
-                    return { text: `Inference response error: ${err}` } as InferenceResult;
+                    events.onError(perr, localOptions?.agentName ?? "");
+                    return { text: `Inference response error: ${msg}` } as InferenceResult;
                 } else {
-                    throw new Error(`Inference server error: ${err}`)
+                    throw new Error(`Inference server error: ${msg}`)
                 }
             }
             if (!response.body) {

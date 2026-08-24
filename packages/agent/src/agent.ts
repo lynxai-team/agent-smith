@@ -202,18 +202,19 @@ class Agent {
         //console.log("AGENT CLIENT OPS", clientOpts);
         //console.log("PROMPT:", prompt);
         const res = await this.lm.infer(prompt, clientOpts);
+        const stats = res?.stats ? convertStats(res.stats) : undefined;
         //console.log("(AGENT) RUN RES:");
         //console.dir(res, { depth: 8 })
         //console.log("IT", it, prompt);
         if (it == 1) {
-            this.history.push({ user: prompt, stats: res?.stats ? convertStats(res.stats) : undefined });
+            this.history.push({ user: prompt, stats: stats });
         } else if (it > 1 && !localOptions?.isToolCall) {
-            this.history.push({ user: prompt, stats: res?.stats ? convertStats(res.stats) : undefined });
+            this.history.push({ user: prompt, stats: stats });
         }
         //console.log(it, this.name, "tc:", localOptions?.isToolCall, "history:");
         //console.dir(this.history, { depth: 5 })
         let _res = res;
-        const historyTurn: HistoryTurn = { stats: res?.stats ? convertStats(res.stats) : undefined };
+        const historyTurn: HistoryTurn = { stats: stats };
         const toolsResults = new Array<ToolTurn>();
         if (_res?.thinkingText) {
             if (_res.thinkingText.length > 0) {
@@ -391,11 +392,6 @@ class Agent {
                 }
                 return fres
             }
-
-            /*if (nit > 1 && localOptions?.debug) {
-                localOptions.debug = false;
-                localOptions.verbose = true;
-            }*/
             //console.log("HISTORY:");
             //console.dir(localOptions.history, {depth: 8});         
             if (localOptions?.tools) {
@@ -404,7 +400,7 @@ class Agent {
             //console.log("TURN END Tc", this.name);
             this.history.push(historyTurn);
             if (toolsResults) {
-                this.history.push({ tools: toolsResults })
+                this.history.push({ tools: toolsResults, stats: stats })
             }
             if (events?.onTurnEnd) {
                 events.onTurnEnd(this.history, this.name)
@@ -416,17 +412,6 @@ class Agent {
             _res = await this._runAgent(it + 1, "", localOptions);
             //console.log("END RUN AGENT TC", this.name);
         } else {
-            //console.log("END RUN AGENT NO TC", this.name);
-            /*const turn: HistoryTurn = { assistant: res.text, stats: res?.stats ? convertStats(res.stats) : undefined };
-            if (it > 1 && !localOptions?.isToolCall) {
-                turn.user = prompt
-            }*/
-            /*if (res?.thinkingText) {
-                turn.think = res.thinkingText
-            }
-            //console.log("PUSH TURN", turn);
-            this.history.push(turn);*/
-            //console.log("TURN END NO TC", this.name);
             this.history.push(historyTurn);
             if (events?.onTurnEnd) {
                 events.onTurnEnd(this.history, this.name)
