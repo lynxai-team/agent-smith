@@ -67,7 +67,7 @@ class Agent {
         prompt: string,
         options: AgentInferenceOptions = {},
     ): Promise<InferenceResult> {
-        const localOptions: AgentInferenceOptions = Object.assign({}, options);
+        let localOptions: AgentInferenceOptions = Object.assign({}, options);
         //console.log("AGENT OPTS IN", localOptions);
         /*if (localOptions?.isToolCall) {
             console.log("START AGENT TC HIST", this.name, localOptions.history);
@@ -202,6 +202,7 @@ class Agent {
         //console.log("AGENT CLIENT OPS", clientOpts);
         //console.log("PROMPT:", prompt);
         const res = await this.lm.infer(prompt, clientOpts);
+        //console.log("END AGENT CLIENT OPS", clientOpts);
         const stats = res?.stats ? convertStats(res.stats) : undefined;
         //console.log("(AGENT) RUN RES:");
         //console.dir(res, { depth: 8 })
@@ -232,6 +233,7 @@ class Agent {
                 historyTurn.assistant = res.text;
             }
         }
+        let imageDataFromToolCall = new Array<{ path: string, data: string }>();
         if (res?.toolCalls) {
             //console.log("TTS", this.name);
             if (events.onToolsTurnStart) {
@@ -293,8 +295,11 @@ class Agent {
                             }*/
                             //console.log("EXEC TC OPTs", tc.name, tool?.type, tool?.agentType, "c=" + toolCallArgs.toolOptions?.caller);
                             toolCallResult = await tool.execute(toolCallArgs);
-                            //console.log("TCR*******", toolCallResult)
-                            //console.log("*************")
+                            //console.log("TCR*******", toolCallResult);
+                            if (toolCallResult?.imagesData) {
+                                imageDataFromToolCall = toolCallResult.imagesData as Array<{ path: string, data: string }>;
+                                delete toolCallResult.imagesData
+                            }
                             ok = true;
                         } catch (e) {
                             toolCallResult = `[Error] running tool call ${e},\n ${JSON.stringify(tc, null, 2)}`;
@@ -365,17 +370,6 @@ class Agent {
             if (events?.onToolsTurnEnd) {
                 events.onToolsTurnEnd(toolsResults, this.name);
             }
-            //historyTurn.tools = toolsResults;
-            //console.log(this.name, it, localOptions?.isToolCall, it == 1 && !localOptions?.isToolCall);
-            /*if (it > 1 && !localOptions?.isToolCall) {
-                ht.user = prompt
-            }*/
-            /*if (res.thinkingText) {
-                ht.think = res.thinkingText
-            }
-            if (res.text) {
-                ht.assistant = res.text
-            }*/
             //console.log("TC HT", this.name, "tc", localOptions?.isToolCall ?? false);
             //console.dir(ht, { depth: 5 })            
             //localOptions.history?.push(ht);
@@ -401,18 +395,35 @@ class Agent {
                 localOptions.tools = Object.values(this.tools);
             }
             //console.log("TURN END Tc", this.name);
-            this.history.push(historyTurn);
-            if (toolsResults) {
-                this.history.push({ tools: toolsResults, stats: stats })
+            let runOptions = { ...localOptions };
+            let pr = "";
+            if (imageDataFromToolCall.length > 0) {
+                runOptions.history = this.history;
+                const imgs = imageDataFromToolCall.map(imd => imd.path).join(", ");
+                const plural = imageDataFromToolCall.length > 1 ? 's' : '';
+                runOptions.history.push({
+                    assistant: `Opening image${plural} ${imgs} ...`
+                });
+                if (!runOptions?.params) {
+                    runOptions.params = {}
+                }
+                runOptions.params.images = imageDataFromToolCall.map(imd => imd.data);
+                pr = `Image${plural} available${plural}`
+                imageDataFromToolCall = []
+            } else {
+                this.history.push(historyTurn);
+                if (toolsResults) {
+                    this.history.push({ tools: toolsResults, stats: stats })
+                }
+                runOptions.history = this.history;
             }
             if (events?.onTurnEnd) {
                 events.onTurnEnd(this.history, this.name)
             }
             //console.log("HISTORY TURN\n", historyTurn);
-            localOptions.history = this.history;
             //console.log("END LOOP HIST", this.name + ":");
             //console.dir(this.history, { depth: 6 });
-            _res = await this._runAgent(it + 1, "", localOptions);
+            _res = await this._runAgent(it + 1, pr, runOptions);
             //console.log("END RUN AGENT TC", this.name);
         } else {
             this.history.push(historyTurn);

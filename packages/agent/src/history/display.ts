@@ -16,7 +16,13 @@ function displayMessagesHistory(msgs: Array<{
             continue
         }
         else if (msg.role == "user") {
-            console.log(i, "USER:", formatLimitTxt(`${msg.content}`))
+            if (msg?.content) {
+                if (typeof msg.content == "string") {
+                    console.log(i, "USER:", formatLimitTxt(`${msg.content}`))
+                } else {
+                    console.log(i, "USER:", formatLimitTxt(JSON.stringify(msg.content)));
+                }
+            }
         }
         else if (msg.role == "assistant") {
             if (msg.reasoning_content) {

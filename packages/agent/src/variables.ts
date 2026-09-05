@@ -13,7 +13,7 @@ function applyVariables(agentSpec: AgentSpec, options: AgentInferenceOptions): A
                     let m = `The variable ${name} is required to run the agent ${agentSpec.name}`;
                     //m += `${JSON.stringify(agentSpec.variables, null, 2)}\n`;
                     m += `Provided options variables: ${JSON.stringify(options.variables, null, 2)}`;
-                    console.log("OPTs", options);
+                    //console.log("OPTs", options);
                     throw new Error(m)
                 }
             }
