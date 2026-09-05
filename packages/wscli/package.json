@@ -1,7 +1,7 @@
 {
   "name": "@agent-smith/wscli",
-  "version": "0.0.9",
-  "description": "An websockets client for the Agent Smith server",
+  "version": "0.0.10",
+  "description": "A websockets client for the Agent Smith server",
   "repository": "https://github.com/synw/agent-smith",
   "scripts": {
     "buildrl": "rm -rf dist/* && rollup -c",

@@ -50,6 +50,15 @@ const useClientFeatures = (params: ServerParams = { onToken: (t) => null }, port
         variables.required = {};
         variables.optional = {};
         const res = await api.get<AgentSpec>(`/agent/${name}/`);
+        if (!res.ok) {
+            if (params?.onError) {
+                const m = res.statusText + " " + res.text;
+                console.error(agentSpec.value.name, m);
+                params.onError(m, agentSpec.value.name)
+            } else {
+                throw new Error(res.status + " " + res.text)
+            }
+        }
         agentSpec.value = res.data;
         if (res.data?.variables) {
             //console.log("VARS", res.data.variables);
