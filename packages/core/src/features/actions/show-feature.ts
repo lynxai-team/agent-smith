@@ -1,7 +1,7 @@
 /*
 # tool
 name: show-feature
-description: 'only use this to show the details of an Agent Smith feature: agent, action, adaptater, skill, command or workflow'
+description: 'use this to show the details of an Agent Smith feature: agent, action, adaptater, skill, command or workflow'
 arguments:
     name:
         description: the feature name

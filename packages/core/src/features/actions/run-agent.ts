@@ -41,7 +41,7 @@ async function action(args: Record<string, any>, options: Record<string, any>) {
     if (aOpts?.tools) {
         delete aOpts.tools;
     }
-    if (aOpts?.debug) {
+    if (true) {
         console.log("Running agent", args.name);
         console.log(args.prompt);
         console.log("Options:", aOpts);

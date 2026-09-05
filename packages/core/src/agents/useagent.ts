@@ -258,7 +258,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 finalPrompt = res
             } else {
                 if (!res?.prompt) {
-                    throw new Error(`before agent workflow ${agentSpec.workflow.before} result: no prompt provided in object`);
+                    throw new Error(`before agent workflow ${JSON.stringify(agentSpec.workflow.before, null, 2)} \nResult: no prompt provided in result: ${res}`);
                 }
                 finalPrompt = res.prompt;
                 delete res.prompt;
@@ -269,8 +269,9 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
             }
         }
         try {
-            //console.log("AGENT RUN");
+            //console.log("AGENT RUN OPTS", localOptions);
             out = await agent.run(finalPrompt, localOptions);
+            //console.log("END AGENT RUN OPTS", localOptions);
         } catch (e: any) {
             //console.log("ERR CATCH", e);
             const errMsg = `${e}`;

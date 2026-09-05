@@ -1,5 +1,5 @@
 import { pathToFileURL } from "node:url";
-import type { AgentInferenceOptions, FeatureType, WorkflowStep } from "@agent-smith/types";
+import { HistoryTurn, type AgentInferenceOptions, type FeatureType, type WorkflowStep } from "@agent-smith/types";
 import { getFeatureSpec } from "../state/features.js";
 import { executeAction } from "../actions/cmd.js";
 import { executeAdaptater } from "../adaptaters/cmd.js";
@@ -37,6 +37,12 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
         if (isDebug || isVerbose) {
             console.log(i + 1, step.name, `\x1b[2m${step.type}\x1b[0m`)
         }
+        let inlineOpts: AgentInferenceOptions & Record<string, any> = {};
+        if (isInline) {
+            inlineOpts = { ...options };
+            inlineOpts.history = [];
+            inlineOpts.tools = [];
+        }
         switch (step.type) {
             case "agent":
                 try {
@@ -55,11 +61,11 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
                         }
                     }
                     if (!tdata?.prompt) {
-                        throw new Error(`Workflow ${wname} step ${i + 1}: provide a prompt for the task ${step.name}`)
+                        throw new Error(`Workflow ${wname} step ${i + 1}: provide a prompt for the agent ${step.name}`)
                     }
                     options.isAgent = true;
-                    //console.log("WF EXEC AGENT", step.name, tdata, options);
-                    const tr = await executeAgent(step.name, tdata, options);
+                    //console.log("WF EXEC AGENT", step.name, tdata, options);                    
+                    const tr = await executeAgent(step.name, tdata, isInline ? inlineOpts : options);
                     //console.log("WFI AGENT RES", tr)
                     options.isAgent = false;
                     if (isInline && i == finalTaskIndex) {
@@ -73,7 +79,7 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
                         break
                     }
                 } catch (e) {
-                    throw new Error(`workflow task ${i + 1}: ${e}`)
+                    throw new Error(`workflow agent ${i + 1}: ${e}`)
                 }
                 break;
             case "action":
@@ -104,7 +110,7 @@ async function executeWorkflow(wname: string, args: any, options: AgentInference
                             taskRes = { ...ares, ...taskRes };
                         }
                     }
-                    if (i == finalTaskIndex && !options?.isToolCall && !options.nocli) {
+                    if (i == finalTaskIndex && !options?.isToolCall && !options.nocli && !isInline) {
                         console.log(ares);
                         break
                     }

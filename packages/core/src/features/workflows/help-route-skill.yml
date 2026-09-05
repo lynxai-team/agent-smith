@@ -1,0 +1,13 @@
+tool:
+  description: route help skills
+  arguments:
+    prompt:
+        description: "the user's query"
+steps:
+  - adaptater: before-load-route-skill
+  - agent: agent-smith-help-route-skill
+  - adaptater: load-route-skill
+variables:
+  required:
+    workspace:
+      description: The local directory path where to operate
