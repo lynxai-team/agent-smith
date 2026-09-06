@@ -207,11 +207,13 @@ class Agent {
         //console.log("(AGENT) RUN RES:");
         //console.dir(res, { depth: 8 })
         //console.log("IT", it, prompt);
-        if (it == 1) {
-            this.history.push({ user: prompt, stats: stats });
-        } else if (it > 1 && !localOptions?.isToolCall) {
-            this.history.push({ user: prompt, stats: stats });
+        const ht: HistoryTurn = { user: prompt, stats: stats };
+        if (localOptions?.params?.images) {
+            ht.images = localOptions.params.images;
+            // clear images from options
+            delete localOptions.params.images
         }
+        this.history.push(ht);
         //console.log(it, this.name, "tc:", localOptions?.isToolCall, "history:");
         //console.dir(this.history, { depth: 5 })
         let _res = res;
@@ -271,21 +273,22 @@ class Agent {
                             let toolCallArgs: {
                                 [key: string]: any
                             } | undefined = { ...tc.arguments };
-                            //console.log("TC TYPE", tool.name, tool.type, "/", tool?.agentType);
-                            //console.log("TLO", tlo);
                             //if (["agent", "workflow"].includes(tool.type)) {
                             if (tool?.agentType !== "worker") {
                                 // discard history
                                 tlo.history = []
-                            } else {
-                                if (tlo?.system) {
-                                    delete tlo.system
-                                }
-                                if (tlo?.tools) {
-                                    delete tlo.tools
-                                }
                             }
+                            //else {
+                            if (tlo?.system) {
+                                delete tlo.system
+                            }
+                            if (tlo?.tools) {
+                                delete tlo.tools
+                            }
+                            //}
                             tlo.caller = this.name;
+                            //console.log("TC TYPE", tool.name, tool.type, "/", tool?.agentType);
+                            //console.log("TLO", tlo);
                             toolCallArgs.toolOptions = tlo;
                             /*} else {
                                 if (tool?.agentType == "worker") {
@@ -294,6 +297,7 @@ class Agent {
                                 }
                             }*/
                             //console.log("EXEC TC OPTs", tc.name, tool?.type, tool?.agentType, "c=" + toolCallArgs.toolOptions?.caller);
+                            //console.log("TOOLOPTS", toolCallArgs);
                             toolCallResult = await tool.execute(toolCallArgs);
                             //console.log("TCR*******", toolCallResult);
                             if (toolCallResult?.imagesData) {
@@ -394,20 +398,23 @@ class Agent {
             if (localOptions?.tools) {
                 localOptions.tools = Object.values(this.tools);
             }
-            //console.log("TURN END Tc", this.name);
-            let runOptions = { ...localOptions };
+            //console.log("END TURN HIST", historyTurn);
+            let runOptions = Object.assign({}, localOptions);
             let pr = "";
             if (imageDataFromToolCall.length > 0) {
-                runOptions.history = this.history;
                 const imgs = imageDataFromToolCall.map(imd => imd.path).join(", ");
                 const plural = imageDataFromToolCall.length > 1 ? 's' : '';
-                runOptions.history.push({
-                    assistant: `Opening image${plural} ${imgs} ...`
-                });
+                const imgData = imageDataFromToolCall.map(imd => imd.data);
+                // manage history
+                const nt = historyTurn.tools.filter(t => t.call.name !== "load-image");
+                historyTurn.tools = nt;
+                historyTurn.assistant = `Opening image${plural} ${imgs} ...`;
+                this.history.push(historyTurn);
+                runOptions.history = this.history;
                 if (!runOptions?.params) {
                     runOptions.params = {}
                 }
-                runOptions.params.images = imageDataFromToolCall.map(imd => imd.data);
+                runOptions.params.images = imgData;
                 pr = `Image${plural} available${plural}`
                 imageDataFromToolCall = []
             } else {

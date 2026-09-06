@@ -30,9 +30,20 @@ function buildMessagesHistory(
             msgs.push({ role: "system", content: options.system });
         }
         if (turn?.user) {
+            //console.log("=> User", typeof turn.user, turn.user);
+            let content: string | Array<ChatCompletionContentPart> = turn.user;
+            if (turn.images) {
+                content = [
+                    { type: "text", text: turn.user },
+                ];
+                turn.images.forEach(img => {
+                    // @ts-ignore
+                    content.push({ type: "image_url", image_url: { url: img, detail: "auto" } })
+                })
+            }
             msgs.push({
                 role: "user",
-                content: turn.user,
+                content: content,
             });
         }
         let assistantMsg: {
