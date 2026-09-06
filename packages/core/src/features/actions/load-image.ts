@@ -6,6 +6,7 @@ arguments:
     path:
         description: the absolute path of the image file
         required: true
+parallelCalls: false
 */
 import { parsePath } from "../../utils/path.js";
 import { imgs2base64 } from "../utils.js";

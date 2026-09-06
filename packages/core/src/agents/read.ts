@@ -197,13 +197,14 @@ async function readAgent(
             const lmTool: ToolSpec = {
                 ...tool,
                 execute: async (params) => {
-                    //console.log("EXEC TOOL:", type, toolName, params);
+                    //console.log("EXEC TOOL:", toolName, params);
                     let toolOpts = { ...options };
                     if (params?.toolOptions) {
                         toolOpts = params.toolOptions;
                         //console.log("EXECTOOL CALLER", toolOpts?.caller)
                         delete params.toolOptions
                     }
+                    //console.log("TOOL OPTS", toolOpts);
                     toolOpts.isToolCall = true;
                     switch (tool.type) {
                         case "action":
@@ -212,15 +213,6 @@ async function readAgent(
                         case "agent":
                             //console.log("TC AGENT PARAMS", params);
                             //console.log("TOOL", tool.name, "ARGS", tool.arguments)
-                            const sp = params ?? {};
-                            const vars: Record<string, any> = {};
-                            for (const k of Object.keys(sp)) {
-                                if (k !== "prompt") {
-                                    vars[k] = sp[k]
-                                }
-                            }
-                            toolOpts.variables = vars;
-                            //console.log("TOOL VARS", toolOpts.variables)
                             const agres = await executeAgent(toolName, params as { prompt: string & Record<string, any> }, toolOpts);
                             //console.log("WFTRESP", tres.answer.text);
                             if (agres?.text) {
