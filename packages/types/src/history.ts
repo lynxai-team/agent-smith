@@ -21,7 +21,7 @@ import type { ToolCallSpec } from "./tools.js";
  * @property {string} [user] - The user's message content.
  * @property {string} [assistant] - The assistant's response content.
  * @property {string} [think] - The assistant's internal thinking/reasoning content.
- * @property {Array<ImgData>} [images] - Array of image data associated with the turn.
+ * @property {Array<String>} [images] - Array of image data associated with the turn.
  * @property {Array<ToolTurn>} [tools] - Array of tool calls and their responses in this turn.
  * @property {InferenceStats} [stats] - Statistics about inference performance for this turn.
  * @property {PromptProcessingInProgressStats} [prefillStats] - Statistics about prompt prefill processing.
@@ -59,7 +59,7 @@ interface HistoryTurn {
     user?: string;
     assistant?: string;
     think?: string;
-    images?: Array<ImgData>;
+    images?: Array<String>;
     tools?: Array<ToolTurn>;
     stats?: InferenceStats;
     prefillStats?: PromptProcessingInProgressStats;
@@ -145,23 +145,6 @@ interface ToolTurn {
     type: string;
 }
 
-/**
- * Image data associated with a message or response.
- *
- * @interface ImgData
- * @property {number} id - The unique identifier for the image.
- * @property {string} data - The base64 encoded image data.
- * @example
- * const imgExample: ImgData = {
- *   id: 1,
- *   data: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
- * };
- */
-interface ImgData {
-    id: number;
-    data: string;
-}
-
 /*interface InferenceClientHistoryMessage {
     role: ChatCompletionRole;
     content?: string;
@@ -209,7 +192,6 @@ export {
     HistoryTurn,
     UiHistoryTurn,
     ToolTurn,
-    ImgData,
     UiHistoryTurnState,
     UiHistoryTurnType,
     ChatCompletionHistoryTurn,

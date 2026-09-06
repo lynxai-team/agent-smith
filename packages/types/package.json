@@ -1,6 +1,6 @@
 {
   "name": "@agent-smith/types",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Agent Smith Nodejs types",
   "repository": {
     "type": "git",
