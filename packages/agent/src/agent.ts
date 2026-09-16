@@ -269,36 +269,29 @@ class Agent {
                         let toolCallResult: any;
                         let ok = false;
                         try {
-                            const tlo = Object.assign({}, localOptions);
-                            let toolCallArgs: {
+                            /*let toolCallArgs: {
                                 [key: string]: any
-                            } | undefined = { ...tc.arguments };
+                            } | undefined = { ...tc.arguments };*/
+                            const toolCallOpts = { ...localOptions, ...tc.arguments };
+                            //console.log("TCO", toolCallOpts);
                             //if (["agent", "workflow"].includes(tool.type)) {
                             if (tool?.agentType !== "worker") {
                                 // discard history
-                                tlo.history = []
+                                toolCallOpts.history = []
                             }
                             //else {
-                            if (tlo?.system) {
-                                delete tlo.system
+                            if (toolCallOpts?.system) {
+                                delete toolCallOpts.system
                             }
-                            if (tlo?.tools) {
-                                delete tlo.tools
+                            if (toolCallOpts?.tools) {
+                                delete toolCallOpts.tools
                             }
                             //}
-                            tlo.caller = this.name;
+                            toolCallOpts.caller = this.name;
                             //console.log("TC TYPE", tool.name, tool.type, "/", tool?.agentType);
-                            //console.log("TLO", tlo);
-                            toolCallArgs.toolOptions = tlo;
-                            /*} else {
-                                if (tool?.agentType == "worker") {
-                                    tlo.caller = this.name;
-                                    toolCallArgs.toolOptions = tlo;
-                                }
-                            }*/
                             //console.log("EXEC TC OPTs", tc.name, tool?.type, tool?.agentType, "c=" + toolCallArgs.toolOptions?.caller);
-                            //console.log("TOOLOPTS", toolCallArgs);
-                            toolCallResult = await tool.execute(toolCallArgs);
+                            //console.log("TOOLOPTS", toolCallOpts);
+                            toolCallResult = await tool.execute({ ...tc.arguments, toolOptions: toolCallOpts });
                             //console.log("TCR*******", toolCallResult);
                             if (toolCallResult?.imagesData) {
                                 imageDataFromToolCall = toolCallResult.imagesData as Array<{ path: string, data: string }>;
