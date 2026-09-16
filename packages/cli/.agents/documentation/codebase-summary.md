@@ -26,7 +26,8 @@ Commander.js CLI (`lm` binary) providing an interactive REPL and one-shot comman
 | `bin/options.ts` | CLI option definitions: display (verbose/debug/**nocli**), inference (model, temp, backend, mcp), IO (clipboard/file/output format) |
 | `bin/utils.ts` | Utilities: `parseCommandArgs`, `confirmToolUsage` (interactive tool approval), `printToken` (styled streaming output) |
 | `bin/cmd/build.ts` | Command builder: assembles base commands + DB alias commands + dynamic user command features |
-| `bin/cmd/base.ts` | Built-in commands: exit, agents, agent, backend, backends, conf, reset, regendb, update |
+| `bin/cmd/base.ts` | Built-in commands: exit, agents, agent, backend, backends, conf, reset, regendb, update, **plugin, init, updateplugins** |
+| `bin/cmd/install.ts` | Plugin management: `installPlugin()` (npm i -g + config register), `installAll()` (default plugins + GUI via <kbd>init</kbd>), `updateAll()` via <kbd>updateplugins</kbd> |
 | `bin/cmd/aliases.ts` | Dynamic command generation from DB aliases (agent and workflow types with inference options) |
 | `bin/cmd/features.ts` | Feature execution: `executeWorkflowCmd`, `executeAgentCmd`, `executeActionCmd` |
 | `bin/cmd/callbacks.ts` | Inference event callbacks: token streaming (with **nocli** raw output support), thinking spinner, tool call lifecycle UI |
@@ -41,6 +42,8 @@ Commander.js CLI (`lm` binary) providing an interactive REPL and one-shot comman
 - **Two Execution Modes**: REPL mode (`query` loop for interactive chat) and one-shot command mode (`parseCmd` for scriptable invocations).
 
 ## Recent Changes
+- Added plugin management commands <kbd>plugin</kbd>, <kbd>init</kbd> and <kbd>updateplugins</kbd> (bin/cmd/base.ts, bin/cmd/install.ts). `init` runs `state.init(true)` to bootstrap the environment, installs the default plugins and offers to clone/build the Vue 3 UI.
+- Added `openai` and `vue-reactivity` dependencies; upgraded `@agent-smith/core`, `@agent-smith/agent`, `@agent-smith/types`, `@inquirer/prompts` and TypeScript.
 - Added `--nocli` option for raw output without CLI formatting (bin/options.ts, bin/cmd/callbacks.ts)
 - Upgraded `@agent-smith/core` to ^0.0.16, `@agent-smith/agent` to ^0.6.3
 - Updated token display logic to respect `--nocli` flag in callbacks
