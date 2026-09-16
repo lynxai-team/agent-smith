@@ -94,14 +94,6 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 backendName = backend.value.name
             }
         }
-        /* if (localOptions?.system) {
-             // in context agent
-             if (!agentSpec?.template) {
-                 agentSpec.template = { system: localOptions.system }
-             } else {
-                 agentSpec.template.system = localOptions.system
-             }
-         }*/
     }
     if (agentSpec?.template?.system && (!localOptions?.system || localOptions?.isToolCall)) {
         localOptions.system = agentSpec.template.system
@@ -247,7 +239,7 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
         let out: InferenceResult;
         //console.log("CORE EXEC AGENT", payload.prompt, "\nOPTS H", localOptions.history)
         let finalPrompt = payload.prompt;
-        if (agentSpec?.workflow?.before) {
+        if (agentSpec?.workflow?.before && agent.history.length == 0) {
             //console.log("WFB", agentSpec.workflow.before);
             const workflow = readInlineWorkflow(agentSpec.workflow.before);
             localOptions.inlineWorkflow = workflow;
