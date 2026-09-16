@@ -4,6 +4,7 @@ import { platform } from "os";
 async function execute(
     command: string,
     args: Array<string> = [],
+    cwd: string | undefined = undefined,
     {
         onStdout = (data: any): void => { },
         onStderr = (data: any): void => { },
@@ -17,7 +18,7 @@ async function execute(
     let buffer = new Array<string>();
     //console.log("Cmd args:", args)
     const useShell = platform() === 'win32';
-    const child = spawn(command, args, { shell: useShell });
+    const child = spawn(command, args, { shell: useShell, cwd: cwd });
     child.stdout.setEncoding('utf8');
     child.stdout.on('data', (data: any) => {
         buffer.push(data);
@@ -40,6 +41,7 @@ async function execute(
 function runShellCmd(
     command: string,
     args: Array<string> = [],
+    cwd: string | undefined = undefined,
     {
         onStdout = (data: any): void => { },
         onStderr = (data: any): void => { },
@@ -53,7 +55,7 @@ function runShellCmd(
         },
 ): () => boolean {
     const useShell = platform() === 'win32';
-    var child = spawn(command, args, { shell: useShell });
+    var child = spawn(command, args, { shell: useShell, cwd: cwd });
     child.stdout.setEncoding('utf8');
     child.stdout.on('data', (data: any) => onStdout(data));
     child.stderr.setEncoding('utf8');

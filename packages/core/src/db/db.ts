@@ -8,7 +8,7 @@ let db: any;
 const debugDb = false;
 
 function initDb(isVerbose: boolean, execSchema: boolean) {
-    //console.log("DBP", dbPath);
+    //console.log("INIT DB", execSchema);
     if (execSchema) {
         createDirectoryIfNotExists(confDir, true);
         db = new DatabaseConstructor(dbPath, { fileMustExist: false, verbose: debugDb ? console.log : undefined });

@@ -39,19 +39,22 @@ function initFilepaths() {
     }
 }
 
-async function init() {
+async function init(initDbSchema = false) {
+    //console.log("INIT STATE", initDbSchema);
     if (isStateReady.value) {
         return
     }
     //const perf = usePerfTimer();
-    await initState();
+    await initState(initDbSchema);
     //perf.measure("initState");
     if (!isReady.value) {
         await initBackends();
     }
     //perf.measure("initBackends");
     if (!backend.value) {
-        runtimeDataError("No backend found, can not initialize agent")
+        if (!initDbSchema) {
+            runtimeDataError("No backend found, can not initialize agent")
+        }
         return
     }
     isReady.value = true;
@@ -59,12 +62,12 @@ async function init() {
     //console.log("Agent", agent);
 }
 
-async function initState() {
+async function initState(initDbSchema = false) {
     if (isStateReady.value) {
         return
     }
     //sconsole.log("INIT STATE");    
-    initDb(false, false);
+    initDb(false, initDbSchema);
     initFilepaths();
     isStateReady.value = true;
     //console.log("State ready, available features:", readFeatures())

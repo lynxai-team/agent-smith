@@ -231,14 +231,6 @@ async function readAgent(
                 if (!options?.onConfirmToolUsage) {
                     throw new Error("provide a tool usage confirm function")
                 }
-                /*const tcr = async (tool: ToolCallSpec) => {
-                    console.log("CORE: RUN TOOL CALL CONFIRM", tool)
-                    // @ts-ignore
-                    const res = await options.onConfirmToolUsage(tool)
-                    console.log("TCR", res);
-                    return res
-                }
-                lmTool.canRun = tcr;*/
                 lmTool.canRun = options.onConfirmToolUsage;
             }
             agentSpec.tools.push(lmTool)
