@@ -3,6 +3,7 @@ import { conf, state } from "@agent-smith/core";
 import { parseCommandArgs } from "../utils.js";
 import { manageWorkspaces, processAgentCmd, processAgentsCmd, recreateDbCmd, resetDbCmd } from "./cmds.js";
 import { displayOptions, inferenceOptions } from "../options.js";
+import { installAll, installPlugin, updateAll } from "./install.js";
 
 function initBaseCommands(program: Command): Command {
     /*program.command("ping")
@@ -61,6 +62,24 @@ function initBaseCommands(program: Command): Command {
         .description("regenerate the database from the current registered config file")
         .action(async (...args: Array<any>) => {
             await recreateDbCmd()
+        });
+    program.command("plugin <name>")
+        .description("install a plugin. Provide the plugin's npm package name")
+        .action(async (...args: Array<any>) => {
+            const ca = parseCommandArgs(args);
+            await installPlugin(ca.args, ca.options)
+        });
+    program.command("init")
+        .description("install plugins and the optional graphical user interface")
+        .action(async (...args: Array<any>) => {
+            const ca = parseCommandArgs(args);
+            await installAll(ca.args, ca.options)
+        });
+    program.command("updateplugins")
+        .description("update the plugins")
+        .action(async (...args: Array<any>) => {
+            const ca = parseCommandArgs(args);
+            await updateAll(ca.args, ca.options)
         });
     const wsCmd = program.command("ws")
         .description("manage the workspaces")

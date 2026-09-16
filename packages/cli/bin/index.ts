@@ -22,7 +22,11 @@ async function main() {
         }
     }
     //perf.measure("base");
-    await state.init();
+    if (argv[2] == "init") {
+        await state.init(true);
+    } else {
+        await state.init();
+    }
     //perf.measure("init");
     const program = await buildCmds();
     //perf.measure("buildCmds");
