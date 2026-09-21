@@ -15,7 +15,8 @@ arguments:
 import { useAgentExecutor } from "../../agents/useagent.js";
 
 async function action(args, options) {
-    //console.log("RC OPTS IN", options);
+    console.log("RC OPTS IN", options);
+    //console.log("ARGS", args);
     const errb = new Array();
     if (!args?.prompt) {
         errb.push(`loading collaborator: provide an collaborator prompt`);
@@ -27,14 +28,16 @@ async function action(args, options) {
         throw new Error(errb.join(" "));
     }
     const aOpts = { ...options };
+    aOpts.agentType = "worker";
     if (!aOpts?.system) {
         console.warn(`loading collaborator ${args.name}: no system in opts`);
     }
     if (aOpts.caller == "collaborator") {
         return "you can not run collaborators while beeing in collaborator mode already. Answer directly.";
     }
+    aOpts.variables = { role: args.role, ...options.variables };
     //console.log("Run collab **********************", aOpts.caller, args.role);
-    //console.log("RC OPTS OUT", aOpts.caller, aOpts);
+    console.log("RC OPTS OUT", aOpts.caller, aOpts);
     const ax = await useAgentExecutor("collaborator", args, aOpts);
     const res = await ax.execute();
     //console.log("AH", ax.agent.history);

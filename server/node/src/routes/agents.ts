@@ -30,7 +30,7 @@ function getAgentRoute(r: Router) {
         await state.init();
         //console.log(ctx.params.id)
         try {
-            const { agentSpec } = await utils.readAgent(ctx.params.id, { prompt: "" }, {});
+            const { agentSpec } = await utils.readAgent(ctx.params.id, { prompt: "" }, { onConfirmToolUsage: async (t) => false });
             ctx.body = agentSpec;
             ctx.status = 200;
         }

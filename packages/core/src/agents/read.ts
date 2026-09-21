@@ -18,9 +18,9 @@ async function readAgent(
     mcpServers: Array<McpClient>;
     agentDir: string;
 }> {
-    /*console.log("Read Agent", name);
-    console.log("Payload:", payload);
-    console.log("Options:", options);*/
+    //console.log("Read Agent", name);
+    //console.log("Payload:", payload);
+    //console.log("Options:", options);
     const { agentSpec, agentPath } = openAgentSpec(name);
     agentSpec.isEditable = true;
     const pluginsPaths = await getPluginsPaths();
@@ -198,6 +198,7 @@ async function readAgent(
                 ...tool,
                 execute: async (params) => {
                     //console.log("EXEC TOOL:", toolName, params);
+                    //console.log("OPTS", options);
                     let toolOpts = { ...options };
                     if (params?.toolOptions) {
                         toolOpts = params.toolOptions;
@@ -229,6 +230,7 @@ async function readAgent(
             }
             if (!autoRunTool) {
                 if (!options?.onConfirmToolUsage) {
+                    //console.error("OPTIONS", options);
                     throw new Error("provide a tool usage confirm function")
                 }
                 lmTool.canRun = options.onConfirmToolUsage;

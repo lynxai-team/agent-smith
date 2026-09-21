@@ -1,4 +1,4 @@
-import type { AgentCallbacks, AgentParams, AgentSpec, ClientInferenceOptions, HistoryTurn, InferenceCallbacks, InferenceResult, ToolCallSpec, ToolSpec, ToolTurn, VerbosityOptions } from "@agent-smith/types";
+import type { AgentCallbacks, AgentParams, AgentSpec, ClientInferenceOptions, HistoryTurn, InferenceCallbacks, InferenceResult, InferenceStats, ToolCallSpec, ToolSpec, ToolTurn, VerbosityOptions } from "@agent-smith/types";
 import type { AgentInferenceOptions, PerformanceMetrics } from "@agent-smith/types";
 import { Lm } from "./client.js";
 import { convertStats } from "./stats.js";
@@ -80,7 +80,8 @@ class Agent {
             this.history = [hist];
             console.log("END AGENT TC HIST", this.name, localOptions.history);
         } else*/
-        if (localOptions?.history && !localOptions?.isToolCall) {
+        //console.log("AGENT IN OPTS", localOptions);
+        if (localOptions?.history) {
             this.history = localOptions.history;
         }
         this.tools = {};
@@ -97,7 +98,15 @@ class Agent {
             if (!options?.isToolCall) {
                 if (!localOptions?.model) {
                     if (!this.spec?.model) {
-                        throw new Error(`${this.name}: provide a model in agent spec or runtime options`)
+                        const msg = `${this.name}: provide a model in agent spec or runtime options`;
+                        console.error(msg);
+                        if (localOptions?.onError) {
+                            localOptions.onError(msg, this.name)
+                            // @ts-ignore
+                            return { text: "", stats: {} }
+                        } else {
+                            throw new Error(msg)
+                        }
                     }
                     localOptions.model = this.spec.model;
                 }
@@ -117,7 +126,6 @@ class Agent {
                 if (this.spec?.tools) {
                     localOptions.tools = this.spec.tools;
                 }
-                localOptions.history = []
             }
             //console.log("OPTS", this.name, localOptions);
             /*console.log("M", localOptions?.model);
@@ -178,7 +186,10 @@ class Agent {
             ...localOptions,
         };
         baseOpts.tools = Object.values(this.tools);
-        baseOpts.history = this.history;
+        if (!baseOpts?.history) {
+            baseOpts.history = this.history;
+        }
+        //console.log("BASE OPTS", baseOpts);
         // check start assistant message
         if (this.spec?.template?.assistant) {
             baseOpts.history.push({
@@ -200,6 +211,7 @@ class Agent {
             console.log("----------------------------------------------")
         }*/
         //console.log("AGENT CLIENT OPS", clientOpts);
+        //console.log("AGENT", this);
         //console.log("PROMPT:", prompt);
         const res = await this.lm.infer(prompt, clientOpts);
         //console.log("END AGENT CLIENT OPS", clientOpts);
@@ -264,6 +276,7 @@ class Agent {
                         //console.log("TCT", this.tools[tc.name]);                        
                         events.onToolCall(tc, type, this.name);
                     }
+                    //console.log("PTH", this.history);
                     const f = async () => {
                         //console.log("EXEC TOOL", tc.name);
                         let toolCallResult: any;
@@ -273,20 +286,21 @@ class Agent {
                                 [key: string]: any
                             } | undefined = { ...tc.arguments };*/
                             const toolCallOpts = { ...localOptions, ...tc.arguments };
-                            //console.log("TCO", toolCallOpts);
+                            //console.log("TOOL AT", tool.name, tool.agentType);
                             //if (["agent", "workflow"].includes(tool.type)) {
                             if (tool?.agentType !== "worker") {
                                 // discard history
                                 toolCallOpts.history = []
+                            } else {
+                                toolCallOpts.history = this.history;
+                                /*if (toolCallOpts?.system) {
+                                    delete toolCallOpts.system
+                                }
+                                if (toolCallOpts?.tools) {
+                                    delete toolCallOpts.tools
+                                }*/
                             }
-                            //else {
-                            if (toolCallOpts?.system) {
-                                delete toolCallOpts.system
-                            }
-                            if (toolCallOpts?.tools) {
-                                delete toolCallOpts.tools
-                            }
-                            //}
+                            //console.log("TCO", toolCallOpts);
                             toolCallOpts.caller = this.name;
                             //console.log("TC TYPE", tool.name, tool.type, "/", tool?.agentType);
                             //console.log("EXEC TC OPTs", tc.name, tool?.type, tool?.agentType, "c=" + toolCallArgs.toolOptions?.caller);
@@ -341,14 +355,14 @@ class Agent {
                         syncTools.push(f);
                     }
                 } else {
+                    const msg = `[Error] the execution permission for the ${tool.name} tool was denied`;
                     // record a synthetic result so the history never ends with an unresolved tool call
-                    toolsResults.push({ call: tc, response: `[Tool ${tool.name} execution refused]`, from: this.name, type: tool.type });
+                    toolsResults.push({ call: tc, response: msg.toString(), from: this.name, type: tool.type });
                     if (verbosity?.events) {
-                        const m = `[-] Tool", ${tool.name}, "execution refused`;
                         if (events?.onToolCallEnd) {
-                            events.onToolCallEnd(tc, m, this.tools[tc.name].type, this.name)
+                            events.onToolCallEnd(tc, msg, this.tools[tc.name].type, this.name)
                         }
-                        console.log(m);
+                        console.log(msg);
                     }
                 }
             }
