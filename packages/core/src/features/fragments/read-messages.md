@@ -1,0 +1,1 @@
+Check for relevant messages in the `/workspace/.agents/board` directory before you start (to all or to you). Use the message board to communicate with agents. 

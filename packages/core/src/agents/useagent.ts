@@ -1,47 +1,65 @@
-import { Agent, type Lm } from "@agent-smith/agent";
-import { WorkflowStep, type AgentInferenceOptions, type AgentSettings, type InferenceResult } from "@agent-smith/types";
-import { compile, serializeGrammar } from "@intrinsicai/gbnfgen";
+import { Agent } from "@agent-smith/agent";
+import { type AgentInferenceOptions, type AgentSettings, type InferenceResult } from "@agent-smith/types";
+import { toRaw } from "@vue/reactivity";
+import { default as fm } from "front-matter";
+import { readAllSkills } from "../db/read.js";
+import { executeWorkflow } from "../main.js";
 import { backend, backends, listBackends } from "../state/backends.js";
-import { initAgentSettings, isAgentSettingsInitialized, agentSettings } from "../state/tasks.js";
+import { agentSettings, initAgentSettings, isAgentSettingsInitialized } from "../state/tasks.js";
 import { processOutput } from "../utils/io.js";
 import { usePerfTimer } from "../utils/perf.js";
-import { runtimeDataError, runtimeError } from "../utils/user_msgs.js";
-import { readAgent } from "./read.js";
-import { toRaw } from "@vue/reactivity";
-import { readAllSkills } from "../db/read.js";
-import { default as fm } from "front-matter";
 import { readFile } from "../utils/sys/read.js";
-import { executeWorkflow } from "../main.js";
+import { runtimeDataError, runtimeError } from "../utils/user_msgs.js";
 import { readInlineWorkflow } from "../utils/workflow.js";
+import { readAgent } from "./read.js";
 
 const useAgentExecutor = async (name: string, payload: { prompt: string } & Record<string, any>, options: AgentInferenceOptions) => {
     const localOptions = Object.assign({}, options) as AgentInferenceOptions & Record<string, any>;
+    const { agentSpec, vars, mcpServers, agentDir } = await readAgent(name, payload, localOptions);
+    if (agentSpec?.template?.system && (!localOptions?.system || localOptions?.isToolCall)) {
+        localOptions.system = agentSpec.template.system;
+    }
     // skill loader
-    if (payload.prompt.includes("%")) {
+    let injectInSystemPrompt = "";
+    if (payload.prompt.includes("%") || localOptions.system?.includes("%")) {
         const skills = readAllSkills();
+        //console.log("SKILLS", Object.keys(skills));
         for (const [k, v] of Object.entries(skills)) {
-            // Escape special regex characters in the skill name
-            const escapedK = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            // Use regex with negative lookahead to ensure exact skill name match
-            // (?![a-zA-Z0-9-]) ensures "%create" doesn't match inside "%create-2"
-            const regex = new RegExp(`%${escapedK}(?![a-zA-Z0-9-])`, 'g');
-
-            if (regex.test(payload.prompt)) {
+            //console.log("Check skill", k);
+            if (payload.prompt.includes("%" + k)) {
                 const fc = readFile(v.path);
                 // @ts-ignore
-                const data = fm(fc);
-                payload.prompt = payload.prompt.replace(new RegExp(`%${escapedK}(?![a-zA-Z0-9-])`, 'g'), data.body);
-                if (localOptions?.debug) {
-                    console.log(`loading skill ${k} in prompt`)
+                const data = fm(fc).body;
+                //console.log("DATA", data);
+                if (!payload.prompt.includes("%" + k + "$")) {
+                    payload.prompt = payload.prompt.replace("%" + k, data);
+                } else {
+                    payload.prompt = payload.prompt.replace("%" + k + "$", "").trim();
+                    injectInSystemPrompt = injectInSystemPrompt.length == 0 ? data : injectInSystemPrompt + "\n\n" + data;
                 }
-                break;
+            }
+            if (localOptions?.system) {
+                console.log("%" + k, localOptions.system.includes("%" + k))
+                if (localOptions.system.includes("%" + k)) {
+                    const fc = readFile(v.path);
+                    // @ts-ignore
+                    const data = fm(fc).body;
+                    localOptions.system = localOptions.system.replace("%" + k, data);
+                }
             }
         }
     }
-    const { agentSpec, vars, mcpServers, agentDir } = await readAgent(name, payload, localOptions);
+    if (injectInSystemPrompt.length > 0) {
+        if (!localOptions?.system) {
+            localOptions.system = injectInSystemPrompt
+        } else {
+            localOptions.system = localOptions.system + "\n\n" + injectInSystemPrompt
+        }
+    }
     if (!isAgentSettingsInitialized.value) {
         initAgentSettings()
     }
+    //console.log("EA OPTS", name, localOptions);
     const hasSettings = Object.keys(agentSettings).includes(name);
     let settings: AgentSettings = {};
     // backend
@@ -49,7 +67,6 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
     if (hasSettings) {
         settings = agentSettings[name]
     }
-    //console.log("EA OPTS", localOptions);
     if (!localOptions?.isToolCall) {
         if (localOptions?.backend) {
             //console.log("BK from options", localOptions.backend);
@@ -61,7 +78,6 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
             if (agentSpec?.backend) {
                 //console.log("BK from spec", agentSpec.backend);
                 backendName = agentSpec.backend
-
             } else {
                 // fallback to default backend
                 if (!backend.value?.name) {
@@ -74,29 +90,35 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 backendName = backend.value.name;
             }
     } else {
-        if (localOptions?.propagateBackend) {
-            if (!localOptions?.backend) {
-                const m = `${name} agent executor: set a backend in options if propagateBackend is true`;
-                console.error(m);
-                throw new Error(m)
+        if (localOptions?.useAgentSettings === true) {
+            if (hasSettings) {
+                //console.log("SET backend from settings", name, settings)
+                backendName = settings.backend!;
             }
-            backendName = localOptions.backend
         } else {
-            if (agentSpec?.backend) {
-                backendName = agentSpec.backend
-            } else {
-                // if not specified use the default backend
-                if (!backend.value) {
-                    const m = `${name} agent executor: no default backend or agent spec backend specified for propagateBackend false.`;
-                    console.error(m, "Default backend:", toRaw(backend), "Backends:", toRaw(backends));
+            if (localOptions?.propagateBackend) {
+                if (!localOptions?.backend) {
+                    const m = `${name} agent executor: set a backend in options if propagateBackend is true`;
+                    console.error(m);
                     throw new Error(m)
                 }
-                backendName = backend.value.name
+                backendName = localOptions.backend
+            } else {
+                if (localOptions?.backend) {
+                    backendName = localOptions.backend;
+                } else if (agentSpec?.backend) {
+                    backendName = agentSpec.backend
+                } else {
+                    // if not specified use the default backend
+                    if (!backend.value) {
+                        const m = `${name} agent executor: no default backend or agent spec backend specified for propagateBackend false.`;
+                        console.error(m, "Default backend:", toRaw(backend), "Backends:", toRaw(backends));
+                        throw new Error(m)
+                    }
+                    backendName = backend.value.name
+                }
             }
         }
-    }
-    if (agentSpec?.template?.system && (!localOptions?.system || localOptions?.isToolCall)) {
-        localOptions.system = agentSpec.template.system
     }
     if (!(backendName in backends)) {
         const bks = await listBackends(false);
@@ -114,14 +136,17 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
         name: name,
         lm: backends[backendName],
     }, agentSpec);
-    //console.log("AGENT BK", backends[backendName], "\nagb:", agent.lm.name)
-    if (!localOptions?.model && !options?.propagateModel) {
+    //console.log("SM", name, hasSettings, localOptions?.useAgentSettings);
+    if (hasSettings && localOptions?.useAgentSettings) {
+        localOptions.model = settings.model;
+    } else if (!localOptions?.model && !options?.propagateModel) {
         if (hasSettings) {
             if (settings?.model) {
                 localOptions.model = settings.model;
             }
         }
     }
+    //console.log("M", localOptions.model)
 
     const execute = async (): Promise<InferenceResult> => {
         //console.log("EXEC AGENT OPTS", localOptions);
@@ -136,14 +161,16 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
                 console.log("MCP start", mcp.name);
             }
         }
-        if (!localOptions?.params) {
-            localOptions.params = {}
-        }
         let applySettings = hasSettings;
         if (localOptions?.isToolCall) {
-            if (!localOptions?.propagateInferParams) {
+            if (localOptions?.useAgentSettings) {
+                localOptions.params = {}
+            } else if (!localOptions?.propagateInferParams) {
                 applySettings = false;
             }
+        }
+        if (!localOptions?.params) {
+            localOptions.params = {}
         }
         if (applySettings) {
             if (settings?.max_tokens && !localOptions?.params?.max_tokens) {
@@ -175,12 +202,6 @@ const useAgentExecutor = async (name: string, payload: { prompt: string } & Reco
             }
         }
         //console.log("TASK MODEL", model);
-        // check for grammars
-        if (localOptions.params?.tsGrammar) {
-            //console.log("TSG");
-            localOptions.params.grammar = serializeGrammar(await compile(localOptions.params.tsGrammar, "Grammar"));
-            delete localOptions.params.tsGrammar;
-        }
         let c = false;
         /*if (localOptions?.verbosity?.task) {
             console.log("Task model:", localOptions.model);

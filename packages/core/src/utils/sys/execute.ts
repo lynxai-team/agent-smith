@@ -13,8 +13,7 @@ async function execute(
     } = {
             onStderr: (data) => console.log("stderr:", data),
             onError: (err) => { if (err) throw err },
-        },
-): Promise<string> {
+        }): Promise<string> {
     let buffer = new Array<string>();
     //console.log("Cmd args:", args)
     const useShell = platform() === 'win32';

@@ -1,0 +1,16 @@
+description: A collaborator agent
+category: internal/experimental
+type: worker
+prompt: |-
+    You are on collaborator mode. Your role is: {role}. Main agent request:
+
+    {prompt}
+model: qwen35b
+variables:
+    required:
+        workspace:
+            description: The local directory path where to operate
+        role:
+            description: The role of the collaborator
+
+

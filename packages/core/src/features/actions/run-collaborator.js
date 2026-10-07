@@ -15,7 +15,7 @@ arguments:
 import { useAgentExecutor } from "../../agents/useagent.js";
 
 async function action(args, options) {
-    console.log("RC OPTS IN", options);
+    //console.log("RC OPTS IN", options);
     //console.log("ARGS", args);
     const errb = new Array();
     if (!args?.prompt) {
@@ -37,7 +37,7 @@ async function action(args, options) {
     }
     aOpts.variables = { role: args.role, ...options.variables };
     //console.log("Run collab **********************", aOpts.caller, args.role);
-    console.log("RC OPTS OUT", aOpts.caller, aOpts);
+    //console.log("RC OPTS OUT", aOpts.caller, aOpts);
     const ax = await useAgentExecutor("collaborator", args, aOpts);
     const res = await ax.execute();
     //console.log("AH", ax.agent.history);

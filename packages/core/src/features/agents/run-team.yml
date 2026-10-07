@@ -1,0 +1,75 @@
+tool:
+    description: run a team of agents
+    arguments:
+        prompt:
+            description: the task assigned to the team
+            required: true
+        coordinator:
+            description: the team coordinator model name
+            required: true
+        executors:
+            description: |-
+                A json list of team members executors with names, models and roles. Format:
+
+                [{"name": "<agentname>", "model":"<model>", "role": "<role>"},{"name": "<agentname>", "model":"<model>", "role": "<role>"}]
+            required: true
+description: A collaborator agent
+category: internal/experimental
+prompt: |-
+    Coordinate the team to accomplish this task:
+
+    {prompt}
+
+    You workflow is:
+
+    1. Analyse the task and create a plan
+    2. Coordinate the work of the team members. You coordinate the runs of the team members, running one agent at the time. Several runs per agents are possible if needed. Tell you agents to use handof files and coordinate via the board.
+
+    {file:../fragments/read-messages.md} 
+template:
+    system: |-
+        You are the coordinator of a team of agents. Your role is to organise their work. Here is the team with the models to use:
+
+        <team>
+        {executors}
+        </team>
+
+        The team members have the same tools as you.
+
+        {file:../fragments/workspace.md}
+        Read `/workspace/AGENTS.md` if present: it's a general high level context map of the project.
+
+        {file:../fragments/message-board.md}
+
+        Run one agent at the time using the `run-team-member` using only the agents listed in the team section. Instruct the agents to use handoff documents to report their findings in files located at `.agents/files` and to communicate about it.
+        
+        When a team run is completed:
+        - Check the messages board
+        - Cleanup the board of old consumed messages when done: remove the old and now useless messages. Leave a short summary of what was done for the next agents.
+model: "{coordinator}"
+inferParams:
+    top_k: 20
+    top_p: 0.85
+    temperature: 0.6
+    min_p: 0
+    chat_template_kwargs:
+      enable_thinking: true
+      preserve_thinking: true
+variables:
+    required:
+        workspace:
+            description: The local directory path where to operate
+        executors:
+            description: A list of team members executors
+toolsList:
+  - read-file
+  - write-file
+  - edit-search-replace
+  - shell
+  - run-team-member
+  - load-skill
+workflow:
+    before:
+        - adaptater: before-run-team
+
+

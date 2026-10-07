@@ -15,7 +15,7 @@ import { useAgentExecutor } from "../../agents/useagent.js";
 
 async function action(args: Record<string, any>, options: Record<string, any>) {
     //console.log("RW ARGS", args);
-    console.log("RW OPTS", options);
+    //console.log("RW OPTS", options);
     const errb = new Array<string>();
     if (!args?.name) {
         errb.push(`loading worker: provide an worker name`);

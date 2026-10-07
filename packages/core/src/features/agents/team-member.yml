@@ -1,0 +1,40 @@
+description: A collaborator agent
+category: internal/experimental
+type: subagent
+prompt: |-
+    {prompt}
+
+    {file:../fragments/read-messages.md}
+template:
+    system: |-        
+        You are {name}. Your role is: {role}. You are working with a team of agents:
+
+        {team}
+
+        {file:../fragments/workspace.md}
+        Read `/workspace/AGENTS.md` if present: it's a general high level context map of the project.
+                
+        {file:../fragments/message-board.md}
+        To report your findings use files located at `.agents/files` and to communicate about it. Answer only wih a very short summary and reference the files and messages you created.
+model: "{model}"
+inferParams:
+    top_k: 20
+    top_p: 0.85
+    temperature: 0.6
+    min_p: 0
+    chat_template_kwargs:
+      enable_thinking: true
+      preserve_thinking: true
+variables:
+    required:
+        workspace:
+            description: The local directory path where to operate
+toolsList:
+  - read-file
+  - write-file
+  - edit-search-replace
+  - shell
+  - python
+  - load-skill
+
+
