@@ -44,8 +44,13 @@ function applyVariables(agentSpec: AgentSpec, options: AgentInferenceOptions): A
         // apply variables
         for (const [k, v] of Object.entries(options.variables)) {
             //console.log("APPLY", k, v);
+            if (agentSpec?.model == `{${k}}`) {
+                agentSpec.model = v;
+            }
             agentSpec.prompt = agentSpec.prompt.replaceAll(`{${k}}`, v);
-            if (agentSpec.template?.system) {
+            if (options?.system) {
+                options.system = options.system.replaceAll(`{${k}}`, v)
+            } else if (agentSpec.template?.system) {
                 agentSpec.template.system = agentSpec.template.system.replaceAll(`{${k}}`, v);
             }
             if (agentSpec?.shots) {

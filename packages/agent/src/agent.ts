@@ -1,4 +1,4 @@
-import type { AgentCallbacks, AgentParams, AgentSpec, ClientInferenceOptions, HistoryTurn, InferenceCallbacks, InferenceResult, InferenceStats, ToolCallSpec, ToolSpec, ToolTurn, VerbosityOptions } from "@agent-smith/types";
+import type { AgentCallbacks, AgentParams, AgentSettings, AgentSpec, ClientInferenceOptions, HistoryTurn, InferenceCallbacks, InferenceResult, InferenceStats, ToolCallSpec, ToolSpec, ToolTurn, VerbosityOptions } from "@agent-smith/types";
 import type { AgentInferenceOptions, PerformanceMetrics } from "@agent-smith/types";
 import { Lm } from "./client.js";
 import { convertStats } from "./stats.js";
@@ -65,9 +65,9 @@ class Agent {
 
     async run(
         prompt: string,
-        options: AgentInferenceOptions = {},
+        options: AgentInferenceOptions & Record<string, any> = {},
     ): Promise<InferenceResult> {
-        let localOptions: AgentInferenceOptions = Object.assign({}, options);
+        let localOptions: AgentInferenceOptions & Record<string, any> = Object.assign({}, options);
         //console.log("AGENT OPTS IN", localOptions);
         /*if (localOptions?.isToolCall) {
             console.log("START AGENT TC HIST", this.name, localOptions.history);
@@ -94,6 +94,7 @@ class Agent {
         //console.log("================= Agent", this.name, "OPTS", localOptions);
         //console.log("Agent", this.name, "SPEC", this.spec);
         if (this?.spec) {
+            applyVariables(this.spec, localOptions);
             // model
             if (!options?.isToolCall) {
                 if (!localOptions?.model) {
@@ -118,13 +119,24 @@ class Agent {
                     if (!this.spec?.model) {
                         throw new Error(`${this.name} subagent: provide a model in subagent spec or set propagateModel from main agent to true`)
                     }
-                    localOptions.model = this.spec.model;
+                    if (!options?.useAgentSettings) {
+                        localOptions.model = this.spec.model;
+                    }
                 }
                 if (!options?.propagateInferParams) {
-                    localOptions.params = this.spec.inferParams;
+                    if (!options?.useAgentSettings) {
+                        localOptions.params = this.spec.inferParams;
+                    }
                 }
                 if (this.spec?.tools) {
                     localOptions.tools = this.spec.tools;
+                }
+            }
+            // dynamic model name using variable substitution
+            if (localOptions?.model?.startsWith("{")) {
+                const varname = localOptions.model.trim().substring(1, localOptions.model.length - 1);
+                if (Object.keys(options).includes(varname)) {
+                    localOptions.model = options[varname];
                 }
             }
             //console.log("OPTS", this.name, localOptions);
@@ -132,7 +144,7 @@ class Agent {
             console.log("B", localOptions?.backend);
             console.log("ASB", this?.spec?.backend);*/
             // variables
-            applyVariables(this.spec, localOptions);
+
             //console.log("IPOPTS", localOptions?.params);
             //console.log("SPECOPTS", this?.spec?.name, this?.spec?.inferParams);
             // prompt
@@ -140,21 +152,21 @@ class Agent {
             if (this.spec?.description) {
                 localOptions.isToolsRouter = this.spec.description.includes("routing agent")
             }
-            if (this.spec.template?.system) {
+            if (this.spec.template?.system && !localOptions?.system) {
                 localOptions.system = this.spec.template.system;
             }
             if (this.spec?.shots) {
                 localOptions.history = localOptions?.history ? [...this.spec.shots, ...localOptions.history] : this.spec.shots;
             }
         }
-        //console.log("OPTS MODEL FINAL", localOptions?.model);
+        //console.log("OPTS AGENT FINAL", localOptions);
         return await this._runAgent(1, finalPrompt, localOptions)
     }
 
     private async _runAgent(
         it: number,
         prompt: string,
-        localOptions: AgentInferenceOptions,
+        localOptions: AgentInferenceOptions & Record<string, any>,
     ) {
         const verbosity: VerbosityOptions = localOptions?.verbosity ?? { events: true };
         //console.log("START RUN AGENT", this.name);
@@ -282,25 +294,19 @@ class Agent {
                         let toolCallResult: any;
                         let ok = false;
                         try {
-                            /*let toolCallArgs: {
-                                [key: string]: any
-                            } | undefined = { ...tc.arguments };*/
                             const toolCallOpts = { ...localOptions, ...tc.arguments };
-                            //console.log("TOOL AT", tool.name, tool.agentType);
-                            //if (["agent", "workflow"].includes(tool.type)) {
                             if (tool?.agentType !== "worker") {
                                 // discard history
                                 toolCallOpts.history = []
-                            } else {
-                                toolCallOpts.history = this.history;
-                                /*if (toolCallOpts?.system) {
+                                if (toolCallOpts?.system) {
                                     delete toolCallOpts.system
                                 }
                                 if (toolCallOpts?.tools) {
                                     delete toolCallOpts.tools
-                                }*/
+                                }
+                            } else {
+                                toolCallOpts.history = this.history;
                             }
-                            //console.log("TCO", toolCallOpts);
                             toolCallOpts.caller = this.name;
                             //console.log("TC TYPE", tool.name, tool.type, "/", tool?.agentType);
                             //console.log("EXEC TC OPTs", tc.name, tool?.type, tool?.agentType, "c=" + toolCallArgs.toolOptions?.caller);

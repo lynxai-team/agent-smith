@@ -210,9 +210,6 @@ class Lm implements LmProvider {
             inferenceParams.max_completion_tokens = params.max_tokens;
             delete inferenceParams.max_tokens;
         }
-        if (localOptions?.model) {
-            this.model = localOptions.model;
-        }
         if (verbosity?.options) {
             console.log("Options", localOptions);
         }
@@ -287,7 +284,7 @@ class Lm implements LmProvider {
             const ip: ChatCompletionCreateParamsNonStreaming = {
                 // @ts-ignore
                 messages: msgs,
-                model: this.model,
+                model: localOptions?.model ?? this.model,
                 parallel_tool_calls: true,
                 ...inferenceParams,
             };
@@ -334,7 +331,7 @@ class Lm implements LmProvider {
             const ip: ChatCompletionCreateParamsStreaming & { return_progress?: boolean } = {
                 // @ts-ignore
                 messages: msgs,
-                model: this.model,
+                model: localOptions?.model ?? this.model,
                 parallel_tool_calls: true,
                 ...inferenceParams,
                 stream: true,
