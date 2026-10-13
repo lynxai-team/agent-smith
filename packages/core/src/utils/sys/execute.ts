@@ -4,7 +4,7 @@ import { platform } from "os";
 async function execute(
     command: string,
     args: Array<string> = [],
-    cwd: string | undefined = undefined,
+    env: Record<string, any> = {},
     {
         onStdout = (data: any): void => { },
         onStderr = (data: any): void => { },
@@ -17,7 +17,7 @@ async function execute(
     let buffer = new Array<string>();
     //console.log("Cmd args:", args)
     const useShell = platform() === 'win32';
-    const child = spawn(command, args, { shell: useShell, cwd: cwd });
+    const child = spawn(command, args, { shell: useShell, ...env });
     child.stdout.setEncoding('utf8');
     child.stdout.on('data', (data: any) => {
         buffer.push(data);

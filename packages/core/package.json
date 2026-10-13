@@ -1,6 +1,6 @@
 {
   "name": "@agent-smith/core",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "description": "Agent Smith core",
   "repository": "https://github.com/synw/agent-smith",
   "scripts": {
